@@ -1,13 +1,19 @@
-import { BarChart3, TrendingUp, Award, Calendar } from "lucide-react";
+import { BarChart3, TrendingUp, Award, Calendar, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useProfile } from "@/hooks/useProfile";
+import { useNavigate } from "react-router-dom";
 
 const Statistics = () => {
-  const stats = {
-    satScore: null as number | null,
-    ieltsScore: null as number | null,
-    totalXP: 0,
-    daysActive: 0,
-  };
+  const { profile, loading } = useProfile();
+  const navigate = useNavigate();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -29,11 +35,18 @@ const Statistics = () => {
             <h2 className="font-semibold">XP за последние 7 дней</h2>
           </div>
           <div className="h-48 bg-muted/50 rounded-xl flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Начните выполнять задания</p>
-              <p className="text-xs">чтобы увидеть прогресс</p>
-            </div>
+            {(profile?.xp || 0) > 0 ? (
+              <div className="text-center">
+                <div className="text-4xl font-bold text-primary mb-2">{profile?.xp}</div>
+                <p className="text-sm text-muted-foreground">Всего XP заработано</p>
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground">
+                <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Начните выполнять задания</p>
+                <p className="text-xs">чтобы увидеть прогресс</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -45,10 +58,10 @@ const Statistics = () => {
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">SAT Score</span>
             </div>
             <div className="text-3xl font-bold">
-              {stats.satScore ?? "N/A"}
+              {profile?.sat_score ?? "N/A"}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {stats.satScore ? `Из 1600` : "Добавьте результат"}
+              {profile?.sat_score ? `Из 1600` : "Добавьте в настройках"}
             </p>
           </div>
 
@@ -58,10 +71,10 @@ const Statistics = () => {
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">IELTS</span>
             </div>
             <div className="text-3xl font-bold">
-              {stats.ieltsScore ?? "N/A"}
+              {profile?.ielts_score ?? "N/A"}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {stats.ieltsScore ? `Из 9.0` : "Добавьте результат"}
+              {profile?.ielts_score ? `Из 9.0` : "Добавьте в настройках"}
             </p>
           </div>
         </div>
@@ -69,27 +82,33 @@ const Statistics = () => {
         {/* Summary Stats */}
         <div className="gamification-card animate-slide-up" style={{ animationDelay: "0.2s" }}>
           <h2 className="font-semibold mb-4">Общая статистика</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="p-4 bg-secondary/50 rounded-xl text-center">
-              <div className="text-2xl font-bold text-primary">{stats.totalXP}</div>
+              <div className="text-2xl font-bold text-primary">{profile?.xp || 0}</div>
               <div className="text-xs text-muted-foreground">Всего XP</div>
             </div>
             <div className="p-4 bg-secondary/50 rounded-xl text-center">
-              <div className="text-2xl font-bold text-primary">{stats.daysActive}</div>
-              <div className="text-xs text-muted-foreground">Дней активности</div>
+              <div className="text-2xl font-bold text-primary">{profile?.level || 1}</div>
+              <div className="text-xs text-muted-foreground">Уровень</div>
+            </div>
+            <div className="p-4 bg-secondary/50 rounded-xl text-center">
+              <div className="text-2xl font-bold text-accent">{profile?.streak || 0}</div>
+              <div className="text-xs text-muted-foreground">Дн. серия</div>
             </div>
           </div>
         </div>
 
         {/* Add Score CTA */}
-        <div className="text-center py-4 animate-slide-up" style={{ animationDelay: "0.3s" }}>
-          <p className="text-sm text-muted-foreground mb-3">
-            Добавьте свои результаты тестов в настройках
-          </p>
-          <Button variant="outline" size="sm">
-            Добавить результаты
-          </Button>
-        </div>
+        {(!profile?.sat_score && !profile?.ielts_score) && (
+          <div className="text-center py-4 animate-slide-up" style={{ animationDelay: "0.3s" }}>
+            <p className="text-sm text-muted-foreground mb-3">
+              Добавьте свои результаты тестов в настройках
+            </p>
+            <Button variant="outline" size="sm" onClick={() => navigate("/settings")}>
+              Добавить результаты
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   );

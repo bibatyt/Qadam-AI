@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { User, Upload, Shuffle, LogOut, Check } from "lucide-react";
+import { useState, useEffect } from "react";
+import { User, Upload, Shuffle, LogOut, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 
 const languages = [
   { code: "en", label: "English" },
@@ -13,22 +15,96 @@ const languages = [
 ];
 
 const Settings = () => {
-  const [name, setName] = useState("beybaris");
-  const [selectedLang, setSelectedLang] = useState("ru");
+  const { signOut } = useAuth();
+  const { profile, loading, updateProfile } = useProfile();
   const navigate = useNavigate();
 
-  const handleSave = () => {
-    toast.success("Настройки сохранены!");
+  const [name, setName] = useState("");
+  const [selectedLang, setSelectedLang] = useState("ru");
+  const [satScore, setSatScore] = useState("");
+  const [ieltsScore, setIeltsScore] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setName(profile.name || "");
+      setSelectedLang(profile.language || "ru");
+      setSatScore(profile.sat_score?.toString() || "");
+      setIeltsScore(profile.ielts_score?.toString() || "");
+    }
+  }, [profile]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    const { error } = await updateProfile({ name });
+    setSaving(false);
+    
+    if (error) {
+      toast.error("Ошибка при сохранении");
+    } else {
+      toast.success("Настройки сохранены!");
+    }
   };
 
-  const handleLogout = () => {
+  const handleLanguageChange = async (lang: string) => {
+    setSelectedLang(lang);
+    await updateProfile({ language: lang });
+    toast.success("Язык изменён");
+  };
+
+  const handleSaveScores = async () => {
+    setSaving(true);
+    const updates: { sat_score?: number | null; ielts_score?: number | null } = {};
+    
+    if (satScore) {
+      const sat = parseInt(satScore);
+      if (sat >= 400 && sat <= 1600) {
+        updates.sat_score = sat;
+      } else {
+        toast.error("SAT должен быть от 400 до 1600");
+        setSaving(false);
+        return;
+      }
+    } else {
+      updates.sat_score = null;
+    }
+
+    if (ieltsScore) {
+      const ielts = parseFloat(ieltsScore);
+      if (ielts >= 1 && ielts <= 9) {
+        updates.ielts_score = ielts;
+      } else {
+        toast.error("IELTS должен быть от 1 до 9");
+        setSaving(false);
+        return;
+      }
+    } else {
+      updates.ielts_score = null;
+    }
+
+    const { error } = await updateProfile(updates);
+    setSaving(false);
+    
+    if (error) {
+      toast.error("Ошибка при сохранении");
+    } else {
+      toast.success("Результаты сохранены!");
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut();
     toast.success("Вы вышли из аккаунта");
     navigate("/");
   };
 
-  const getRandomAvatar = () => {
-    toast.info("Случайный аватар установлен!");
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -46,19 +122,22 @@ const Settings = () => {
           {/* Avatar */}
           <div className="flex items-center gap-4 mb-6">
             <div className="w-20 h-20 rounded-2xl bg-secondary flex items-center justify-center">
-              <User className="w-10 h-10 text-muted-foreground" />
+              {profile?.avatar_url ? (
+                <img 
+                  src={profile.avatar_url} 
+                  alt="Avatar" 
+                  className="w-full h-full rounded-2xl object-cover" 
+                />
+              ) : (
+                <User className="w-10 h-10 text-muted-foreground" />
+              )}
             </div>
             <div className="flex flex-col gap-2">
               <Button variant="outline" size="sm" className="gap-2">
                 <Upload className="w-4 h-4" />
                 Загрузить
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="gap-2"
-                onClick={getRandomAvatar}
-              >
+              <Button variant="ghost" size="sm" className="gap-2">
                 <Shuffle className="w-4 h-4" />
                 Случайно
               </Button>
@@ -80,8 +159,9 @@ const Settings = () => {
           <Button 
             onClick={handleSave}
             className="w-full mt-4 bg-foreground text-background hover:bg-foreground/90"
+            disabled={saving}
           >
-            Сохранить
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Сохранить"}
           </Button>
         </div>
 
@@ -92,7 +172,7 @@ const Settings = () => {
             {languages.map((lang) => (
               <button
                 key={lang.code}
-                onClick={() => setSelectedLang(lang.code)}
+                onClick={() => handleLanguageChange(lang.code)}
                 className={`chip flex items-center gap-2 ${
                   selectedLang === lang.code
                     ? "bg-primary text-primary-foreground"
@@ -119,6 +199,8 @@ const Settings = () => {
                 className="h-12 rounded-xl"
                 max={1600}
                 min={400}
+                value={satScore}
+                onChange={(e) => setSatScore(e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -131,11 +213,18 @@ const Settings = () => {
                 max={9}
                 min={1}
                 step={0.5}
+                value={ieltsScore}
+                onChange={(e) => setIeltsScore(e.target.value)}
               />
             </div>
           </div>
-          <Button variant="outline" className="w-full mt-4">
-            Сохранить результаты
+          <Button 
+            variant="outline" 
+            className="w-full mt-4"
+            onClick={handleSaveScores}
+            disabled={saving}
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Сохранить результаты"}
           </Button>
         </div>
 

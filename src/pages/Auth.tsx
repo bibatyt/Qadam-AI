@@ -1,29 +1,64 @@
-import { useState } from "react";
-import { GraduationCap, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { GraduationCap, Mail, Lock, ArrowRight, Eye, EyeOff, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user, signIn, signUp } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate auth - replace with real Firebase auth
-    setTimeout(() => {
+
+    try {
+      if (isLogin) {
+        const { error } = await signIn(email, password);
+        if (error) {
+          if (error.message.includes("Invalid login")) {
+            toast.error("Неверный email или пароль");
+          } else {
+            toast.error(error.message);
+          }
+          return;
+        }
+        toast.success("Добро пожаловать!");
+        navigate("/dashboard");
+      } else {
+        const { error } = await signUp(email, password, name);
+        if (error) {
+          if (error.message.includes("already registered")) {
+            toast.error("Этот email уже зарегистрирован");
+          } else {
+            toast.error(error.message);
+          }
+          return;
+        }
+        toast.success("Аккаунт создан! Добро пожаловать!");
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      toast.error("Произошла ошибка. Попробуйте снова.");
+    } finally {
       setLoading(false);
-      toast.success(isLogin ? "Добро пожаловать!" : "Аккаунт создан!");
-      navigate("/dashboard");
-    }, 1000);
+    }
   };
 
   return (
@@ -45,6 +80,23 @@ const Auth = () => {
           </p>
           
           <form onSubmit={handleSubmit} className="space-y-5">
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="name">Имя</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Ваше имя"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="pl-10 h-12 rounded-xl"
+                  />
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -73,6 +125,7 @@ const Auth = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10 h-12 rounded-xl"
                   required
+                  minLength={6}
                 />
                 <button
                   type="button"
