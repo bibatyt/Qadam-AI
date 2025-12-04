@@ -95,6 +95,101 @@ export type Database = {
         }
         Relationships: []
       }
+      roadmap_tasks: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          month: string
+          month_index: number
+          roadmap_id: string
+          task_description: string | null
+          task_title: string
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          month: string
+          month_index: number
+          roadmap_id: string
+          task_description?: string | null
+          task_title: string
+          user_id: string
+          xp_reward?: number
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          month?: string
+          month_index?: number
+          roadmap_id?: string
+          task_description?: string | null
+          task_title?: string
+          user_id?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roadmap_tasks_roadmap_id_fkey"
+            columns: ["roadmap_id"]
+            isOneToOne: false
+            referencedRelation: "roadmaps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roadmaps: {
+        Row: {
+          created_at: string
+          current_grade: string
+          desired_major: string
+          generated_plan: Json | null
+          gpa: number | null
+          id: string
+          ielts_score: number | null
+          main_goal: string
+          sat_score: number | null
+          target_country: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_grade: string
+          desired_major: string
+          generated_plan?: Json | null
+          gpa?: number | null
+          id?: string
+          ielts_score?: number | null
+          main_goal: string
+          sat_score?: number | null
+          target_country: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_grade?: string
+          desired_major?: string
+          generated_plan?: Json | null
+          gpa?: number | null
+          id?: string
+          ielts_score?: number | null
+          main_goal?: string
+          sat_score?: number | null
+          target_country?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
