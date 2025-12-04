@@ -1,22 +1,38 @@
-import { Flame, Zap, Target, ListTodo, Lightbulb, Trophy } from "lucide-react";
+import { useEffect } from "react";
+import { Flame, Zap, Target, ListTodo, Lightbulb, Trophy, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useProfile } from "@/hooks/useProfile";
+import { useDailyQuests } from "@/hooks/useDailyQuests";
+
+const wisdomQuotes = [
+  "Образование — это не подготовка к жизни; образование — это сама жизнь. — Джон Дьюи",
+  "Будущее принадлежит тем, кто верит в красоту своей мечты. — Элеонора Рузвельт",
+  "Успех — это не конечная точка, а путешествие. — Ральф Уолдо Эмерсон",
+  "Единственный способ делать великую работу — любить то, что вы делаете. — Стив Джобс",
+];
 
 const Dashboard = () => {
-  const user = {
-    name: "Студент",
-    level: 1,
-    xp: 0,
-    xpToNextLevel: 100,
-    streak: 0,
-  };
+  const { profile, loading, updateStreak } = useProfile();
+  const { quests, toggleQuest, loading: questsLoading } = useDailyQuests();
 
-  const dailyQuests = [
-    { id: 1, title: "Прочитать 1 статью об университетах", completed: false },
-    { id: 2, title: "Пройти мини-тест по английскому", completed: false },
-    { id: 3, title: "Написать 100 слов для эссе", completed: false },
-  ];
+  // Update streak on visit
+  useEffect(() => {
+    if (profile) {
+      updateStreak();
+    }
+  }, [profile?.id]);
 
-  const wisdomQuote = "Образование — это не подготовка к жизни; образование — это сама жизнь. — Джон Дьюи";
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const xpToNextLevel = 100;
+  const currentLevelXP = profile ? profile.xp % xpToNextLevel : 0;
+  const wisdomQuote = wisdomQuotes[Math.floor(Math.random() * wisdomQuotes.length)];
 
   return (
     <div className="min-h-screen bg-background">
@@ -25,18 +41,18 @@ const Dashboard = () => {
         <div className="container max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-primary-foreground font-bold">
-              {user.level}
+              {profile?.level || 1}
             </div>
-            <Progress value={(user.xp / user.xpToNextLevel) * 100} className="w-24 h-2" />
+            <Progress value={(currentLevelXP / xpToNextLevel) * 100} className="w-24 h-2" />
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 text-sm font-semibold">
               <Zap className="w-5 h-5 text-xp" />
-              <span>{user.xp}</span>
+              <span>{profile?.xp || 0}</span>
             </div>
             <div className="flex items-center gap-1 text-sm font-semibold">
-              <Flame className="w-5 h-5 text-accent" />
-              <span>{user.streak}</span>
+              <Flame className={`w-5 h-5 text-accent ${(profile?.streak || 0) > 0 ? 'animate-fire' : ''}`} />
+              <span>{profile?.streak || 0}</span>
             </div>
           </div>
         </div>
@@ -46,15 +62,15 @@ const Dashboard = () => {
         {/* Welcome Card */}
         <div className="gradient-primary rounded-3xl p-6 text-primary-foreground animate-slide-up">
           <h1 className="text-xl font-bold mb-1">
-            С возвращением, {user.name} 👋
+            С возвращением, {profile?.name || "Студент"} 👋
           </h1>
           <div className="flex items-center gap-4 text-sm opacity-90">
-            <span>Уровень {user.level}</span>
+            <span>Уровень {profile?.level || 1}</span>
             <span>•</span>
-            <span>{user.xp} XP</span>
+            <span>{profile?.xp || 0} XP</span>
           </div>
           <div className="mt-4 bg-primary-foreground/20 rounded-full px-3 py-1 inline-block text-sm">
-            {user.xpToNextLevel - user.xp} XP до Lvl {user.level + 1}
+            {xpToNextLevel - currentLevelXP} XP до Lvl {(profile?.level || 1) + 1}
           </div>
         </div>
 
@@ -63,10 +79,12 @@ const Dashboard = () => {
           {/* Streak Card */}
           <div className="gamification-card bg-accent/10 border-accent/20">
             <div className="flex items-center gap-2 mb-2">
-              <Flame className={`w-6 h-6 text-accent ${user.streak > 0 ? 'animate-fire' : ''}`} />
-              <span className="text-2xl font-bold">{user.streak}</span>
+              <Flame className={`w-6 h-6 text-accent ${(profile?.streak || 0) > 0 ? 'animate-fire' : ''}`} />
+              <span className="text-2xl font-bold">{profile?.streak || 0}</span>
             </div>
-            <p className="text-sm text-muted-foreground">дн. 🔥 В огне!</p>
+            <p className="text-sm text-muted-foreground">
+              дн. 🔥 {(profile?.streak || 0) > 0 ? "В огне!" : "Начни серию!"}
+            </p>
           </div>
 
           {/* Goal Card */}
@@ -74,8 +92,12 @@ const Dashboard = () => {
             <div className="flex items-center gap-2 mb-2">
               <Target className="w-6 h-6 text-primary" />
             </div>
-            <p className="text-sm font-medium">Поставь цель</p>
-            <p className="text-xs text-muted-foreground">Выбери университет</p>
+            <p className="text-sm font-medium">
+              {profile?.target_university || "Поставь цель"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {profile?.target_university ? "Твоя цель" : "Выбери университет"}
+            </p>
           </div>
         </div>
 
@@ -85,20 +107,33 @@ const Dashboard = () => {
             <ListTodo className="w-5 h-5 text-primary" />
             <h2 className="font-semibold">Ежедневные задания</h2>
           </div>
-          <div className="space-y-3">
-            {dailyQuests.map((quest) => (
-              <label
-                key={quest.id}
-                className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 cursor-pointer hover:bg-muted transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  className="w-5 h-5 rounded-md border-2 border-primary text-primary focus:ring-primary"
-                />
-                <span className="text-sm">{quest.title}</span>
-              </label>
-            ))}
-          </div>
+          {questsLoading ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {quests.map((quest) => (
+                <label
+                  key={quest.id}
+                  className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
+                    quest.completed ? "bg-success/10" : "bg-muted/50 hover:bg-muted"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={quest.completed}
+                    onChange={() => toggleQuest(quest.id, quest.completed)}
+                    className="w-5 h-5 rounded-md border-2 border-primary text-primary focus:ring-primary"
+                  />
+                  <span className={`text-sm ${quest.completed ? "line-through text-muted-foreground" : ""}`}>
+                    {quest.quest_title}
+                  </span>
+                  <span className="ml-auto text-xs text-primary font-medium">+{quest.xp_reward} XP</span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Wisdom Card */}
@@ -119,8 +154,12 @@ const Dashboard = () => {
               <Trophy className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <p className="font-semibold">Первые шаги</p>
-              <p className="text-sm text-muted-foreground">Завершите первое задание</p>
+              <p className="font-semibold">
+                {(profile?.xp || 0) >= 100 ? "Первый уровень!" : "Первые шаги"}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {(profile?.xp || 0) >= 100 ? "Достигнут уровень 2" : "Завершите первое задание"}
+              </p>
             </div>
           </div>
         </div>
