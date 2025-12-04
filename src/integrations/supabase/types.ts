@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_quests: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          id: string
+          quest_date: string
+          quest_title: string
+          user_id: string
+          xp_reward: number | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          quest_date?: string
+          quest_title: string
+          user_id: string
+          xp_reward?: number | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          id?: string
+          quest_date?: string
+          quest_title?: string
+          user_id?: string
+          xp_reward?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          ielts_score: number | null
+          language: string | null
+          last_active_date: string | null
+          level: number | null
+          name: string | null
+          sat_score: number | null
+          streak: number | null
+          target_university: string | null
+          updated_at: string
+          user_id: string
+          xp: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          ielts_score?: number | null
+          language?: string | null
+          last_active_date?: string | null
+          level?: number | null
+          name?: string | null
+          sat_score?: number | null
+          streak?: number | null
+          target_university?: string | null
+          updated_at?: string
+          user_id: string
+          xp?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          ielts_score?: number | null
+          language?: string | null
+          last_active_date?: string | null
+          level?: number | null
+          name?: string | null
+          sat_score?: number | null
+          streak?: number | null
+          target_university?: string | null
+          updated_at?: string
+          user_id?: string
+          xp?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
