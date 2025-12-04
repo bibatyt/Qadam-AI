@@ -1,15 +1,18 @@
-import { useEffect } from "react";
-import { Flame, Target, Lightbulb, CheckCircle2, Circle, ChevronRight, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Flame, Target, Lightbulb, CheckCircle2, Circle, ChevronRight, Loader2, Zap } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyQuests } from "@/hooks/useDailyQuests";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { profile, loading, updateStreak } = useProfile();
   const { quests, toggleQuest, loading: questsLoading } = useDailyQuests();
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const [wisdomIndex] = useState(() => Math.floor(Math.random() * 4));
 
   useEffect(() => {
     if (profile) {
@@ -28,117 +31,153 @@ const Dashboard = () => {
   const xpToNextLevel = 100;
   const currentLevelXP = profile ? profile.xp % xpToNextLevel : 0;
   const wisdomKeys = ["wisdom1", "wisdom2", "wisdom3", "wisdom4"];
-  const wisdomKey = wisdomKeys[Math.floor(Math.random() * wisdomKeys.length)];
 
   const getLevelTitle = (level: number) => {
     if (level <= 2) return t("newbie");
-    if (level <= 5) return "Explorer";
-    if (level <= 10) return "Scholar";
-    return "Master";
+    if (level <= 5) return t("explorer");
+    if (level <= 10) return t("scholar");
+    return t("master");
   };
+
+  const completedQuests = quests.filter(q => q.completed).length;
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <main className="container max-w-lg mx-auto px-4 py-5 space-y-5">
-        {/* Profile Header */}
+      <main className="container max-w-lg mx-auto px-4 py-5 space-y-4">
+        {/* Profile Header with Level Badge */}
         <div className="flex items-center gap-3 animate-fade-in">
           <div className="relative">
-            <Avatar className="w-14 h-14 border-3 border-primary ring-2 ring-primary/20">
+            <Avatar className="w-14 h-14 border-[3px] border-primary ring-2 ring-primary/20">
               <AvatarImage src={profile?.avatar_url || undefined} alt="Avatar" />
               <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold text-lg">
                 {profile?.name?.charAt(0)?.toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
-            <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded-md shadow-sm">
-              LVL
+            <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground text-[10px] font-extrabold px-1.5 py-0.5 rounded-md shadow-sm border border-primary-foreground/20">
+              {profile?.level || 1}
             </div>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">{t("level")} {profile?.level || 1}</p>
-            <p className="font-bold text-foreground">{getLevelTitle(profile?.level || 1)}</p>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                {t("level")} {profile?.level || 1}
+              </span>
+              <span className="text-xs px-2 py-0.5 bg-secondary text-secondary-foreground rounded-full font-semibold">
+                {getLevelTitle(profile?.level || 1)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <Progress value={(currentLevelXP / xpToNextLevel) * 100} className="h-2 flex-1" />
+              <span className="text-xs font-bold text-primary">{currentLevelXP}/{xpToNextLevel}</span>
+            </div>
           </div>
         </div>
 
         {/* Welcome Card */}
-        <div className="animate-fade-in" style={{ animationDelay: "0.05s" }}>
-          <h1 className="text-2xl font-bold text-foreground mb-1">
+        <div className="duolingo-card p-5 animate-fade-in" style={{ animationDelay: "0.05s" }}>
+          <h1 className="text-xl font-extrabold text-foreground mb-1">
             {t("welcomeBack")}, {profile?.name || "Студент"} 👋
           </h1>
-          <p className="text-muted-foreground text-sm mb-4">{t("readyToConquer")}</p>
+          <p className="text-muted-foreground text-sm">{t("readyToConquer")}</p>
           
           {/* XP Progress */}
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-primary font-bold">{currentLevelXP} XP</span>
-            <span className="text-muted-foreground">{xpToNextLevel - currentLevelXP} {t("xpToLevel")} {(profile?.level || 1) + 1}</span>
+          <div className="mt-4 p-3 bg-secondary/50 rounded-xl">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-xp" />
+                <span className="font-bold text-foreground">{profile?.xp || 0} XP</span>
+              </div>
+              <span className="text-muted-foreground text-xs">
+                {xpToNextLevel - currentLevelXP} {t("xpToLevel")} {(profile?.level || 1) + 1}
+              </span>
+            </div>
+            <Progress value={(currentLevelXP / xpToNextLevel) * 100} className="h-3" />
           </div>
-          <Progress value={(currentLevelXP / xpToNextLevel) * 100} className="h-3 rounded-full" />
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3 animate-fade-in" style={{ animationDelay: "0.1s" }}>
           {/* Streak Card */}
-          <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-4 text-white shadow-lg">
+          <div className="gradient-streak rounded-2xl p-4 text-white shadow-streak">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                <Flame className={`w-6 h-6 ${(profile?.streak || 0) > 0 ? 'animate-pulse' : ''}`} />
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                <Flame className={`w-6 h-6 ${(profile?.streak || 0) > 0 ? 'animate-fire' : ''}`} />
               </div>
             </div>
-            <p className="text-3xl font-bold mt-2">{profile?.streak || 0} <span className="text-lg font-normal">{t("days")}</span></p>
-            <p className="text-white/80 text-sm">🔥 {(profile?.streak || 0) > 0 ? t("onFire") : "Start streak!"}</p>
+            <p className="text-3xl font-extrabold mt-3">
+              {profile?.streak || 0} <span className="text-base font-bold opacity-90">{t("days")}</span>
+            </p>
+            <p className="text-white/80 text-sm font-medium mt-0.5">
+              🔥 {(profile?.streak || 0) > 0 ? t("onFire") : t("startStreak")}
+            </p>
           </div>
 
           {/* Goal Card */}
-          <div className="bg-card rounded-2xl p-4 border border-border shadow-card">
+          <button 
+            onClick={() => navigate("/settings")}
+            className="duolingo-card p-4 text-left transition-all hover:shadow-lg active:scale-[0.98]"
+          >
             <div className="flex items-center justify-between">
               <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                 <Target className="w-5 h-5 text-primary" />
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </div>
-            <p className="text-xs text-primary font-semibold mt-2">{t("goal")}</p>
-            <p className="font-medium text-foreground truncate">
-              {profile?.target_university ? profile.target_university.slice(0, 12) + "..." : t("setGoal")}
+            <p className="text-[10px] text-primary font-bold uppercase tracking-wider mt-3">{t("goal")}</p>
+            <p className="font-bold text-foreground text-sm truncate mt-0.5">
+              {profile?.target_university || t("setGoal")}
             </p>
-          </div>
+          </button>
         </div>
 
         {/* Daily Quests */}
-        <div className="bg-card rounded-2xl p-4 border border-border shadow-card animate-fade-in" style={{ animationDelay: "0.15s" }}>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xl">🎯</span>
-            <h2 className="font-bold text-foreground">{t("dailyQuests")}</h2>
+        <div className="duolingo-card animate-fade-in" style={{ animationDelay: "0.15s" }}>
+          <div className="flex items-center justify-between p-4 pb-3 border-b border-border/50">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🎯</span>
+              <h2 className="font-extrabold text-foreground">{t("dailyQuests")}</h2>
+            </div>
+            <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-1 rounded-full">
+              {completedQuests}/{quests.length}
+            </span>
           </div>
+          
           {questsLoading ? (
-            <div className="flex justify-center py-6">
+            <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="p-3 space-y-2">
               {quests.map((quest, index) => (
                 <button
                   key={quest.id}
                   onClick={() => toggleQuest(quest.id, quest.completed)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
-                    quest.completed 
-                      ? "bg-primary/10 border border-primary/20" 
-                      : "bg-muted/30 hover:bg-muted/50 border border-transparent"
+                  className={`quest-item w-full ${
+                    quest.completed ? "quest-item-completed" : "quest-item-pending"
                   }`}
                   style={{ animationDelay: `${0.2 + index * 0.05}s` }}
                 >
                   {quest.completed ? (
-                    <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0" />
+                    <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
+                    </div>
                   ) : (
-                    <Circle className="w-6 h-6 text-muted-foreground flex-shrink-0" />
+                    <div className="w-7 h-7 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center flex-shrink-0">
+                      <Circle className="w-4 h-4 text-muted-foreground/50" />
+                    </div>
                   )}
-                  <span className={`text-sm text-left flex-1 ${quest.completed ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                  <span className={`text-sm text-left flex-1 font-semibold ${
+                    quest.completed ? "text-muted-foreground line-through" : "text-foreground"
+                  }`}>
                     {quest.quest_title}
                   </span>
-                  <span className={`text-sm font-semibold whitespace-nowrap ${quest.completed ? "text-primary" : "text-primary"}`}>
+                  <span className={`text-sm font-extrabold whitespace-nowrap px-2 py-0.5 rounded-lg ${
+                    quest.completed 
+                      ? "text-primary bg-primary/10" 
+                      : "text-xp bg-xp/10"
+                  }`}>
                     +{quest.xp_reward} XP
                   </span>
-                  {!quest.completed && (
-                    <span className="text-xs text-muted-foreground">0/1</span>
-                  )}
                 </button>
               ))}
             </div>
@@ -146,15 +185,17 @@ const Dashboard = () => {
         </div>
 
         {/* Wisdom Card */}
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-2xl p-4 border border-emerald-200/50 dark:border-emerald-800/30 animate-fade-in" style={{ animationDelay: "0.25s" }}>
+        <div className="gradient-wisdom rounded-2xl p-4 animate-fade-in" style={{ animationDelay: "0.25s" }}>
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Lightbulb className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+              <Lightbulb className="w-5 h-5 text-wisdom-foreground" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-primary uppercase tracking-wide mb-1">{t("wisdomOfDay")}</p>
-              <p className="text-sm text-foreground/80 leading-relaxed">
-                "{t(wisdomKey)}"
+            <div className="flex-1">
+              <p className="text-[10px] font-extrabold text-wisdom-foreground/80 uppercase tracking-wider mb-1.5">
+                {t("wisdomOfDay")}
+              </p>
+              <p className="text-sm text-wisdom-foreground font-semibold leading-relaxed">
+                "{t(wisdomKeys[wisdomIndex])}"
               </p>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { User, Upload, Shuffle, LogOut, Check, Loader2, Camera } from "lucide-react";
+import { User, Shuffle, LogOut, Check, Loader2, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,13 +42,11 @@ const Settings = () => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image must be less than 5MB");
       return;
@@ -59,19 +57,16 @@ const Settings = () => {
       const fileExt = file.name.split(".").pop();
       const filePath = `${user.id}/avatar.${fileExt}`;
 
-      // Upload the file
       const { error: uploadError } = await supabase.storage
         .from("avatars")
         .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from("avatars")
         .getPublicUrl(filePath);
 
-      // Update the profile with the new avatar URL
       await updateProfile({ avatar_url: publicUrl + "?t=" + Date.now() });
       toast.success(t("avatarUpdated"));
     } catch (error) {
@@ -86,7 +81,6 @@ const Settings = () => {
     if (!user) return;
     setUploadingAvatar(true);
     try {
-      // Use DiceBear API for random avatars
       const seed = Math.random().toString(36).substring(7);
       const avatarUrl = `https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}`;
       await updateProfile({ avatar_url: avatarUrl });
@@ -174,21 +168,21 @@ const Settings = () => {
     <div className="min-h-screen bg-background pb-24">
       <header className="bg-card border-b border-border px-4 py-4">
         <div className="container max-w-lg mx-auto">
-          <h1 className="text-xl font-bold">{t("settings")}</h1>
+          <h1 className="text-xl font-extrabold">{t("settings")}</h1>
         </div>
       </header>
 
-      <main className="container max-w-lg mx-auto px-4 py-6 space-y-5">
+      <main className="container max-w-lg mx-auto px-4 py-5 space-y-4">
         {/* Profile Card */}
-        <div className="bg-card rounded-2xl p-5 border border-border shadow-card animate-fade-in">
-          <h2 className="font-bold mb-4">{t("profile")}</h2>
+        <div className="duolingo-card p-5 animate-fade-in">
+          <h2 className="font-extrabold mb-4">{t("profile")}</h2>
           
           {/* Avatar */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-5">
             <div className="relative">
-              <Avatar className="w-20 h-20 border-2 border-border">
+              <Avatar className="w-20 h-20 border-[3px] border-primary">
                 <AvatarImage src={profile?.avatar_url || undefined} alt="Avatar" />
-                <AvatarFallback className="bg-secondary text-secondary-foreground text-2xl font-bold">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-2xl font-bold">
                   {profile?.name?.charAt(0)?.toUpperCase() || <User className="w-10 h-10" />}
                 </AvatarFallback>
               </Avatar>
@@ -209,7 +203,7 @@ const Settings = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="gap-2 rounded-xl"
+                className="gap-2 rounded-xl font-semibold"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
               >
@@ -219,7 +213,7 @@ const Settings = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="gap-2 rounded-xl"
+                className="gap-2 rounded-xl font-semibold"
                 onClick={generateRandomAvatar}
                 disabled={uploadingAvatar}
               >
@@ -231,19 +225,19 @@ const Settings = () => {
 
           {/* Name Input */}
           <div className="space-y-2">
-            <Label htmlFor="name">{t("name")}</Label>
+            <Label htmlFor="name" className="font-semibold">{t("name")}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t("yourName")}
-              className="h-12 rounded-xl"
+              className="h-12 rounded-xl font-medium"
             />
           </div>
 
           <Button 
             onClick={handleSave}
-            className="w-full mt-4 h-12 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-semibold"
+            className="w-full mt-4 h-12 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-bold"
             disabled={saving}
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : t("save")}
@@ -251,17 +245,17 @@ const Settings = () => {
         </div>
 
         {/* Language Card */}
-        <div className="bg-card rounded-2xl p-5 border border-border shadow-card animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <h2 className="font-bold mb-4">{t("language")}</h2>
+        <div className="duolingo-card p-5 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <h2 className="font-extrabold mb-4">{t("language")}</h2>
           <div className="flex flex-wrap gap-2">
             {languages.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 touch-target ${
                   language === lang.code
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                    ? "bg-primary text-primary-foreground shadow-primary"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:scale-[0.98]"
                 }`}
               >
                 <span className="text-lg">{lang.flag}</span>
@@ -273,16 +267,16 @@ const Settings = () => {
         </div>
 
         {/* Test Scores Card */}
-        <div className="bg-card rounded-2xl p-5 border border-border shadow-card animate-fade-in" style={{ animationDelay: "0.15s" }}>
-          <h2 className="font-bold mb-4">{t("testResults")}</h2>
+        <div className="duolingo-card p-5 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+          <h2 className="font-extrabold mb-4">{t("testResults")}</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="sat">SAT Score</Label>
+              <Label htmlFor="sat" className="font-semibold">SAT Score</Label>
               <Input
                 id="sat"
                 type="number"
                 placeholder="1600"
-                className="h-12 rounded-xl"
+                className="h-12 rounded-xl font-medium"
                 max={1600}
                 min={400}
                 value={satScore}
@@ -290,12 +284,12 @@ const Settings = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ielts">IELTS Score</Label>
+              <Label htmlFor="ielts" className="font-semibold">IELTS Score</Label>
               <Input
                 id="ielts"
                 type="number"
                 placeholder="9.0"
-                className="h-12 rounded-xl"
+                className="h-12 rounded-xl font-medium"
                 max={9}
                 min={1}
                 step={0.5}
@@ -306,7 +300,7 @@ const Settings = () => {
           </div>
           <Button 
             variant="outline" 
-            className="w-full mt-4 h-12 rounded-xl font-semibold"
+            className="w-full mt-4 h-12 rounded-xl font-bold"
             onClick={handleSaveScores}
             disabled={saving}
           >
@@ -319,7 +313,7 @@ const Settings = () => {
           <Button
             variant="ghost"
             onClick={handleLogout}
-            className="w-full h-12 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10 font-semibold"
+            className="w-full h-12 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10 font-bold"
           >
             <LogOut className="w-4 h-4 mr-2" />
             {t("logout")}

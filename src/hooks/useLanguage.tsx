@@ -20,13 +20,17 @@ const translations: Translations = {
   settings: { ru: "Настройки", en: "Settings", kk: "Баптаулар" },
   
   // Dashboard
-  welcomeBack: { ru: "С возвращением", en: "Welcome back", kk: "Қайта оралуыңызбен" },
+  welcomeBack: { ru: "С возвращением", en: "Welcome back", kk: "Қош келдіңіз" },
   readyToConquer: { ru: "Готов покорять университеты?", en: "Ready to conquer universities?", kk: "Университеттерді бағындыруға дайынсыз ба?" },
   level: { ru: "Уровень", en: "Level", kk: "Деңгей" },
   newbie: { ru: "Новичок", en: "Newbie", kk: "Жаңадан бастаушы" },
+  explorer: { ru: "Исследователь", en: "Explorer", kk: "Зерттеуші" },
+  scholar: { ru: "Ученый", en: "Scholar", kk: "Ғалым" },
+  master: { ru: "Мастер", en: "Master", kk: "Шебер" },
   xpToLevel: { ru: "XP до Lvl", en: "XP to Lvl", kk: "XP Lvl дейін" },
   days: { ru: "дн.", en: "days", kk: "күн" },
   onFire: { ru: "В огне!", en: "On fire!", kk: "Отты!" },
+  startStreak: { ru: "Начни серию!", en: "Start streak!", kk: "Серияны бастаңыз!" },
   goal: { ru: "ЦЕЛЬ", en: "GOAL", kk: "МАҚСАТ" },
   setGoal: { ru: "Поставить цель", en: "Set a goal", kk: "Мақсат қою" },
   dailyQuests: { ru: "Ежедневные задания", en: "Daily Quests", kk: "Күнделікті тапсырмалар" },
@@ -89,6 +93,32 @@ const translations: Translations = {
   addTestResults: { ru: "Добавьте свои результаты тестов в настройках", en: "Add your test results in settings", kk: "Тест нәтижелерін баптауларда қосыңыз" },
   addResults: { ru: "Добавить результаты", en: "Add results", kk: "Нәтижелерді қосу" },
   activity: { ru: "Активность", en: "Activity", kk: "Белсенділік" },
+  recentActivity: { ru: "Последняя активность", en: "Recent Activity", kk: "Соңғы белсенділік" },
+  
+  // Counselor
+  aiCounselor: { ru: "AI Советник", en: "AI Counselor", kk: "AI Кеңесші" },
+  online: { ru: "В сети", en: "Online", kk: "Онлайн" },
+  askAboutUniversities: { ru: "Спроси об университетах...", en: "Ask about universities...", kk: "Университеттер туралы сұраңыз..." },
+  howToWriteEssay: { ru: "Как писать эссе?", en: "How to write an essay?", kk: "Эссе қалай жазу керек?" },
+  ieltsOrToefl: { ru: "IELTS или TOEFL?", en: "IELTS or TOEFL?", kk: "IELTS немесе TOEFL?" },
+  howToApply: { ru: "Как поступить в...", en: "How to apply to...", kk: "Қалай түсуге болады..." },
+  deadlines: { ru: "Сроки подачи", en: "Deadlines", kk: "Мерзімдер" },
+  aiGreeting: { 
+    ru: "Привет! Я Qadam AI 🎓 Чем могу помочь с поступлением в университет?", 
+    en: "Hi! I'm Qadam AI 🎓 How can I help you with university admissions?", 
+    kk: "Сәлем! Мен Qadam AI 🎓 Университетке түсуге қалай көмектесе аламын?" 
+  },
+  
+  // Auth
+  welcomeBackAuth: { ru: "С возвращением!", en: "Welcome back!", kk: "Қош келдіңіз!" },
+  createAccount: { ru: "Создать аккаунт", en: "Create account", kk: "Аккаунт құру" },
+  loginToContinue: { ru: "Войдите, чтобы продолжить путь", en: "Sign in to continue your journey", kk: "Жолыңызды жалғастыру үшін кіріңіз" },
+  startYourJourney: { ru: "Начните свой путь к университету мечты", en: "Start your journey to your dream university", kk: "Арманыңыздағы университетке жолыңызды бастаңыз" },
+  signIn: { ru: "Войти", en: "Sign in", kk: "Кіру" },
+  noAccount: { ru: "Нет аккаунта? Создать", en: "No account? Create one", kk: "Аккаунт жоқ па? Құру" },
+  hasAccount: { ru: "Уже есть аккаунт? Войти", en: "Already have an account? Sign in", kk: "Аккаунт бар ма? Кіру" },
+  email: { ru: "Email", en: "Email", kk: "Email" },
+  password: { ru: "Пароль", en: "Password", kk: "Құпия сөз" },
 };
 
 interface LanguageContextType {

@@ -2,29 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 220 20% 10%;
+    --foreground: 220 25% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 220 25% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 220 25% 12%;
 
-    --primary: 152 87% 48%;
+    /* Duolingo-inspired teal/green primary */
+    --primary: 162 73% 46%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 160 50% 95%;
-    --secondary-foreground: 152 87% 35%;
+    --secondary: 162 40% 95%;
+    --secondary-foreground: 162 73% 35%;
 
-    --muted: 160 20% 96%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 32 100% 50%;
+    /* Orange/red accent for streaks */
+    --accent: 24 95% 53%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -32,20 +34,29 @@
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 152 87% 48%;
+    --ring: 162 73% 46%;
 
     --radius: 1rem;
 
-    /* Custom tokens */
-    --streak: 32 100% 50%;
+    /* Custom Duolingo tokens */
+    --streak: 24 95% 53%;
     --streak-foreground: 0 0% 100%;
     --xp: 45 100% 51%;
-    --success: 152 87% 48%;
-    --gradient-primary: linear-gradient(135deg, hsl(152, 87%, 48%) 0%, hsl(160, 80%, 45%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(32, 100%, 50%) 0%, hsl(45, 100%, 51%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(160, 50%, 97%) 0%, hsl(0, 0%, 100%) 100%);
-    --shadow-card: 0 4px 20px -2px hsl(220 20% 10% / 0.08);
-    --shadow-lg: 0 10px 40px -10px hsl(220 20% 10% / 0.15);
+    --success: 162 73% 46%;
+    --wisdom: 45 100% 60%;
+    --wisdom-foreground: 24 90% 25%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(162, 73%, 46%) 0%, hsl(170, 70%, 40%) 100%);
+    --gradient-streak: linear-gradient(135deg, hsl(24, 95%, 53%) 0%, hsl(35, 100%, 55%) 100%);
+    --gradient-wisdom: linear-gradient(135deg, hsl(45, 100%, 60%) 0%, hsl(35, 100%, 55%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(162, 40%, 97%) 0%, hsl(0, 0%, 100%) 100%);
+    
+    /* Shadows */
+    --shadow-card: 0 2px 12px -2px hsl(220 25% 12% / 0.06);
+    --shadow-lg: 0 8px 30px -8px hsl(220 25% 12% / 0.12);
+    --shadow-primary: 0 4px 14px -4px hsl(162 73% 46% / 0.35);
+    --shadow-streak: 0 4px 14px -4px hsl(24 95% 53% / 0.35);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -58,42 +69,42 @@
   }
 
   .dark {
-    --background: 220 20% 8%;
+    --background: 220 25% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 220 20% 12%;
+    --card: 220 25% 12%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 220 20% 12%;
+    --popover: 220 25% 12%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 152 87% 48%;
+    --primary: 162 73% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 152 87% 60%;
+    --secondary: 220 25% 18%;
+    --secondary-foreground: 162 73% 60%;
 
-    --muted: 220 20% 18%;
-    --muted-foreground: 220 10% 60%;
+    --muted: 220 25% 18%;
+    --muted-foreground: 220 10% 55%;
 
-    --accent: 32 100% 50%;
+    --accent: 24 95% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 152 87% 48%;
+    --border: 220 25% 20%;
+    --input: 220 25% 20%;
+    --ring: 162 73% 50%;
 
-    --sidebar-background: 220 20% 10%;
+    --sidebar-background: 220 25% 10%;
     --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 152 87% 48%;
+    --sidebar-primary: 162 73% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 15%;
+    --sidebar-accent: 220 25% 15%;
     --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 220 20% 20%;
-    --sidebar-ring: 152 87% 48%;
+    --sidebar-border: 220 25% 20%;
+    --sidebar-ring: 162 73% 50%;
   }
 }
 
@@ -104,7 +115,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Nunito', system-ui, sans-serif;
   }
 }
 
@@ -113,8 +124,12 @@
     background: var(--gradient-primary);
   }
   
-  .gradient-accent {
-    background: var(--gradient-accent);
+  .gradient-streak {
+    background: var(--gradient-streak);
+  }
+  
+  .gradient-wisdom {
+    background: var(--gradient-wisdom);
   }
   
   .gradient-hero {
@@ -127,6 +142,14 @@
   
   .shadow-elevated {
     box-shadow: var(--shadow-lg);
+  }
+  
+  .shadow-primary {
+    box-shadow: var(--shadow-primary);
+  }
+  
+  .shadow-streak {
+    box-shadow: var(--shadow-streak);
   }
   
   .text-gradient {
@@ -155,6 +178,11 @@
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0.5rem);
   }
+  
+  /* Mobile-first touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
 }
 
 @layer components {
@@ -163,7 +191,7 @@
   }
   
   .stat-badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold;
   }
   
   .nav-item {
@@ -175,6 +203,22 @@
   }
   
   .chip {
-    @apply px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer;
+    @apply px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer;
+  }
+  
+  .duolingo-card {
+    @apply bg-card rounded-2xl border-2 border-border/60 shadow-card overflow-hidden;
+  }
+  
+  .quest-item {
+    @apply flex items-center gap-3 p-3.5 rounded-xl transition-all duration-200 cursor-pointer active:scale-[0.98];
+  }
+  
+  .quest-item-completed {
+    @apply bg-primary/10 border border-primary/20;
+  }
+  
+  .quest-item-pending {
+    @apply bg-muted/40 hover:bg-muted/60 border border-transparent;
   }
 }

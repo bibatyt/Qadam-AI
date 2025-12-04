@@ -18,7 +18,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Nunito', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -60,6 +60,10 @@ export default {
         },
         xp: "hsl(var(--xp))",
         success: "hsl(var(--success))",
+        wisdom: {
+          DEFAULT: "hsl(var(--wisdom))",
+          foreground: "hsl(var(--wisdom-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -105,8 +109,13 @@ export default {
         },
         "fire": {
           "0%, 100%": { transform: "scale(1) rotate(0deg)" },
-          "25%": { transform: "scale(1.1) rotate(-5deg)" },
-          "75%": { transform: "scale(1.1) rotate(5deg)" },
+          "25%": { transform: "scale(1.15) rotate(-5deg)" },
+          "50%": { transform: "scale(1.1) rotate(0deg)" },
+          "75%": { transform: "scale(1.15) rotate(5deg)" },
+        },
+        "bounce": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-25%)" },
         },
       },
       animation: {
@@ -116,7 +125,8 @@ export default {
         "float": "float 3s ease-in-out infinite",
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
-        "fire": "fire 0.5s ease-in-out infinite",
+        "fire": "fire 0.6s ease-in-out infinite",
+        "bounce": "bounce 0.6s ease-in-out infinite",
       },
     },
   },
