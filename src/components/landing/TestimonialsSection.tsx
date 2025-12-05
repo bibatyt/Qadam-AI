@@ -1,44 +1,47 @@
 import { Quote, Star } from "lucide-react";
-
-const testimonials = [
-  {
-    quote: "Благодаря Qadam я подготовил идеальное эссе и получил стипендию в НИШ. AI-советник помог на каждом шаге!",
-    author: "Алмас М.",
-    university: "NU",
-  },
-  {
-    quote: "Раньше я не знала с чего начать. Qadam дал мне чёткий план и уверенность. И сейчас учусь на гранте в столице Турции",
-    author: "Дана К.",
-    university: "Bilkent",
-  },
-  {
-    quote: "Система геймификации мотивировала меня готовиться каждый день. Серия в 90 дней помогла мне набрать 1500+ на SAT!",
-    author: "Тимур А.",
-    university: "MIT",
-  },
-];
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 export function TestimonialsSection() {
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
+
+  const testimonials = [
+    {
+      quote: t.testimonial1Quote,
+      author: t.testimonial1Author,
+      university: t.testimonial1Uni,
+    },
+    {
+      quote: t.testimonial2Quote,
+      author: t.testimonial2Author,
+      university: t.testimonial2Uni,
+    },
+  ];
+
   return (
-    <section className="py-20 px-4 bg-secondary/50">
-      <div className="container max-w-4xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12">
-          Истории успеха
+    <section className="py-20 px-4 bg-secondary/50 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-10 left-10 w-20 h-20 border-2 border-primary/10 rounded-full animate-pulse" />
+      <div className="absolute bottom-10 right-10 w-32 h-32 border-2 border-accent/10 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+      
+      <div className="container max-w-4xl mx-auto relative z-10">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12 animate-fade-in">
+          {t.successStories}
         </h2>
         
-        <div className="space-y-6">
+        <div className="grid md:grid-cols-2 gap-6">
           {testimonials.map((testimonial, index) => (
             <div
-              key={testimonial.author}
-              className="bg-card rounded-2xl p-6 shadow-card animate-slide-up"
+              key={index}
+              className="bg-card rounded-2xl p-6 shadow-card border border-border/50 animate-fade-in hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 group"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <Quote className="w-8 h-8 text-primary mb-4" />
+              <Quote className="w-8 h-8 text-primary mb-4 group-hover:scale-110 transition-transform" />
               <p className="text-foreground mb-4 leading-relaxed">
                 "{testimonial.quote}"
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
+                <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold shadow-primary">
                   {testimonial.author[0]}
                 </div>
                 <div>
