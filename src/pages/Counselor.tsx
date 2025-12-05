@@ -3,6 +3,8 @@ import { Bot, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/useLanguage";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   id: string;
@@ -12,6 +14,7 @@ interface Message {
 
 const Counselor = () => {
   const { t, language } = useLanguage();
+  const { toast } = useToast();
   
   const suggestedQueries = [
     t("howToWriteEssay"),
@@ -29,6 +32,7 @@ const Counselor = () => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -46,6 +50,8 @@ const Counselor = () => {
       role: "assistant",
       content: t("aiGreeting"),
     }]);
+    // Reset thread when language changes for fresh context
+    setThreadId(null);
   }, [language]);
 
   const handleSend = async (text?: string) => {
@@ -62,46 +68,61 @@ const Counselor = () => {
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response - replace with real Gemini API call
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-counselor', {
+        body: { 
+          message: messageText,
+          threadId: threadId,
+          language: language,
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Save thread ID for conversation continuity
+      if (data.threadId) {
+        setThreadId(data.threadId);
+      }
+
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: getSimulatedResponse(messageText),
+        content: data.response,
       };
       setMessages((prev) => [...prev, aiResponse]);
-      setIsLoading(false);
-    }, 1500);
-  };
 
-  const getSimulatedResponse = (query: string): string => {
-    const lowerQuery = query.toLowerCase();
-    if (lowerQuery.includes("эссе") || lowerQuery.includes("essay")) {
-      return language === "ru" 
-        ? "Эссе — это ваш шанс показать себя! Вот главные советы:\n\n1. **Будьте искренними** — приёмная комиссия ценит подлинность\n2. **Расскажите историю** — конкретный пример лучше общих слов\n3. **Покажите рост** — как вы изменились и что узнали\n\nХотите разобрать структуру эссе подробнее?"
-        : language === "kk"
-        ? "Эссе — өзіңізді көрсету мүмкіндігі! Міне басты кеңестер:\n\n1. **Шынайы болыңыз** — комиссия шынайылықты бағалайды\n2. **Әңгіме айтыңыз** — нақты мысал жалпы сөздерден жақсы\n3. **Өсіміңізді көрсетіңіз** — қалай өзгердіңіз және не үйрендіңіз"
-        : "Essay is your chance to show yourself! Here are key tips:\n\n1. **Be authentic** — admissions committees value authenticity\n2. **Tell a story** — specific examples beat general statements\n3. **Show growth** — how you changed and what you learned\n\nWant me to break down essay structure in detail?";
+    } catch (error) {
+      console.error('Error calling AI counselor:', error);
+      toast({
+        title: language === "ru" ? "Ошибка" : language === "kk" ? "Қате" : "Error",
+        description: language === "ru" 
+          ? "Не удалось получить ответ. Попробуйте позже." 
+          : language === "kk"
+          ? "Жауап алу мүмкін болмады. Кейінірек көріңіз."
+          : "Failed to get response. Please try again.",
+        variant: "destructive",
+      });
+      
+      // Add fallback message
+      const fallbackMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: language === "ru" 
+          ? "Извините, произошла ошибка. Пожалуйста, попробуйте ещё раз через несколько секунд."
+          : language === "kk"
+          ? "Кешіріңіз, қате орын алды. Бірнеше секундтан кейін қайталап көріңіз."
+          : "Sorry, an error occurred. Please try again in a few seconds.",
+      };
+      setMessages((prev) => [...prev, fallbackMessage]);
+    } finally {
+      setIsLoading(false);
     }
-    if (lowerQuery.includes("ielts") || lowerQuery.includes("toefl")) {
-      return language === "ru"
-        ? "Оба теста принимаются большинством университетов! \n\n**IELTS** популярнее в UK, Европе и Австралии\n**TOEFL** — традиционно выбор для США\n\nВыбирайте тот, формат которого вам ближе. Нужен план подготовки?"
-        : language === "kk"
-        ? "Екі тест те көптеген университеттерде қабылданады!\n\n**IELTS** UK, Еуропа және Австралияда танымал\n**TOEFL** — АҚШ үшін дәстүрлі таңдау\n\nСізге жақын форматты таңдаңыз. Дайындық жоспары қажет пе?"
-        : "Both tests are accepted by most universities!\n\n**IELTS** is more popular in UK, Europe, and Australia\n**TOEFL** is traditionally the choice for the USA\n\nChoose the one whose format suits you better. Need a preparation plan?";
-    }
-    if (lowerQuery.includes("mit") || lowerQuery.includes("harvard") || lowerQuery.includes("поступить") || lowerQuery.includes("apply")) {
-      return language === "ru"
-        ? "Для поступления в топовые университеты важно:\n\n• GPA 3.9+ и сильные AP/IB курсы\n• SAT 1550+ или ACT 35+\n• Олимпиады, исследования, проекты\n• Уникальные эссе и рекомендации\n\nШанс поступления ~4-6%, но с Qadam всё возможно! 💪"
-        : language === "kk"
-        ? "Үздік университеттерге түсу үшін маңызды:\n\n• GPA 3.9+ және күшті AP/IB курстар\n• SAT 1550+ немесе ACT 35+\n• Олимпиадалар, зерттеулер, жобалар\n• Бірегей эссе және ұсыныстар\n\nТүсу мүмкіндігі ~4-6%, бірақ Qadam-мен бәрі мүмкін! 💪"
-        : "For admission to top universities, it's important:\n\n• GPA 3.9+ and strong AP/IB courses\n• SAT 1550+ or ACT 35+\n• Olympiads, research, projects\n• Unique essays and recommendations\n\nAcceptance rate is ~4-6%, but with Qadam everything is possible! 💪";
-    }
-    return language === "ru"
-      ? "Отличный вопрос! Чтобы дать максимально полезный ответ, расскажите подробнее:\n\n• В какую страну планируете поступать?\n• На какую специальность?\n• Какой у вас текущий уровень?\n\nТак я смогу составить персональный план именно для вас!"
-      : language === "kk"
-      ? "Керемет сұрақ! Ең пайдалы жауап беру үшін толығырақ айтыңыз:\n\n• Қай елге түсуді жоспарлайсыз?\n• Қандай мамандыққа?\n• Қазіргі деңгейіңіз қандай?\n\nОсылайша мен сізге жеке жоспар құра аламын!"
-      : "Great question! To give you the most helpful answer, tell me more:\n\n• Which country are you planning to apply to?\n• What major?\n• What's your current level?\n\nThis way I can create a personalized plan just for you!";
   };
 
   return (
