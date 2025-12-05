@@ -377,6 +377,8 @@ const Path = () => {
                       <SelectItem value="11th grade">{t("grade11")}</SelectItem>
                       <SelectItem value="12th grade">{t("grade12")}</SelectItem>
                       <SelectItem value="Gap year">{t("gapYear")}</SelectItem>
+                      <SelectItem value="Bachelor's degree">{language === "ru" ? "Бакалавриат (→ Магистратура)" : language === "kk" ? "Бакалавриат (→ Магистратура)" : "Bachelor's (→ Master's)"}</SelectItem>
+                      <SelectItem value="Master's degree">{language === "ru" ? "Магистратура (→ PhD)" : language === "kk" ? "Магистратура (→ PhD)" : "Master's (→ PhD)"}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

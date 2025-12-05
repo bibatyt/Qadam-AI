@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Send, User } from "lucide-react";
+import { Bot, Send, User, MessageSquare, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -12,8 +13,15 @@ interface Message {
   content: string;
 }
 
+interface Conversation {
+  id: string;
+  title: string;
+  created_at: string;
+}
+
 const Counselor = () => {
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const { toast } = useToast();
   
   const suggestedQueries = [
@@ -23,16 +31,12 @@ const Counselor = () => {
     t("deadlines"),
   ];
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content: t("aiGreeting"),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [threadId, setThreadId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -43,20 +47,119 @@ const Counselor = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Update greeting when language changes
+  // Load conversations on mount
   useEffect(() => {
+    if (user) {
+      loadConversations();
+    }
+  }, [user]);
+
+  // Set initial greeting
+  useEffect(() => {
+    if (!currentConversationId && messages.length === 0) {
+      setMessages([{
+        id: "greeting",
+        role: "assistant",
+        content: t("aiGreeting"),
+      }]);
+    }
+  }, [language, currentConversationId]);
+
+  const loadConversations = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('chat_conversations')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false });
+
+    if (!error && data) {
+      setConversations(data);
+    }
+  };
+
+  const loadConversation = async (conversationId: string) => {
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true });
+
+    if (!error && data) {
+      setMessages(data.map(msg => ({
+        id: msg.id,
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+      })));
+      setCurrentConversationId(conversationId);
+      setShowHistory(false);
+    }
+  };
+
+  const createNewConversation = async () => {
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('chat_conversations')
+      .insert({ user_id: user.id })
+      .select()
+      .single();
+
+    if (!error && data) {
+      await loadConversations();
+      return data.id;
+    }
+    return null;
+  };
+
+  const saveMessage = async (conversationId: string, role: "user" | "assistant", content: string) => {
+    if (!user) return;
+
+    await supabase.from('chat_messages').insert({
+      conversation_id: conversationId,
+      user_id: user.id,
+      role,
+      content,
+    });
+
+    // Update conversation title if first user message
+    if (role === "user") {
+      const title = content.slice(0, 50) + (content.length > 50 ? "..." : "");
+      await supabase
+        .from('chat_conversations')
+        .update({ title, updated_at: new Date().toISOString() })
+        .eq('id', conversationId);
+    }
+  };
+
+  const deleteConversation = async (conversationId: string) => {
+    await supabase.from('chat_conversations').delete().eq('id', conversationId);
+    await loadConversations();
+    
+    if (currentConversationId === conversationId) {
+      setCurrentConversationId(null);
+      setMessages([{
+        id: "greeting",
+        role: "assistant",
+        content: t("aiGreeting"),
+      }]);
+    }
+  };
+
+  const startNewChat = () => {
+    setCurrentConversationId(null);
     setMessages([{
-      id: "1",
+      id: "greeting",
       role: "assistant",
       content: t("aiGreeting"),
     }]);
-    // Reset thread when language changes for fresh context
-    setThreadId(null);
-  }, [language]);
+    setShowHistory(false);
+  };
 
   const handleSend = async (text?: string) => {
     const messageText = text || input;
-    if (!messageText.trim()) return;
+    if (!messageText.trim() || !user) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -69,26 +172,32 @@ const Counselor = () => {
     setIsLoading(true);
 
     try {
+      // Create conversation if needed
+      let convId = currentConversationId;
+      if (!convId) {
+        convId = await createNewConversation();
+        if (!convId) throw new Error("Failed to create conversation");
+        setCurrentConversationId(convId);
+      }
+
+      // Save user message
+      await saveMessage(convId, "user", messageText);
+
+      // Get conversation history (excluding greeting)
+      const history = messages
+        .filter(m => m.id !== "greeting")
+        .map(m => ({ role: m.role, content: m.content }));
+
       const { data, error } = await supabase.functions.invoke('ai-counselor', {
         body: { 
           message: messageText,
-          threadId: threadId,
+          conversationHistory: history,
           language: language,
         }
       });
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      // Save thread ID for conversation continuity
-      if (data.threadId) {
-        setThreadId(data.threadId);
-      }
+      if (error) throw new Error(error.message);
+      if (data.error) throw new Error(data.error);
 
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -96,6 +205,10 @@ const Counselor = () => {
         content: data.response,
       };
       setMessages((prev) => [...prev, aiResponse]);
+
+      // Save AI response
+      await saveMessage(convId, "assistant", data.response);
+      await loadConversations();
 
     } catch (error) {
       console.error('Error calling AI counselor:', error);
@@ -109,7 +222,6 @@ const Counselor = () => {
         variant: "destructive",
       });
       
-      // Add fallback message
       const fallbackMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -129,19 +241,95 @@ const Counselor = () => {
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
       <header className="bg-card border-b border-border px-4 py-4 flex-shrink-0">
-        <div className="container max-w-lg mx-auto flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl gradient-primary flex items-center justify-center shadow-primary">
-            <Bot className="w-6 h-6 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="font-extrabold">{t("aiCounselor")}</h1>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-              <span className="text-xs text-muted-foreground font-medium">{t("online")}</span>
+        <div className="container max-w-lg mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl gradient-primary flex items-center justify-center shadow-primary">
+              <Bot className="w-6 h-6 text-primary-foreground" />
             </div>
+            <div>
+              <h1 className="font-extrabold">{t("aiCounselor")}</h1>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                <span className="text-xs text-muted-foreground font-medium">{t("online")}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowHistory(!showHistory)}
+              className="relative"
+            >
+              <MessageSquare className="w-5 h-5" />
+              {conversations.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                  {conversations.length}
+                </span>
+              )}
+            </Button>
+            <Button variant="ghost" size="icon" onClick={startNewChat}>
+              <Plus className="w-5 h-5" />
+            </Button>
           </div>
         </div>
       </header>
+
+      {/* Chat History Sidebar */}
+      {showHistory && (
+        <div className="absolute inset-0 z-50 bg-background/95 backdrop-blur-sm animate-fade-in">
+          <div className="container max-w-lg mx-auto px-4 py-4 h-full flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-lg">
+                {language === "ru" ? "История чатов" : language === "kk" ? "Чат тарихы" : "Chat History"}
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowHistory(false)}>
+                ✕
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-2">
+              {conversations.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">
+                  {language === "ru" ? "Нет сохранённых чатов" : language === "kk" ? "Сақталған чаттар жоқ" : "No saved chats"}
+                </p>
+              ) : (
+                conversations.map((conv) => (
+                  <div
+                    key={conv.id}
+                    className={`p-3 rounded-xl border cursor-pointer transition-colors flex items-center justify-between ${
+                      currentConversationId === conv.id 
+                        ? "bg-primary/10 border-primary" 
+                        : "bg-card border-border hover:bg-muted"
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0" onClick={() => loadConversation(conv.id)}>
+                      <p className="font-medium truncate">{conv.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(conv.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="ml-2 h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteConversation(conv.id);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+            <Button onClick={startNewChat} className="mt-4 w-full">
+              <Plus className="w-4 h-4 mr-2" />
+              {language === "ru" ? "Новый чат" : language === "kk" ? "Жаңа чат" : "New Chat"}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4">

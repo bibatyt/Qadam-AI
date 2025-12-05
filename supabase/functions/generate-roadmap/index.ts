@@ -84,18 +84,54 @@ Return ONLY JSON:
   ]
 }`;
 
+    const isMasters = currentGrade.includes("Bachelor") || currentGrade.includes("Master");
+    const isPhD = currentGrade.includes("Master");
+
     const userPrompt = `Student Profile:
 - Current GPA: ${gpa}/4.0
-- SAT Score: ${satScore || 'Not taken yet'}
+- ${isMasters ? 'GRE/GMAT Score' : 'SAT Score'}: ${satScore || 'Not taken yet'}
 - IELTS/TOEFL Score: ${ieltsScore || 'Not taken yet'}  
-- Current Grade: ${currentGrade}
-- Desired Major: ${desiredMajor}
+- Current Level: ${currentGrade}
+- Desired Major/Field: ${desiredMajor}
 - Target Country: ${targetCountry}
 - Main Goal: ${mainGoal}
 
 Generate a HYPER-DETAILED month-by-month roadmap starting from ${currentMonth} ${currentYear}.
 
-REQUIREMENTS:
+${isMasters ? `
+GRADUATE SCHOOL SPECIFIC REQUIREMENTS:
+1. For Master's/PhD applications, include:
+   - GRE General Test preparation (target scores for ${desiredMajor} programs)
+   - GRE Subject Test if applicable (Math, Physics, CS, etc.)
+   - GMAT for business programs (target 700+ for top schools)
+   - Statement of Purpose writing and revision timeline
+   - Research proposal preparation (for PhD/research masters)
+   - CV/Resume optimization for academic applications
+   - Securing strong Letters of Recommendation (3 academic/professional)
+   - Contacting potential advisors/PIs (with email templates)
+   - Research experience opportunities
+   - Publications and conference presentations
+
+2. Top Graduate Programs to consider for ${desiredMajor}:
+   - USA: MIT, Stanford, Berkeley, CMU, Harvard, Princeton
+   - UK: Oxford, Cambridge, Imperial, LSE, UCL
+   - Europe: ETH Zurich, EPFL, TU Munich, KU Leuven
+   
+3. Funding and Scholarships for Graduate Studies:
+   - Fulbright Program (deadline usually Oct)
+   - DAAD scholarships for Germany
+   - Chevening for UK (Nov deadline)
+   - Erasmus Mundus Joint Master Degrees
+   - University-specific fellowships and assistantships
+   - Research assistantships (RA) and Teaching assistantships (TA)
+   - Bolashak scholarship for Kazakhstan citizens
+
+4. Pre-requisite courses and skills:
+   - Online MOOCs to fill gaps (Coursera, edX, MIT OpenCourseWare)
+   - Research methods and academic writing courses
+   - Programming/technical skills relevant to ${desiredMajor}
+` : `
+UNDERGRADUATE SPECIFIC REQUIREMENTS:
 1. For ${targetCountry}, include country-specific requirements:
    - USA: SAT/ACT, Common App, CSS Profile, specific essay prompts
    - UK: UCAS, personal statement, predicted grades, interviews for Oxbridge
@@ -107,9 +143,10 @@ REQUIREMENTS:
    - Specific research programs (RSI, SSRP, university summer programs)
    - Online courses from Coursera/edX with exact course names
    - Subject-specific tests (SAT Subject, AP, A-levels)
+`}
 
 3. For goal "${mainGoal}", prioritize:
-   - Ivy League/Top 20: Research, unique projects, outstanding essays
+   - Ivy League/Top Programs: Research experience, unique projects, outstanding essays
    - Full scholarship: Need-based aid forms, merit scholarships by name
    - Specific university: That university's unique requirements
 

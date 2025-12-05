@@ -8,19 +8,19 @@ const corsHeaders = {
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
-// System instructions for the assistant
-const ASSISTANT_INSTRUCTIONS = `You are Qadam AI - a friendly and knowledgeable university admissions counselor specializing in helping students from Kazakhstan, Central Asia, and CIS countries apply to top universities worldwide.
+const SYSTEM_PROMPT = `You are Qadam AI - a friendly and knowledgeable university admissions counselor specializing in helping students from Kazakhstan, Central Asia, and CIS countries apply to top universities worldwide.
 
 Your expertise includes:
-- US universities (Ivy League, MIT, Stanford, etc.)
+- US universities (Ivy League, MIT, Stanford, etc.) for both undergraduate and graduate programs
 - UK universities (Oxford, Cambridge, Imperial, LSE)
 - European universities (ETH Zurich, TU Munich, etc.)
 - Asian universities (NUS, KAIST, University of Tokyo)
-- Scholarship programs (Bolashak, Fulbright, Chevening, DAAD, etc.)
+- Scholarship programs (Bolashak, Fulbright, Chevening, DAAD, Erasmus Mundus, etc.)
 - Standardized tests (SAT, ACT, IELTS, TOEFL, GRE, GMAT)
-- Application essays and personal statements
-- Extracurricular activities and research opportunities
+- Application essays, personal statements, and statements of purpose
+- Research opportunities and internships
 - Interview preparation
+- Master's and PhD programs worldwide
 
 Communication style:
 - Be warm, encouraging, and supportive
@@ -35,6 +35,7 @@ When answering:
 - Share insider tips and common mistakes to avoid
 - Recommend resources and next steps
 - If you don't know something specific, be honest and suggest where to find accurate information
+- For master's programs, mention specific courses, prerequisites, and application requirements
 
 Remember: You're not just an advisor, you're a mentor who believes in every student's potential to achieve their dreams!`;
 
@@ -44,178 +45,67 @@ serve(async (req) => {
   }
 
   try {
-    const { message, threadId, language } = await req.json();
+    const { message, conversationHistory, language } = await req.json();
 
     if (!OPENAI_API_KEY) {
       throw new Error('OPENAI_API_KEY is not configured');
     }
 
-    console.log('Received request:', { message, threadId, language });
+    console.log('Received request:', { message, language, historyLength: conversationHistory?.length });
 
-    // Step 1: Create or reuse Assistant
-    let assistantId = Deno.env.get('OPENAI_ASSISTANT_ID');
-    
-    if (!assistantId) {
-      console.log('Creating new assistant...');
-      const assistantResponse = await fetch('https://api.openai.com/v1/assistants', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-          'OpenAI-Beta': 'assistants=v2',
-        },
-        body: JSON.stringify({
-          name: 'Qadam AI Counselor',
-          instructions: ASSISTANT_INSTRUCTIONS,
-          model: 'gpt-4o',
-        }),
-      });
-
-      if (!assistantResponse.ok) {
-        const error = await assistantResponse.text();
-        console.error('Failed to create assistant:', error);
-        throw new Error('Failed to create assistant');
-      }
-
-      const assistant = await assistantResponse.json();
-      assistantId = assistant.id;
-      console.log('Created assistant:', assistantId);
-    }
-
-    // Step 2: Create or reuse Thread
-    let currentThreadId = threadId;
-    
-    if (!currentThreadId) {
-      console.log('Creating new thread...');
-      const threadResponse = await fetch('https://api.openai.com/v1/threads', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-          'OpenAI-Beta': 'assistants=v2',
-        },
-      });
-
-      if (!threadResponse.ok) {
-        const error = await threadResponse.text();
-        console.error('Failed to create thread:', error);
-        throw new Error('Failed to create thread');
-      }
-
-      const thread = await threadResponse.json();
-      currentThreadId = thread.id;
-      console.log('Created thread:', currentThreadId);
-    }
-
-    // Step 3: Add user message to thread
-    console.log('Adding message to thread...');
-    const messageResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-        'OpenAI-Beta': 'assistants=v2',
-      },
-      body: JSON.stringify({
-        role: 'user',
-        content: message,
-      }),
-    });
-
-    if (!messageResponse.ok) {
-      const error = await messageResponse.text();
-      console.error('Failed to add message:', error);
-      throw new Error('Failed to add message');
-    }
-
-    // Step 4: Run the assistant
-    console.log('Running assistant...');
-    const runResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-        'OpenAI-Beta': 'assistants=v2',
-      },
-      body: JSON.stringify({
-        assistant_id: assistantId,
-        additional_instructions: language === 'ru' 
-          ? 'Отвечай на русском языке.' 
+    // Build messages array with conversation history
+    const messages = [
+      { 
+        role: 'system', 
+        content: SYSTEM_PROMPT + (language === 'ru' 
+          ? '\n\nОтвечай на русском языке.' 
           : language === 'kk' 
-          ? 'Қазақ тілінде жауап бер.' 
-          : 'Reply in English.',
+          ? '\n\nҚазақ тілінде жауап бер.' 
+          : '\n\nReply in English.')
+      },
+    ];
+
+    // Add conversation history
+    if (conversationHistory && Array.isArray(conversationHistory)) {
+      conversationHistory.forEach((msg: { role: string; content: string }) => {
+        messages.push({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content,
+        });
+      });
+    }
+
+    // Add current user message
+    messages.push({ role: 'user', content: message });
+
+    console.log('Calling OpenAI with', messages.length, 'messages');
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages,
+        max_tokens: 1000,
+        temperature: 0.7,
       }),
     });
 
-    if (!runResponse.ok) {
-      const error = await runResponse.text();
-      console.error('Failed to run assistant:', error);
-      throw new Error('Failed to run assistant');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
+      throw new Error(`OpenAI API error: ${response.status}`);
     }
 
-    const run = await runResponse.json();
-    console.log('Run started:', run.id);
-
-    // Step 5: Poll for completion
-    let runStatus = run.status;
-    let attempts = 0;
-    const maxAttempts = 60; // 60 seconds max wait
-
-    while (runStatus !== 'completed' && runStatus !== 'failed' && attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const statusResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs/${run.id}`, {
-        headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-          'OpenAI-Beta': 'assistants=v2',
-        },
-      });
-
-      if (!statusResponse.ok) {
-        const error = await statusResponse.text();
-        console.error('Failed to check run status:', error);
-        throw new Error('Failed to check run status');
-      }
-
-      const statusData = await statusResponse.json();
-      runStatus = statusData.status;
-      attempts++;
-      console.log(`Run status: ${runStatus} (attempt ${attempts})`);
-    }
-
-    if (runStatus !== 'completed') {
-      throw new Error(`Run did not complete. Status: ${runStatus}`);
-    }
-
-    // Step 6: Get messages
-    console.log('Fetching messages...');
-    const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages?limit=1`, {
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'OpenAI-Beta': 'assistants=v2',
-      },
-    });
-
-    if (!messagesResponse.ok) {
-      const error = await messagesResponse.text();
-      console.error('Failed to fetch messages:', error);
-      throw new Error('Failed to fetch messages');
-    }
-
-    const messagesData = await messagesResponse.json();
-    const assistantMessage = messagesData.data[0];
+    const data = await response.json();
+    const responseText = data.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
     
-    if (!assistantMessage || assistantMessage.role !== 'assistant') {
-      throw new Error('No assistant response found');
-    }
+    console.log('Response generated successfully');
 
-    const responseText = assistantMessage.content[0]?.text?.value || 'Sorry, I could not generate a response.';
-    console.log('Assistant response received');
-
-    return new Response(JSON.stringify({ 
-      response: responseText,
-      threadId: currentThreadId,
-    }), {
+    return new Response(JSON.stringify({ response: responseText }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
