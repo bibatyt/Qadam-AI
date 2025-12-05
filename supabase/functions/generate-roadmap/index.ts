@@ -36,31 +36,46 @@ serve(async (req) => {
 
     const languagePrompt = language === 'ru' ? 'Russian' : language === 'kk' ? 'Kazakh' : 'English';
 
-    const systemPrompt = `You are an expert university admissions counselor. Generate a detailed, month-by-month roadmap to help a student achieve their university admission goal. 
+    const systemPrompt = `You are an elite university admissions counselor with expertise in getting students into top universities worldwide. Generate an EXTREMELY DETAILED, month-by-month roadmap with SPECIFIC, CONCRETE actions.
 
-IMPORTANT: Respond ONLY with valid JSON, no markdown, no code blocks, just pure JSON.
+CRITICAL RULES FOR TASK GENERATION:
+1. NEVER use vague language like "research universities" or "prepare for tests"
+2. ALWAYS include SPECIFIC names, numbers, and deadlines
+3. Each task MUST have a clear, measurable outcome
+4. Include EXACT resources, websites, and programs by name
+
+EXAMPLE OF BAD TASK: "Research universities in Germany"
+EXAMPLE OF GOOD TASK: "Create a spreadsheet comparing TU Munich, LMU Munich, Heidelberg, and RWTH Aachen for ${desiredMajor}. Include: admission requirements, tuition fees, language requirements, application deadlines (TU Munich: Jan 15, LMU: Jan 15), and scholarship opportunities (DAAD, Deutschlandstipendium)"
+
+EXAMPLE OF BAD TASK: "Improve English skills"  
+EXAMPLE OF GOOD TASK: "Complete Cambridge IELTS 18 Practice Test 1-2. Target: Reading 7.5+, Listening 7.5+. Use official British Council IELTS prep materials. Schedule speaking practice 3x/week on italki.com"
+
+EXAMPLE OF BAD TASK: "Work on extracurriculars"
+EXAMPLE OF GOOD TASK: "Register for USABO (USA Biology Olympiad) Open Exam (deadline: Feb 1). Complete chapters 1-5 of Campbell Biology 12th edition. Join Biology Olympiad Discord server for peer study groups"
+
+IMPORTANT: Respond ONLY with valid JSON, no markdown, no code blocks.
 
 The roadmap should:
 1. Start from ${currentMonth} ${currentYear}
-2. Include 8-12 months of planning depending on the goal
-3. Each month should have 3-5 specific, actionable tasks
-4. Tasks should be SMART (Specific, Measurable, Achievable, Relevant, Time-bound)
-5. Consider the student's current level and target goal
-6. Include tasks for: academics, standardized tests, extracurriculars, essays, recommendations, applications
+2. Include 8-12 months of planning
+3. Each month should have 4-6 HYPER-SPECIFIC tasks
+4. Every task must include: specific program names, exact deadlines, concrete numbers/targets, recommended resources
+5. Adapt tasks to the student's target country requirements
+6. For ${targetCountry} specifically include: required exams, language certificates, specific universities, scholarship programs
 
-Generate all task titles and descriptions in ${languagePrompt}.
+Generate all content in ${languagePrompt}.
 
-Return ONLY a JSON object with this exact structure (no markdown):
+Return ONLY JSON:
 {
   "months": [
     {
       "month": "Month Year",
       "monthIndex": 0,
-      "theme": "Short theme description",
+      "theme": "Short theme (2-4 words)",
       "tasks": [
         {
-          "title": "Task title",
-          "description": "Detailed description",
+          "title": "Concise but specific title (max 10 words)",
+          "description": "DETAILED description with: 1) Exact actions to take, 2) Specific resources/websites, 3) Measurable outcomes, 4) Deadlines if applicable. Minimum 3 sentences.",
           "category": "academic|test|extracurricular|essay|recommendation|application",
           "xpReward": 15
         }
@@ -70,17 +85,35 @@ Return ONLY a JSON object with this exact structure (no markdown):
 }`;
 
     const userPrompt = `Student Profile:
-- Current GPA: ${gpa}
+- Current GPA: ${gpa}/4.0
 - SAT Score: ${satScore || 'Not taken yet'}
-- IELTS/TOEFL Score: ${ieltsScore || 'Not taken yet'}
+- IELTS/TOEFL Score: ${ieltsScore || 'Not taken yet'}  
 - Current Grade: ${currentGrade}
 - Desired Major: ${desiredMajor}
-- Target Country/Region: ${targetCountry}
+- Target Country: ${targetCountry}
 - Main Goal: ${mainGoal}
 
-Generate a comprehensive month-by-month roadmap starting from ${currentMonth} ${currentYear} to help this student achieve their goal of: "${mainGoal}"
+Generate a HYPER-DETAILED month-by-month roadmap starting from ${currentMonth} ${currentYear}.
 
-Focus on what's most important for ${targetCountry} universities and the specific goal. Make tasks concrete and actionable.`;
+REQUIREMENTS:
+1. For ${targetCountry}, include country-specific requirements:
+   - USA: SAT/ACT, Common App, CSS Profile, specific essay prompts
+   - UK: UCAS, personal statement, predicted grades, interviews for Oxbridge
+   - Germany: Uni-Assist, TestAS, German language requirements (TestDaF/DSH)
+   - Europe: Specific country requirements, Erasmus+, Bologna process
+   
+2. For "${desiredMajor}" major, include:
+   - Relevant olympiads and competitions with EXACT names and deadlines
+   - Specific research programs (RSI, SSRP, university summer programs)
+   - Online courses from Coursera/edX with exact course names
+   - Subject-specific tests (SAT Subject, AP, A-levels)
+
+3. For goal "${mainGoal}", prioritize:
+   - Ivy League/Top 20: Research, unique projects, outstanding essays
+   - Full scholarship: Need-based aid forms, merit scholarships by name
+   - Specific university: That university's unique requirements
+
+Make EVERY task actionable with specific steps, resources, and deadlines.`;
 
     console.log("Calling Lovable AI Gateway for roadmap generation...");
 

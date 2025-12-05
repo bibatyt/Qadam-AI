@@ -26,6 +26,18 @@ export const landingTranslations = {
     bookDemo: 'Book Demo',
     signIn: 'Sign In',
     
+    // Book Demo Modal
+    bookDemoTitle: 'Book a Free Demo',
+    yourName: 'Your Name',
+    namePlaceholder: 'Enter your name',
+    yourPhone: 'Phone Number',
+    submitDemo: 'Request Demo',
+    sending: 'Sending...',
+    fillAllFields: 'Please fill all fields',
+    demoSuccess: 'Request Sent!',
+    demoSuccessDesc: 'We will contact you shortly to schedule a demo',
+    demoError: 'Failed to send request. Please try again.',
+    
     // Hero
     aiPowered: 'AI-powered education',
     heroTitle: 'Get into your',
@@ -90,6 +102,18 @@ export const landingTranslations = {
     bookDemo: 'Записаться на демо',
     signIn: 'Войти',
     
+    // Book Demo Modal
+    bookDemoTitle: 'Записаться на бесплатное демо',
+    yourName: 'Ваше имя',
+    namePlaceholder: 'Введите ваше имя',
+    yourPhone: 'Номер телефона',
+    submitDemo: 'Отправить заявку',
+    sending: 'Отправка...',
+    fillAllFields: 'Пожалуйста, заполните все поля',
+    demoSuccess: 'Заявка отправлена!',
+    demoSuccessDesc: 'Мы свяжемся с вами в ближайшее время',
+    demoError: 'Не удалось отправить заявку. Попробуйте снова.',
+    
     // Hero
     aiPowered: 'AI-powered образование',
     heroTitle: 'Поступи в университет',
@@ -153,6 +177,18 @@ export const landingTranslations = {
     // Header
     bookDemo: 'Демоға жазылу',
     signIn: 'Кіру',
+    
+    // Book Demo Modal
+    bookDemoTitle: 'Тегін демоға жазылу',
+    yourName: 'Сіздің атыңыз',
+    namePlaceholder: 'Атыңызды енгізіңіз',
+    yourPhone: 'Телефон нөмірі',
+    submitDemo: 'Өтінім жіберу',
+    sending: 'Жіберілуде...',
+    fillAllFields: 'Барлық өрістерді толтырыңыз',
+    demoSuccess: 'Өтінім жіберілді!',
+    demoSuccessDesc: 'Біз сізбен жақын арада байланысамыз',
+    demoError: 'Өтінімді жіберу сәтсіз. Қайтадан көріңіз.',
     
     // Hero
     aiPowered: 'AI-қуатты білім',

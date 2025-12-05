@@ -29,7 +29,7 @@ export function TestimonialsSection() {
           {t.successStories}
         </h2>
         
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
