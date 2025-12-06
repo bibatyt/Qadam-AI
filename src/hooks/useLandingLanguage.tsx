@@ -76,7 +76,7 @@ export const landingTranslations = {
     testimonial1Uni: 'NU',
     testimonial2Quote: 'The gamification system motivated me to prepare every day. A 90-day streak helped me score 1500+ on SAT!',
     testimonial2Author: 'Tamerlan A.',
-    testimonial2Uni: 'MIT',
+    testimonial2Uni: 'Ankara University',
     
     // FAQ
     faq: 'Frequently Asked Questions',
@@ -152,7 +152,7 @@ export const landingTranslations = {
     testimonial1Uni: 'NU',
     testimonial2Quote: 'Раньше я не знал с чего начать. Qadam дал мне чёткий план и уверенность. И сейчас учусь на гранте в столице Турции',
     testimonial2Author: 'Тамерлан А.',
-    testimonial2Uni: 'MIT',
+    testimonial2Uni: 'Ankara University',
     
     // FAQ
     faq: 'Частые вопросы',
@@ -228,7 +228,7 @@ export const landingTranslations = {
     testimonial1Uni: 'NU',
     testimonial2Quote: 'Геймификация жүйесі мені күн сайын дайындалуға ынталандырды. 90 күндік серия SAT-та 1500+ ұпай жинауға көмектесті!',
     testimonial2Author: 'Тамерлан А.',
-    testimonial2Uni: 'MIT',
+    testimonial2Uni: 'Ankara University',
     
     // FAQ
     faq: 'Жиі қойылатын сұрақтар',
