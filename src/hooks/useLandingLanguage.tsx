@@ -147,7 +147,7 @@ export const landingTranslations = {
     
     // Testimonials
     successStories: 'Истории успеха',
-    testimonial1Quote: 'Благодаря Qadam я подготовил идеальное эссе и получил стипендию в НИШ. AI-советник помог на каждом шаге!',
+    testimonial1Quote: 'Благодаря Qadam я структурно и хорошо подготовился и получил стипендию в НИШ. AI-советник помог на каждом шаге!',
     testimonial1Author: 'Алмас М.',
     testimonial1Uni: 'NU',
     testimonial2Quote: 'Система геймификации мотивировала меня готовиться каждый день. Серия в 90 дней помогла мне набрать 1500+ на SAT!',
