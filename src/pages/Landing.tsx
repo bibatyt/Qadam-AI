@@ -3,6 +3,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { ProcessSection } from "@/components/landing/ProcessSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { ReviewsSection } from "@/components/landing/ReviewsSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { FooterCTA } from "@/components/landing/FooterCTA";
 import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
@@ -19,6 +20,7 @@ const Landing = () => {
         <FeaturesSection />
         <ProcessSection />
         <TestimonialsSection />
+        <ReviewsSection />
         <FAQSection />
         <FooterCTA />
       </main>
