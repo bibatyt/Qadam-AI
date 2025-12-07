@@ -54,7 +54,7 @@ const getRandomQuests = (language: Language) => {
 
 export function useDailyQuests() {
   const { user } = useAuth();
-  const { addXP, profile } = useProfile();
+  const { addXP, removeXP, profile } = useProfile();
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -134,6 +134,9 @@ export function useDailyQuests() {
       if (newCompleted) {
         await addXP(quest.xp_reward);
         toast.success(`+${quest.xp_reward} XP! 🎉`);
+      } else {
+        await removeXP(quest.xp_reward);
+        toast.info(`-${quest.xp_reward} XP`);
       }
     } catch (error) {
       console.error("Error toggling quest:", error);

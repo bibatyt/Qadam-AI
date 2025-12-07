@@ -88,6 +88,19 @@ export function useProfile() {
     }
   };
 
+  const removeXP = async (amount: number) => {
+    if (!profile) return;
+
+    const newXP = Math.max(0, profile.xp - amount);
+    const xpPerLevel = 100;
+    const newLevel = Math.floor(newXP / xpPerLevel) + 1;
+
+    await updateProfile({
+      xp: newXP,
+      level: newLevel,
+    });
+  };
+
   const updateStreak = async () => {
     if (!profile) return;
 
@@ -117,6 +130,7 @@ export function useProfile() {
     loading,
     updateProfile,
     addXP,
+    removeXP,
     updateStreak,
     refetch: fetchProfile,
   };
