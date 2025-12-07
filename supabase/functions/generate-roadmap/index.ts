@@ -36,32 +36,38 @@ serve(async (req) => {
 
     const languagePrompt = language === 'ru' ? 'Russian' : language === 'kk' ? 'Kazakh' : 'English';
 
-    const systemPrompt = `You are an elite university admissions counselor with expertise in getting students into top universities worldwide. Generate an EXTREMELY DETAILED, month-by-month roadmap with SPECIFIC, CONCRETE actions.
+    const systemPrompt = `You are a hyper-detailed university admissions counselor. Your task is to generate an EXTREMELY DETAILED, month-by-month roadmap with ACTIONABLE, SPECIFIC tasks.
 
-CRITICAL RULES FOR TASK GENERATION:
-1. NEVER use vague language like "research universities" or "prepare for tests"
-2. ALWAYS include SPECIFIC names, numbers, and deadlines
-3. Each task MUST have a clear, measurable outcome
-4. Include EXACT resources, websites, and programs by name
+CRITICAL RULES - EVERY TASK MUST:
+1. Be a SELF-CONTAINED action paragraph with MINIMUM 3-4 sentences
+2. Include an ACTION VERB: What to do (Study, Write, Submit, Research, Complete, Register, etc.)
+3. Include SPECIFIC RESOURCES: Exact websites, books, platforms (e.g., "DAAD.de", "Common App", "Khan Academy SAT Prep", "Cambridge IELTS 18")
+4. Include MEASURABLE OUTCOMES: What will be achieved (e.g., "determine if GPA meets requirements", "complete 5 practice essays", "achieve 7.5+ on practice test")
+5. Include DEADLINES when applicable
+6. NEVER use vague phrases like "study better", "prepare more", "research universities"
 
-EXAMPLE OF BAD TASK: "Research universities in Germany"
-EXAMPLE OF GOOD TASK: "Create a spreadsheet comparing TU Munich, LMU Munich, Heidelberg, and RWTH Aachen for ${desiredMajor}. Include: admission requirements, tuition fees, language requirements, application deadlines (TU Munich: Jan 15, LMU: Jan 15), and scholarship opportunities (DAAD, Deutschlandstipendium)"
+EXAMPLE OF BAD TASK (DO NOT DO THIS):
+- Title: "GPA Assessment"
+- Description: "Check your GPA"
 
-EXAMPLE OF BAD TASK: "Improve English skills"  
-EXAMPLE OF GOOD TASK: "Complete Cambridge IELTS 18 Practice Test 1-2. Target: Reading 7.5+, Listening 7.5+. Use official British Council IELTS prep materials. Schedule speaking practice 3x/week on italki.com"
+EXAMPLE OF EXCELLENT TASK (DO THIS):
+- Title: "Оценка текущего GPA и его соответствие требованиям"
+- Description: "Проверить, как текущий средний балл (GPA ${gpa}) конвертируется в немецкую систему оценок (Numerus Clausus) и соответствует ли он средним проходным баллам выбранных программ. Использовать официальный конвертер на сайте anabin.kmk.org для перевода оценок. Создать таблицу сравнения: ваш GPA vs. средний проходной балл для ${desiredMajor} в ТОП-5 университетах ${targetCountry}."
 
-EXAMPLE OF BAD TASK: "Work on extracurriculars"
-EXAMPLE OF GOOD TASK: "Register for USABO (USA Biology Olympiad) Open Exam (deadline: Feb 1). Complete chapters 1-5 of Campbell Biology 12th edition. Join Biology Olympiad Discord server for peer study groups"
+ANOTHER EXCELLENT EXAMPLE:
+- Title: "Исследование требований к поступлению в ВУЗы ${targetCountry}"
+- Description: "Изучить сайты DAAD (Немецкой службы академических обменов), университетов, которые предлагают программы по ${desiredMajor}. Определить общие требования к аттестату, языковым сертификатам (TOEFL/IELTS, TestDaF/DSH), возможным вступительным экзаменам. Составить чек-лист из минимум 10 пунктов с конкретными требованиями каждого университета и их дедлайнами."
 
 IMPORTANT: Respond ONLY with valid JSON, no markdown, no code blocks.
 
 The roadmap should:
 1. Start from ${currentMonth} ${currentYear}
-2. Include 8-12 months of planning
-3. Each month should have 4-6 HYPER-SPECIFIC tasks
-4. Every task must include: specific program names, exact deadlines, concrete numbers/targets, recommended resources
+2. Include 8-12 months of detailed planning
+3. Each month should have 4-6 HYPER-SPECIFIC tasks with LONG descriptions (3-5 sentences each)
+4. Every task description must be a COMPLETE action plan, not just a title expansion
 5. Adapt tasks to the student's target country requirements
 6. For ${targetCountry} specifically include: required exams, language certificates, specific universities, scholarship programs
+7. Make each task description so detailed that a student can follow it WITHOUT additional guidance
 
 Generate all content in ${languagePrompt}.
 
@@ -74,10 +80,10 @@ Return ONLY JSON:
       "theme": "Short theme (2-4 words)",
       "tasks": [
         {
-          "title": "Concise but specific title (max 10 words)",
-          "description": "DETAILED description with: 1) Exact actions to take, 2) Specific resources/websites, 3) Measurable outcomes, 4) Deadlines if applicable. Minimum 3 sentences.",
+          "title": "Clear action-oriented title (5-12 words)",
+          "description": "DETAILED paragraph with: 1) Exact action steps, 2) Specific resources/websites/books, 3) Measurable outcomes, 4) Why this matters. MINIMUM 3-4 sentences, ideally 5-6 sentences.",
           "category": "academic|test|extracurricular|essay|recommendation|application",
-          "xpReward": 15
+          "xpReward": 15-30 (based on task complexity)
         }
       ]
     }

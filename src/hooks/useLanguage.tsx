@@ -113,8 +113,14 @@ const translations: Translations = {
   majorPlaceholder: { ru: "Computer Science, Медицина...", en: "Computer Science, Medicine...", kk: "Computer Science, Medicine..." },
   targetCountry: { ru: "Целевая страна", en: "Target Country", kk: "Мақсатты ел" },
   selectCountry: { ru: "Выберите страну", en: "Select country", kk: "Елді таңдаңыз" },
-  mainGoal: { ru: "Главная цель", en: "Main Goal", kk: "Басты мақсат" },
-  goalPlaceholder: { ru: "Поступить в Ivy League, получить грант...", en: "Get into Ivy League, win a scholarship...", kk: "Ivy League-ге түсу, грант алу..." },
+  mainGoal: { ru: "Главная цель поступления", en: "Main Admission Goal", kk: "Түсудің басты мақсаты" },
+  goalPlaceholder: { 
+    ru: "Моя цель: Поступить в [Университет/Лига], на [Профессию], с [Грантом/Финансированием]. Укажите все детали...", 
+    en: "My goal: Get into [University/League], study [Major], with [Scholarship/Funding]. Include all details...", 
+    kk: "Менің мақсатым: [Университет/Лига]-ға түсу, [Мамандық] оқу, [Грант/Қаржыландыру] алу. Барлық мәліметтерді көрсетіңіз..." 
+  },
+  goalMinLength: { ru: "Минимум 15 символов для детального плана", en: "Minimum 15 characters for detailed plan", kk: "Толық жоспар үшін кемінде 15 таңба" },
+  goalTooShort: { ru: "Опишите цель подробнее (минимум 15 символов)", en: "Describe your goal in more detail (min 15 characters)", kk: "Мақсатыңызды толығырақ сипаттаңыз (кемінде 15 таңба)" },
   generatePlan: { ru: "Создать AI план", en: "Generate AI Plan", kk: "AI жоспарын жасау" },
   generatingPlan: { ru: "Создание плана...", en: "Generating plan...", kk: "Жоспар жасалуда..." },
   roadmapGenerated: { ru: "План создан! 🎉", en: "Plan created! 🎉", kk: "Жоспар жасалды! 🎉" },

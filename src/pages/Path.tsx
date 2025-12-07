@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
@@ -149,9 +150,15 @@ const Path = () => {
     }
   };
 
+  const isGoalValid = mainGoal.trim().length >= 15;
+
   const generateRoadmap = async () => {
     if (!gpa || !currentGrade || !desiredMajor || !targetCountry || !mainGoal) {
       toast.error(t("fillAllFields"));
+      return;
+    }
+    if (!isGoalValid) {
+      toast.error(t("goalTooShort"));
       return;
     }
 
@@ -443,17 +450,21 @@ const Path = () => {
 
               <div className="space-y-2">
                 <Label className="font-semibold">{t("mainGoal")} *</Label>
-                <Input
+                <Textarea
                   placeholder={t("goalPlaceholder")}
                   value={mainGoal}
                   onChange={(e) => setMainGoal(e.target.value)}
-                  className="h-12 rounded-xl"
+                  className="min-h-24 rounded-xl resize-none"
+                  rows={3}
                 />
+                <p className={`text-xs ${mainGoal.length >= 15 ? 'text-muted-foreground' : 'text-destructive'}`}>
+                  {t("goalMinLength")} ({mainGoal.length}/15)
+                </p>
               </div>
 
               <Button
                 onClick={generateRoadmap}
-                disabled={generating}
+                disabled={generating || !isGoalValid || !gpa || !currentGrade || !desiredMajor || !targetCountry}
                 className="w-full h-14 rounded-xl font-bold text-base shadow-primary"
               >
                 {generating ? (
@@ -554,54 +565,63 @@ const Path = () => {
 
               {/* Tasks */}
               {isExpanded && (
-                <div className="px-4 pb-4 space-y-2 border-t border-border/50 pt-3">
+                <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
                   {month.tasks.map((task, taskIndex) => {
                     const TaskIcon = categoryIcons[task.category] || Target;
                     const colorClass = categoryColors[task.category] || "bg-muted text-muted-foreground";
 
                     return (
-                      <button
+                      <div
                         key={taskIndex}
-                        onClick={() => toggleTask(monthIndex, task.title, task.completed)}
-                        className={`quest-item w-full ${
-                          task.completed ? "quest-item-completed" : "quest-item-pending"
+                        className={`p-4 rounded-xl border transition-all ${
+                          task.completed 
+                            ? "bg-muted/30 border-muted" 
+                            : "bg-card border-border hover:border-primary/30"
                         }`}
                       >
-                        {task.completed ? (
-                          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                            <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
+                        <div className="flex items-start gap-3">
+                          <button
+                            onClick={() => toggleTask(monthIndex, task.title, task.completed)}
+                            className="mt-0.5 flex-shrink-0"
+                          >
+                            {task.completed ? (
+                              <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
+                                <CheckCircle2 className="w-4 h-4 text-primary-foreground" />
+                              </div>
+                            ) : (
+                              <div className="w-7 h-7 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center hover:border-primary/50 transition-colors">
+                                <Circle className="w-3.5 h-3.5 text-muted-foreground/50" />
+                              </div>
+                            )}
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                              <span className={`text-xs font-bold px-2 py-0.5 rounded-md uppercase tracking-wide ${colorClass}`}>
+                                {task.category}
+                              </span>
+                              <span className={`text-xs font-extrabold px-2 py-0.5 rounded-lg ${
+                                task.completed 
+                                  ? "text-primary bg-primary/10" 
+                                  : "text-xp bg-xp/10"
+                              }`}>
+                                +{task.xpReward} XP
+                              </span>
+                            </div>
+                            <h4 className={`text-sm font-bold leading-snug mb-2 ${
+                              task.completed ? "text-muted-foreground line-through" : "text-foreground"
+                            }`}>
+                              {task.title}
+                            </h4>
+                            {task.description && (
+                              <p className={`text-sm leading-relaxed ${
+                                task.completed ? "text-muted-foreground/70" : "text-muted-foreground"
+                              }`}>
+                                {task.description}
+                              </p>
+                            )}
                           </div>
-                        ) : (
-                          <div className="w-8 h-8 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center flex-shrink-0">
-                            <Circle className="w-4 h-4 text-muted-foreground/50" />
-                          </div>
-                        )}
-                        <div className="flex-1 text-left">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${colorClass}`}>
-                              <TaskIcon className="w-3 h-3 inline mr-1" />
-                              {task.category}
-                            </span>
-                          </div>
-                          <p className={`text-sm font-semibold ${
-                            task.completed ? "text-muted-foreground line-through" : "text-foreground"
-                          }`}>
-                            {task.title}
-                          </p>
-                          {task.description && (
-                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                              {task.description}
-                            </p>
-                          )}
                         </div>
-                        <span className={`text-sm font-extrabold whitespace-nowrap px-2 py-1 rounded-lg ${
-                          task.completed 
-                            ? "text-primary bg-primary/10" 
-                            : "text-xp bg-xp/10"
-                        }`}>
-                          +{task.xpReward} XP
-                        </span>
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
