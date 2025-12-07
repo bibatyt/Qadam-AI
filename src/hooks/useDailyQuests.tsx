@@ -4,6 +4,8 @@ import { useAuth } from "./useAuth";
 import { useProfile } from "./useProfile";
 import { toast } from "sonner";
 
+type Language = "ru" | "en" | "kk";
+
 interface Quest {
   id: string;
   quest_title: string;
@@ -12,42 +14,51 @@ interface Quest {
   quest_date: string;
 }
 
-const IELTS_QUESTS = [
-  { title: "Прослушать 1 аудио IELTS Listening", xp: 15 },
-  { title: "Прочитать 1 текст IELTS Reading", xp: 15 },
-  { title: "Написать IELTS эссе (250 слов)", xp: 25 },
-  { title: "Выучить 10 новых слов для IELTS", xp: 10 },
-  { title: "Пройти Speaking практику", xp: 20 },
+interface QuestItem {
+  title: { ru: string; en: string; kk: string };
+  xp: number;
+}
+
+const IELTS_QUESTS: QuestItem[] = [
+  { title: { ru: "Прослушать 1 аудио IELTS Listening", en: "Listen to 1 IELTS Listening audio", kk: "1 IELTS Listening аудио тыңдау" }, xp: 15 },
+  { title: { ru: "Прочитать 1 текст IELTS Reading", en: "Read 1 IELTS Reading passage", kk: "1 IELTS Reading мәтін оқу" }, xp: 15 },
+  { title: { ru: "Написать IELTS эссе (250 слов)", en: "Write an IELTS essay (250 words)", kk: "IELTS эссе жазу (250 сөз)" }, xp: 25 },
+  { title: { ru: "Выучить 10 новых слов для IELTS", en: "Learn 10 new IELTS words", kk: "10 жаңа IELTS сөздерін үйрену" }, xp: 10 },
+  { title: { ru: "Пройти Speaking практику", en: "Practice Speaking section", kk: "Speaking бөлімін жаттығу" }, xp: 20 },
 ];
 
-const SAT_QUESTS = [
-  { title: "Решить 5 задач SAT Math", xp: 15 },
-  { title: "Пройти SAT Reading тест", xp: 20 },
-  { title: "Выполнить SAT Writing секцию", xp: 15 },
-  { title: "Разобрать ошибки SAT теста", xp: 10 },
-  { title: "Решить 3 задачи на алгебру", xp: 15 },
+const SAT_QUESTS: QuestItem[] = [
+  { title: { ru: "Решить 5 задач SAT Math", en: "Solve 5 SAT Math problems", kk: "5 SAT Math есебін шығару" }, xp: 15 },
+  { title: { ru: "Пройти SAT Reading тест", en: "Complete SAT Reading test", kk: "SAT Reading тестін өту" }, xp: 20 },
+  { title: { ru: "Выполнить SAT Writing секцию", en: "Complete SAT Writing section", kk: "SAT Writing бөлімін орындау" }, xp: 15 },
+  { title: { ru: "Разобрать ошибки SAT теста", en: "Review SAT test mistakes", kk: "SAT тест қателерін талдау" }, xp: 10 },
+  { title: { ru: "Решить 3 задачи на алгебру", en: "Solve 3 algebra problems", kk: "3 алгебра есебін шығару" }, xp: 15 },
 ];
 
-const GENERAL_QUESTS = [
-  { title: "Прочитать статью об университетах", xp: 10 },
-  { title: "Написать 100 слов для эссе", xp: 20 },
-  { title: "Изучить требования 1 университета", xp: 15 },
+const GENERAL_QUESTS: QuestItem[] = [
+  { title: { ru: "Прочитать статью об университетах", en: "Read an article about universities", kk: "Университеттер туралы мақала оқу" }, xp: 10 },
+  { title: { ru: "Написать 100 слов для эссе", en: "Write 100 words for essay", kk: "Эссе үшін 100 сөз жазу" }, xp: 20 },
+  { title: { ru: "Изучить требования 1 университета", en: "Research 1 university requirements", kk: "1 университеттің талаптарын зерттеу" }, xp: 15 },
 ];
 
-const getRandomQuests = () => {
+const getRandomQuests = (language: Language) => {
+  const getTitle = (quest: QuestItem) => quest.title[language] || quest.title.ru;
+  
   const allQuests = [
-    ...IELTS_QUESTS.sort(() => Math.random() - 0.5).slice(0, 1),
-    ...SAT_QUESTS.sort(() => Math.random() - 0.5).slice(0, 1),
-    ...GENERAL_QUESTS.sort(() => Math.random() - 0.5).slice(0, 1),
+    ...IELTS_QUESTS.sort(() => Math.random() - 0.5).slice(0, 1).map(q => ({ title: getTitle(q), xp: q.xp })),
+    ...SAT_QUESTS.sort(() => Math.random() - 0.5).slice(0, 1).map(q => ({ title: getTitle(q), xp: q.xp })),
+    ...GENERAL_QUESTS.sort(() => Math.random() - 0.5).slice(0, 1).map(q => ({ title: getTitle(q), xp: q.xp })),
   ];
   return allQuests;
 };
 
 export function useDailyQuests() {
   const { user } = useAuth();
-  const { addXP } = useProfile();
+  const { addXP, profile } = useProfile();
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const language = (profile?.language as Language) || "ru";
 
   const fetchOrCreateQuests = async () => {
     if (!user) {
@@ -71,8 +82,8 @@ export function useDailyQuests() {
       if (existingQuests && existingQuests.length > 0) {
         setQuests(existingQuests);
       } else {
-        // Create random quests for today
-        const randomQuests = getRandomQuests();
+        // Create random quests for today in user's language
+        const randomQuests = getRandomQuests(language);
         const newQuests = randomQuests.map((q) => ({
           user_id: user.id,
           quest_title: q.title,
