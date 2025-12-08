@@ -1,19 +1,51 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLandingLanguage } from "@/hooks/useLandingLanguage";
+import { LanguageSwitcher } from "@/components/landing/LanguageSwitcher";
+
+const reviewsTranslations = {
+  en: {
+    headerTitle: "Leave a Review",
+    pageTitle: "Leave a Review",
+    pageDesc: "Your opinion helps us improve",
+    loading: "Loading…",
+    formTitle: "Review Form",
+  },
+  ru: {
+    headerTitle: "Оставить отзыв",
+    pageTitle: "Оставить отзыв",
+    pageDesc: "Ваше мнение помогает нам стать лучше",
+    loading: "Загрузка…",
+    formTitle: "Форма отзыва",
+  },
+  kz: {
+    headerTitle: "Пікір қалдыру",
+    pageTitle: "Пікір қалдыру",
+    pageDesc: "Сіздің пікіріңіз бізге жақсаруға көмектеседі",
+    loading: "Жүктелуде…",
+    formTitle: "Пікір формасы",
+  },
+};
 
 const Reviews = () => {
+  const { language } = useLandingLanguage();
+  const t = reviewsTranslations[language];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
-        <div className="container flex items-center h-14 px-4">
-          <Link to="/">
-            <Button variant="ghost" size="icon" className="mr-2">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <h1 className="text-lg font-semibold">Оставить отзыв</h1>
+        <div className="container flex items-center justify-between h-14 px-4">
+          <div className="flex items-center">
+            <Link to="/">
+              <Button variant="ghost" size="icon" className="mr-2">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+            <h1 className="text-lg font-semibold">{t.headerTitle}</h1>
+          </div>
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -21,8 +53,8 @@ const Reviews = () => {
       <main className="px-4 py-6">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold mb-2">Оставить отзыв</h2>
-            <p className="text-muted-foreground">Ваше мнение помогает нам стать лучше</p>
+            <h2 className="text-2xl font-bold mb-2">{t.pageTitle}</h2>
+            <p className="text-muted-foreground">{t.pageDesc}</p>
           </div>
 
           {/* Embedded Google Form */}
@@ -35,9 +67,9 @@ const Reviews = () => {
               marginHeight={0}
               marginWidth={0}
               style={{ border: "none", maxWidth: "100%", minHeight: "600px" }}
-              title="Форма отзыва"
+              title={t.formTitle}
             >
-              Загрузка…
+              {t.loading}
             </iframe>
           </div>
         </div>
