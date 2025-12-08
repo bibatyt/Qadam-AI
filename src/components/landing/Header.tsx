@@ -6,7 +6,7 @@ import { BookDemoModal } from "./BookDemoModal";
 import { QadamLogo } from "./QadamLogo";
 import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Menu, Calendar } from "lucide-react";
+import { Menu, Calendar, MessageSquare } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -80,9 +80,9 @@ export function Header() {
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
 
   const mobileLabels = {
-    ru: { demo: "Заказать демо", menu: "Меню" },
-    en: { demo: "Book demo", menu: "Menu" },
-    kz: { demo: "Демо тапсырысы", menu: "Мәзір" },
+    ru: { demo: "Заказать демо", menu: "Меню", reviews: "Отзывы" },
+    en: { demo: "Book demo", menu: "Menu", reviews: "Reviews" },
+    kz: { demo: "Демо тапсырысы", menu: "Мәзір", reviews: "Пікірлер" },
   };
   const labels = mobileLabels[language];
 
@@ -96,6 +96,9 @@ export function Header() {
         
         {/* Desktop Navigation */}
         <div className="hidden sm:flex items-center gap-3">
+          <Link to="/reviews">
+            <Button variant="ghost" size="sm">{labels.reviews}</Button>
+          </Link>
           <LanguageSwitcher />
           <BookDemoModal />
           <Link to="/auth">
@@ -117,6 +120,13 @@ export function Header() {
                 <SheetTitle>{labels.menu}</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-3 mt-6">
+                <Link to="/reviews" onClick={() => setSheetOpen(false)}>
+                  <Button variant="outline" className="w-full justify-start gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    {labels.reviews}
+                  </Button>
+                </Link>
+
                 <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full justify-start gap-2">

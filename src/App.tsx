@@ -9,6 +9,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Reviews from "./pages/Reviews";
 import Dashboard from "./pages/Dashboard";
 import Path from "./pages/Path";
 import Opportunities from "./pages/Opportunities";
@@ -29,6 +30,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/reviews" element={<Reviews />} />
               <Route path="/auth" element={<Auth />} />
               <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>
