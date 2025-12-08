@@ -51,35 +51,6 @@ const reviewTranslations = {
   },
 };
 
-const staticReviews = [
-  {
-    name: { en: "Aisha K.", ru: "Аиша К.", kz: "Айша К." },
-    rating: 5,
-    review: {
-      en: "Qadam helped me organize my university application process. The AI roadmap is incredibly detailed!",
-      ru: "Qadam помог мне организовать процесс поступления. AI-план невероятно детальный!",
-      kz: "Qadam маған түсу процесін ұйымдастыруға көмектесті. AI-жоспар өте толық!",
-    },
-  },
-  {
-    name: { en: "Dias M.", ru: "Диас М.", kz: "Диас М." },
-    rating: 5,
-    review: {
-      en: "The gamification keeps me motivated every day. Already on a 30-day streak!",
-      ru: "Геймификация мотивирует меня каждый день. Уже 30 дней подряд!",
-      kz: "Геймификация мені күн сайын ынталандырады. 30 күн қатар!",
-    },
-  },
-  {
-    name: { en: "Madina S.", ru: "Мадина С.", kz: "Мадина С." },
-    rating: 4,
-    review: {
-      en: "Great platform for SAT preparation. The counselor AI gives very specific advice.",
-      ru: "Отличная платформа для подготовки к SAT. AI-консультант даёт очень конкретные советы.",
-      kz: "SAT-қа дайындалуға керемет платформа. AI-кеңесші нақты кеңестер береді.",
-    },
-  },
-];
 
 export const ReviewsSection = () => {
   const { language } = useLandingLanguage();
@@ -135,45 +106,6 @@ export const ReviewsSection = () => {
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-background to-secondary/20">
       <div className="container max-w-6xl">
-        {/* Static Reviews */}
-        <div className="mb-16">
-          <h3 className="text-2xl md:text-3xl font-bold text-center mb-8">
-            {t.staticReviewsTitle}
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            {staticReviews.map((r, i) => (
-              <div
-                key={i}
-                className="bg-card rounded-2xl p-6 shadow-card border border-border/50 hover:shadow-elevated transition-all duration-300"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{r.name[language]}</p>
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={`w-3.5 h-3.5 ${
-                            star <= r.rating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-muted-foreground/30"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  "{r.review[language]}"
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Feedback Form */}
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
