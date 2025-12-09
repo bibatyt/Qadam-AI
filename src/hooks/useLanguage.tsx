@@ -189,6 +189,8 @@ const translations: Translations = {
   opportunitiesError: { ru: "Ошибка поиска возможностей", en: "Error finding opportunities", kk: "Мүмкіндіктерді табу қатесі" },
   refresh: { ru: "Обновить", en: "Refresh", kk: "Жаңарту" },
   free: { ru: "Бесплатно", en: "Free", kk: "Тегін" },
+  leaveReview: { ru: "Оставить отзыв", en: "Leave a Review", kk: "Пікір қалдыру" },
+  helpUsImprove: { ru: "Помогите нам стать лучше", en: "Help us improve", kk: "Бізге жақсаруға көмектесіңіз" },
 };
 
 interface LanguageContextType {

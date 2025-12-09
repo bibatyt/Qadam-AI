@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { User, Shuffle, LogOut, Check, Loader2, Camera } from "lucide-react";
+import { User, Shuffle, LogOut, Check, Loader2, Camera, MessageSquareHeart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -308,8 +308,21 @@ const Settings = () => {
           </Button>
         </div>
 
+        {/* Leave Review */}
+        <div className="duolingo-card p-5 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <Link to="/reviews" className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <MessageSquareHeart className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-foreground">{t("leaveReview")}</h3>
+              <p className="text-sm text-muted-foreground">{t("helpUsImprove")}</p>
+            </div>
+          </Link>
+        </div>
+
         {/* Logout */}
-        <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
+        <div className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
           <Button
             variant="ghost"
             onClick={handleLogout}
