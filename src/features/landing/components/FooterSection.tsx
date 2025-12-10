@@ -77,11 +77,11 @@ export function FooterSection() {
               <motion.a
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                href="mailto:hello@qadam.ai"
+                href="mailto:beybaris.tanbayev.business@gmail.com"
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                <span className="text-sm font-medium">hello@qadam.ai</span>
+                <span className="text-sm font-medium">beybaris.tanbayev.business@gmail.com</span>
               </motion.a>
             </div>
           </div>
