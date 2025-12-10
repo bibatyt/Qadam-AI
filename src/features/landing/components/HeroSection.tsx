@@ -94,28 +94,6 @@ export function HeroSection() {
           </a>
         </motion.div>
 
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap items-center justify-center gap-6 sm:gap-10"
-        >
-          {Object.entries(hero.stats).map(([key, stat], i) => (
-            <motion.div
-              key={key}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 + i * 0.1 }}
-              className="flex items-center gap-2 px-4 py-2 bg-card/50 rounded-full border border-border/50"
-            >
-              <span className="text-2xl">
-                {key === 'universities' ? '🏛️' : key === 'students' ? '👥' : '⚡'}
-              </span>
-              <span className="text-sm font-medium text-foreground">{stat}</span>
-            </motion.div>
-          ))}
-        </motion.div>
       </div>
 
       {/* Scroll indicator */}

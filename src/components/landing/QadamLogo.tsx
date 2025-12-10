@@ -34,9 +34,10 @@ export function QadamLogo({ size = 36, className = "", animated = false }: Qadam
         clipRule="evenodd"
       />
       
-      {/* Step dots */}
-      <circle cx="32" cy="32" r="2.5" className="fill-primary-foreground/40" />
-      <circle cx="26" cy="32" r="1.5" className="fill-primary-foreground/25" />
+      {/* Step dots - ascending stairs effect */}
+      <circle cx="32" cy="32" r="2" className="fill-primary-foreground/50" />
+      <circle cx="27" cy="30" r="1.5" className="fill-primary-foreground/35" />
+      <circle cx="23" cy="28" r="1" className="fill-primary-foreground/25" />
     </svg>
   );
 
