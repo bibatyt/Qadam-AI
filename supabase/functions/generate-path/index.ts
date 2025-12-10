@@ -17,6 +17,7 @@ interface PathRequest {
   englishLevel?: string;
   deadline?: string;
   desiredMajor?: string;
+  budgetRange?: string;
 }
 
 interface Milestone {
@@ -416,75 +417,206 @@ function getParentMilestones(efcSegment: string): Milestone[] {
   return milestones;
 }
 
+// Comprehensive university database with realistic data
+const UNIVERSITY_DATABASE = [
+  // USA - Need-Blind for International Students
+  { name: 'Harvard University', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1500, minIELTS: 7.0, needBlind: true, annualCost: 80000, scholarshipType: 'Need-blind Full Aid', majors: ['business', 'law', 'medicine', 'cs', 'engineering', 'arts', 'sciences'], ranking: 1 },
+  { name: 'Yale University', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1500, minIELTS: 7.0, needBlind: true, annualCost: 80000, scholarshipType: 'Need-blind Full Aid', majors: ['business', 'law', 'arts', 'sciences', 'medicine'], ranking: 3 },
+  { name: 'Princeton University', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1510, minIELTS: 7.0, needBlind: true, annualCost: 77000, scholarshipType: 'Need-blind Full Aid', majors: ['engineering', 'sciences', 'arts', 'economics'], ranking: 2 },
+  { name: 'MIT', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1520, minIELTS: 7.0, needBlind: true, annualCost: 79000, scholarshipType: 'Need-blind Full Aid', majors: ['cs', 'engineering', 'sciences', 'business'], ranking: 4 },
+  { name: 'Amherst College', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1450, minIELTS: 7.0, needBlind: true, annualCost: 76000, scholarshipType: 'Need-blind Full Aid', majors: ['arts', 'sciences', 'economics'], ranking: 25 },
+  
+  // USA - Top Universities with Aid
+  { name: 'Stanford University', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1500, minIELTS: 7.0, needBlind: false, annualCost: 82000, scholarshipType: 'Merit + Need-based', majors: ['cs', 'engineering', 'business', 'sciences'], ranking: 5 },
+  { name: 'Columbia University', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1480, minIELTS: 7.0, needBlind: false, annualCost: 80000, scholarshipType: 'Need-based Aid', majors: ['business', 'law', 'journalism', 'arts'], ranking: 8 },
+  { name: 'University of Chicago', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1500, minIELTS: 7.0, needBlind: false, annualCost: 78000, scholarshipType: 'Merit + Need-based', majors: ['economics', 'sciences', 'law'], ranking: 10 },
+  { name: 'Duke University', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1470, minIELTS: 7.0, needBlind: false, annualCost: 77000, scholarshipType: 'Need-based Aid', majors: ['medicine', 'business', 'engineering'], ranking: 12 },
+  { name: 'Northwestern University', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1450, minIELTS: 7.0, needBlind: false, annualCost: 76000, scholarshipType: 'Merit Scholarships', majors: ['journalism', 'business', 'engineering', 'arts'], ranking: 15 },
+  
+  // USA - State Universities (affordable)
+  { name: 'UCLA', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1350, minIELTS: 6.5, needBlind: false, annualCost: 45000, scholarshipType: 'Limited Aid', majors: ['cs', 'engineering', 'arts', 'sciences'], ranking: 20 },
+  { name: 'UC Berkeley', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1400, minIELTS: 6.5, needBlind: false, annualCost: 47000, scholarshipType: 'Regents Scholarship', majors: ['cs', 'engineering', 'business', 'sciences'], ranking: 18 },
+  { name: 'University of Michigan', country: 'USA', countryCode: 'US', region: 'usa', minSAT: 1380, minIELTS: 6.5, needBlind: false, annualCost: 55000, scholarshipType: 'Merit Scholarships', majors: ['business', 'engineering', 'medicine'], ranking: 22 },
+  
+  // UK - Top Universities
+  { name: 'University of Oxford', country: 'UK', countryCode: 'GB', region: 'uk', minSAT: 1470, minIELTS: 7.0, needBlind: false, annualCost: 45000, scholarshipType: 'Reach Oxford + Rhodes', majors: ['law', 'medicine', 'arts', 'sciences', 'business'], ranking: 1 },
+  { name: 'University of Cambridge', country: 'UK', countryCode: 'GB', region: 'uk', minSAT: 1480, minIELTS: 7.0, needBlind: false, annualCost: 45000, scholarshipType: 'Cambridge Trust', majors: ['sciences', 'engineering', 'medicine', 'arts'], ranking: 2 },
+  { name: 'Imperial College London', country: 'UK', countryCode: 'GB', region: 'uk', minSAT: 1400, minIELTS: 6.5, needBlind: false, annualCost: 42000, scholarshipType: "President's Scholarship", majors: ['engineering', 'cs', 'sciences', 'medicine'], ranking: 6 },
+  { name: 'London School of Economics', country: 'UK', countryCode: 'GB', region: 'uk', minSAT: 1420, minIELTS: 7.0, needBlind: false, annualCost: 40000, scholarshipType: 'LSE Scholarship', majors: ['economics', 'business', 'law', 'politics'], ranking: 8 },
+  { name: 'UCL', country: 'UK', countryCode: 'GB', region: 'uk', minSAT: 1380, minIELTS: 6.5, needBlind: false, annualCost: 38000, scholarshipType: 'UCL Global Scholarship', majors: ['arts', 'sciences', 'engineering', 'medicine'], ranking: 9 },
+  { name: 'University of Edinburgh', country: 'UK', countryCode: 'GB', region: 'uk', minSAT: 1350, minIELTS: 6.5, needBlind: false, annualCost: 32000, scholarshipType: 'Edinburgh Global', majors: ['arts', 'sciences', 'medicine', 'business'], ranking: 15 },
+  { name: 'University of Manchester', country: 'UK', countryCode: 'GB', region: 'uk', minSAT: 1300, minIELTS: 6.0, needBlind: false, annualCost: 28000, scholarshipType: 'Global Futures', majors: ['engineering', 'business', 'sciences'], ranking: 25 },
+  
+  // Canada
+  { name: 'University of Toronto', country: 'Canada', countryCode: 'CA', region: 'canada', minSAT: 1400, minIELTS: 6.5, needBlind: false, annualCost: 50000, scholarshipType: 'Lester B. Pearson', majors: ['cs', 'engineering', 'business', 'medicine'], ranking: 1 },
+  { name: 'McGill University', country: 'Canada', countryCode: 'CA', region: 'canada', minSAT: 1380, minIELTS: 6.5, needBlind: false, annualCost: 45000, scholarshipType: 'McGill Scholarships', majors: ['medicine', 'arts', 'sciences', 'law'], ranking: 2 },
+  { name: 'University of British Columbia', country: 'Canada', countryCode: 'CA', region: 'canada', minSAT: 1350, minIELTS: 6.5, needBlind: false, annualCost: 42000, scholarshipType: 'International Leader', majors: ['cs', 'engineering', 'sciences', 'business'], ranking: 3 },
+  { name: 'University of Waterloo', country: 'Canada', countryCode: 'CA', region: 'canada', minSAT: 1350, minIELTS: 6.5, needBlind: false, annualCost: 40000, scholarshipType: 'International Excellence', majors: ['cs', 'engineering', 'sciences'], ranking: 5 },
+  
+  // Europe - Free/Low Tuition
+  { name: 'ETH Zurich', country: 'Switzerland', countryCode: 'CH', region: 'eu', minSAT: 1400, minIELTS: 7.0, needBlind: false, annualCost: 1500, scholarshipType: 'Excellence Scholarship', majors: ['engineering', 'cs', 'sciences'], ranking: 6 },
+  { name: 'TU Munich', country: 'Germany', countryCode: 'DE', region: 'eu', minSAT: 1300, minIELTS: 6.5, needBlind: false, annualCost: 500, scholarshipType: 'Free Tuition', majors: ['engineering', 'cs', 'sciences'], ranking: 10 },
+  { name: 'LMU Munich', country: 'Germany', countryCode: 'DE', region: 'eu', minSAT: 1280, minIELTS: 6.5, needBlind: false, annualCost: 500, scholarshipType: 'Free Tuition', majors: ['medicine', 'sciences', 'arts', 'law'], ranking: 15 },
+  { name: 'Heidelberg University', country: 'Germany', countryCode: 'DE', region: 'eu', minSAT: 1280, minIELTS: 6.0, needBlind: false, annualCost: 500, scholarshipType: 'Free Tuition', majors: ['medicine', 'sciences', 'law'], ranking: 20 },
+  { name: 'University of Amsterdam', country: 'Netherlands', countryCode: 'NL', region: 'eu', minSAT: 1300, minIELTS: 6.5, needBlind: false, annualCost: 15000, scholarshipType: 'Holland Scholarship', majors: ['business', 'economics', 'sciences', 'arts'], ranking: 12 },
+  { name: 'Delft University', country: 'Netherlands', countryCode: 'NL', region: 'eu', minSAT: 1320, minIELTS: 6.5, needBlind: false, annualCost: 16000, scholarshipType: 'Justus & Louise', majors: ['engineering', 'cs', 'architecture'], ranking: 15 },
+  { name: 'KU Leuven', country: 'Belgium', countryCode: 'BE', region: 'eu', minSAT: 1280, minIELTS: 6.5, needBlind: false, annualCost: 5000, scholarshipType: 'Science@Leuven', majors: ['engineering', 'sciences', 'medicine'], ranking: 18 },
+  { name: 'University of Copenhagen', country: 'Denmark', countryCode: 'DK', region: 'eu', minSAT: 1280, minIELTS: 6.5, needBlind: false, annualCost: 0, scholarshipType: 'Free for EU (Others: 15k)', majors: ['sciences', 'medicine', 'arts'], ranking: 20 },
+  { name: 'Sorbonne University', country: 'France', countryCode: 'FR', region: 'eu', minSAT: 1280, minIELTS: 6.0, needBlind: false, annualCost: 3000, scholarshipType: 'Eiffel Excellence', majors: ['arts', 'sciences', 'law'], ranking: 22 },
+  { name: 'Sciences Po', country: 'France', countryCode: 'FR', region: 'eu', minSAT: 1350, minIELTS: 7.0, needBlind: false, annualCost: 15000, scholarshipType: 'Emile Boutmy', majors: ['politics', 'economics', 'law', 'business'], ranking: 25 },
+  
+  // Asia
+  { name: 'National University of Singapore', country: 'Singapore', countryCode: 'SG', region: 'asia', minSAT: 1400, minIELTS: 6.5, needBlind: false, annualCost: 35000, scholarshipType: 'Global Merit', majors: ['cs', 'engineering', 'business', 'sciences'], ranking: 8 },
+  { name: 'Nanyang Technological University', country: 'Singapore', countryCode: 'SG', region: 'asia', minSAT: 1380, minIELTS: 6.5, needBlind: false, annualCost: 32000, scholarshipType: 'ASEAN Scholarship', majors: ['engineering', 'cs', 'business'], ranking: 12 },
+  { name: 'University of Hong Kong', country: 'Hong Kong', countryCode: 'HK', region: 'asia', minSAT: 1380, minIELTS: 6.5, needBlind: false, annualCost: 28000, scholarshipType: 'HKU Foundation', majors: ['business', 'law', 'medicine', 'sciences'], ranking: 15 },
+  { name: 'HKUST', country: 'Hong Kong', countryCode: 'HK', region: 'asia', minSAT: 1350, minIELTS: 6.5, needBlind: false, annualCost: 27000, scholarshipType: 'HKUST Scholarship', majors: ['cs', 'engineering', 'business'], ranking: 18 },
+  { name: 'Seoul National University', country: 'South Korea', countryCode: 'KR', region: 'asia', minSAT: 1350, minIELTS: 6.0, needBlind: false, annualCost: 8000, scholarshipType: 'Korean Government', majors: ['engineering', 'business', 'sciences', 'arts'], ranking: 20 },
+  { name: 'KAIST', country: 'South Korea', countryCode: 'KR', region: 'asia', minSAT: 1400, minIELTS: 6.5, needBlind: false, annualCost: 7000, scholarshipType: 'Full Tuition Waiver', majors: ['cs', 'engineering', 'sciences'], ranking: 25 },
+  { name: 'University of Tokyo', country: 'Japan', countryCode: 'JP', region: 'asia', minSAT: 1400, minIELTS: 6.5, needBlind: false, annualCost: 5000, scholarshipType: 'MEXT Scholarship', majors: ['engineering', 'sciences', 'medicine'], ranking: 10 },
+  
+  // CIS/Eastern Europe
+  { name: 'Nazarbayev University', country: 'Kazakhstan', countryCode: 'KZ', region: 'cis', minSAT: 1200, minIELTS: 6.0, needBlind: false, annualCost: 0, scholarshipType: 'Full Scholarship', majors: ['engineering', 'cs', 'business', 'sciences'], ranking: 1 },
+  { name: 'KIMEP University', country: 'Kazakhstan', countryCode: 'KZ', region: 'cis', minSAT: 1100, minIELTS: 5.5, needBlind: false, annualCost: 8000, scholarshipType: 'Merit Scholarship', majors: ['business', 'economics', 'law'], ranking: 3 },
+  { name: 'Charles University', country: 'Czech Republic', countryCode: 'CZ', region: 'eu', minSAT: 1200, minIELTS: 6.0, needBlind: false, annualCost: 5000, scholarshipType: 'Czech Government', majors: ['medicine', 'sciences', 'law'], ranking: 30 },
+  { name: 'Jagiellonian University', country: 'Poland', countryCode: 'PL', region: 'eu', minSAT: 1200, minIELTS: 6.0, needBlind: false, annualCost: 4000, scholarshipType: 'Polish Government', majors: ['medicine', 'sciences', 'arts'], ranking: 35 },
+];
+
+// Calculate match score based on user profile
+function calculateMatchScore(
+  uni: typeof UNIVERSITY_DATABASE[0],
+  satScore: number | undefined,
+  ieltsScore: number | undefined,
+  efcSegment: string,
+  budgetRange: string,
+  desiredMajor: string | undefined
+): number {
+  let score = 70; // Base score
+  
+  // SAT Score match (up to +15 points)
+  if (satScore) {
+    if (satScore >= uni.minSAT + 100) score += 15;
+    else if (satScore >= uni.minSAT) score += 10;
+    else if (satScore >= uni.minSAT - 100) score += 5;
+    else score -= 10;
+  }
+  
+  // IELTS Score match (up to +10 points)
+  if (ieltsScore) {
+    if (ieltsScore >= uni.minIELTS + 0.5) score += 10;
+    else if (ieltsScore >= uni.minIELTS) score += 5;
+    else score -= 5;
+  }
+  
+  // Financial fit (up to +10 points)
+  const budgetMap: Record<string, number> = {
+    'under_10k': 10000,
+    '10k_30k': 30000,
+    '30k_50k': 50000,
+    'over_50k': 100000,
+  };
+  const userBudget = budgetMap[budgetRange] || 30000;
+  
+  if (efcSegment === 'low' && uni.needBlind) {
+    score += 10; // Perfect for low EFC
+  } else if (uni.annualCost <= userBudget) {
+    score += 8;
+  } else if (uni.annualCost <= userBudget * 1.5) {
+    score += 3;
+  } else {
+    score -= 5;
+  }
+  
+  // Major match (up to +5 points)
+  if (desiredMajor) {
+    const majorLower = desiredMajor.toLowerCase();
+    const majorMap: Record<string, string[]> = {
+      'cs': ['cs', 'computer science', 'программирование', 'it'],
+      'engineering': ['engineering', 'инженерия', 'механика'],
+      'business': ['business', 'бизнес', 'менеджмент', 'mba', 'economics'],
+      'medicine': ['medicine', 'медицина', 'биология', 'pre-med'],
+      'law': ['law', 'право', 'юриспруденция'],
+      'arts': ['arts', 'искусство', 'дизайн', 'humanities'],
+      'sciences': ['sciences', 'physics', 'chemistry', 'math', 'физика', 'химия'],
+    };
+    
+    for (const [key, keywords] of Object.entries(majorMap)) {
+      if (keywords.some(k => majorLower.includes(k)) && uni.majors.includes(key)) {
+        score += 5;
+        break;
+      }
+    }
+  }
+  
+  return Math.min(99, Math.max(50, score));
+}
+
 // Generate university recommendations
 function generateUniversityRecommendations(
   targetCountry: string,
   efcSegment: string,
+  budgetRange: string,
   satScore?: number,
+  ieltsScore?: number,
   desiredMajor?: string
 ): any[] {
-  const recommendations = [];
+  // Filter universities by region if specified
+  let candidates = UNIVERSITY_DATABASE;
   
-  // Define university pools by criteria
-  const needBlindUSA = [
-    { name: 'Harvard University', country: 'USA', matchScore: 95, needBlind: true, scholarshipType: 'Need-blind Full Aid' },
-    { name: 'MIT', country: 'USA', matchScore: 93, needBlind: true, scholarshipType: 'Need-blind Full Aid' },
-    { name: 'Yale University', country: 'USA', matchScore: 92, needBlind: true, scholarshipType: 'Need-blind Full Aid' },
-    { name: 'Princeton University', country: 'USA', matchScore: 91, needBlind: true, scholarshipType: 'Need-blind Full Aid' },
-    { name: 'Amherst College', country: 'USA', matchScore: 88, needBlind: true, scholarshipType: 'Need-blind Full Aid' },
-  ];
-
-  const topUSA = [
-    { name: 'Stanford University', country: 'USA', matchScore: 90, needBlind: false, scholarshipType: 'Merit + Need-based' },
-    { name: 'Columbia University', country: 'USA', matchScore: 87, needBlind: false, scholarshipType: 'Merit + Need-based' },
-    { name: 'UPenn', country: 'USA', matchScore: 85, needBlind: false, scholarshipType: 'Merit + Need-based' },
-  ];
-
-  const europeOptions = [
-    { name: 'ETH Zurich', country: 'Switzerland', matchScore: 92, needBlind: false, scholarshipType: 'Low Tuition + Excellence Scholarship' },
-    { name: 'TU Munich', country: 'Germany', matchScore: 88, needBlind: false, scholarshipType: 'Free Tuition' },
-    { name: 'University of Amsterdam', country: 'Netherlands', matchScore: 85, needBlind: false, scholarshipType: 'Holland Scholarship' },
-  ];
-
-  const ukOptions = [
-    { name: 'Oxford University', country: 'UK', matchScore: 94, needBlind: false, scholarshipType: 'Reach Oxford + Rhodes' },
-    { name: 'Cambridge University', country: 'UK', matchScore: 93, needBlind: false, scholarshipType: 'Cambridge Trust' },
-    { name: 'Imperial College London', country: 'UK', matchScore: 89, needBlind: false, scholarshipType: 'President\'s Scholarship' },
-  ];
-
-  // Select based on criteria
-  if (efcSegment === 'low' && (targetCountry === 'usa' || !targetCountry)) {
-    recommendations.push(...needBlindUSA.slice(0, 3));
-    recommendations.push(...europeOptions.filter(u => u.scholarshipType.includes('Free')).slice(0, 2));
-  } else if (targetCountry === 'usa') {
-    recommendations.push(...topUSA.slice(0, 3));
-    if (satScore && satScore >= 1500) {
-      recommendations.push(...needBlindUSA.slice(0, 2));
-    }
-  } else if (targetCountry === 'uk') {
-    recommendations.push(...ukOptions.slice(0, 3));
-  } else if (targetCountry === 'eu') {
-    recommendations.push(...europeOptions);
-  } else {
-    // Mix of everything
-    recommendations.push(needBlindUSA[0], ukOptions[0], europeOptions[0]);
+  const regionMap: Record<string, string[]> = {
+    'usa': ['usa'],
+    'canada': ['canada'],
+    'uk': ['uk'],
+    'eu': ['eu'],
+    'asia': ['asia'],
+    'cis': ['cis'],
+    'all': ['usa', 'canada', 'uk', 'eu', 'asia', 'cis'],
+  };
+  
+  const targetRegions = regionMap[targetCountry] || regionMap['all'];
+  candidates = candidates.filter(u => targetRegions.includes(u.region));
+  
+  // For low EFC, prioritize need-blind and affordable options
+  if (efcSegment === 'low') {
+    candidates.sort((a, b) => {
+      // Need-blind universities first
+      if (a.needBlind && !b.needBlind) return -1;
+      if (!a.needBlind && b.needBlind) return 1;
+      // Then by cost
+      return a.annualCost - b.annualCost;
+    });
   }
-
-  // Adjust match scores based on SAT
-  return recommendations.map(uni => ({
-    ...uni,
-    matchScore: satScore && satScore >= 1450 ? Math.min(100, uni.matchScore + 5) : uni.matchScore,
-    reason: generateMatchReason(uni, efcSegment, satScore, desiredMajor)
-  })).slice(0, 5);
+  
+  // Calculate match scores and sort
+  const recommendations = candidates.map(uni => ({
+    name: uni.name,
+    country: uni.country,
+    countryCode: uni.countryCode,
+    matchScore: calculateMatchScore(uni, satScore, ieltsScore, efcSegment, budgetRange, desiredMajor),
+    scholarshipType: uni.scholarshipType,
+    needBlind: uni.needBlind,
+    annualCost: uni.annualCost,
+    reason: generateMatchReason(uni, efcSegment, satScore, ieltsScore, desiredMajor),
+  }));
+  
+  // Sort by match score and take top 8
+  recommendations.sort((a, b) => b.matchScore - a.matchScore);
+  
+  return recommendations.slice(0, 8);
 }
 
-function generateMatchReason(uni: any, efcSegment: string, satScore?: number, desiredMajor?: string): string {
+function generateMatchReason(
+  uni: typeof UNIVERSITY_DATABASE[0], 
+  efcSegment: string, 
+  satScore?: number,
+  ieltsScore?: number,
+  desiredMajor?: string
+): string {
   const reasons = [];
   
   if (uni.needBlind && efcSegment === 'low') {
     reasons.push('Need-blind для иностранцев');
   }
-  if (uni.scholarshipType.includes('Free')) {
+  if (uni.annualCost < 2000) {
     reasons.push('Бесплатное обучение');
   }
   if (satScore && satScore >= 1450) {
@@ -552,8 +684,9 @@ serve(async (req) => {
     }
 
     // Generate university recommendations
+    const budgetRange = requestData.budgetRange || 'under_10k';
     const universityRecommendations = generateUniversityRecommendations(
-      targetCountry, efcSegment, satScore, desiredMajor
+      targetCountry, efcSegment, budgetRange, satScore, ieltsScore, desiredMajor
     );
 
     return new Response(

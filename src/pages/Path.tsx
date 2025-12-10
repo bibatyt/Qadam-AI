@@ -26,15 +26,18 @@ interface Milestone {
 interface UniversityRecommendation {
   name: string;
   country: string;
+  countryCode?: string;
   matchScore: number;
   scholarshipType: string;
   reason: string;
+  annualCost?: number;
 }
 
 interface EFCData {
   role: string;
   efc_segment: string;
   residence_country: string;
+  budget_range: string;
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -113,7 +116,7 @@ export default function Path() {
             country: u.country,
             matchScore: u.match_score,
             scholarshipType: u.scholarship_type || '',
-            reason: u.reason || ''
+            reason: u.reason || '',
           })));
         }
 
@@ -178,6 +181,7 @@ export default function Path() {
           satScore: roadmap?.sat_score,
           ieltsScore: roadmap?.ielts_score,
           desiredMajor: roadmap?.desired_major,
+          budgetRange: efc.budget_range || 'under_10k',
         }
       });
 
@@ -389,31 +393,60 @@ export default function Path() {
               <Star className="w-3.5 h-3.5" />
               Рекомендуемые университеты
             </h3>
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {universities.map((uni, index) => (
-                <motion.div
-                  key={uni.name}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="shrink-0 w-48 bg-card border border-border rounded-xl p-3"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-primary">{uni.matchScore}% match</span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {uni.country}
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-sm text-foreground mb-1 truncate">{uni.name}</h4>
-                  <p className="text-[10px] text-muted-foreground line-clamp-2">{uni.reason}</p>
-                  {uni.scholarshipType && (
-                    <span className="inline-block mt-2 px-2 py-0.5 bg-accent/10 text-accent text-[10px] font-semibold rounded">
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              {universities.map((uni, index) => {
+                const countryFlags: Record<string, string> = {
+                  'USA': '🇺🇸',
+                  'UK': '🇬🇧',
+                  'Canada': '🇨🇦',
+                  'Germany': '🇩🇪',
+                  'Netherlands': '🇳🇱',
+                  'Switzerland': '🇨🇭',
+                  'France': '🇫🇷',
+                  'Belgium': '🇧🇪',
+                  'Denmark': '🇩🇰',
+                  'Singapore': '🇸🇬',
+                  'Hong Kong': '🇭🇰',
+                  'South Korea': '🇰🇷',
+                  'Japan': '🇯🇵',
+                  'Kazakhstan': '🇰🇿',
+                  'Czech Republic': '🇨🇿',
+                  'Poland': '🇵🇱',
+                };
+                const flag = countryFlags[uni.country] || '🌍';
+                
+                return (
+                  <motion.div
+                    key={uni.name}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="shrink-0 w-52 bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        uni.matchScore >= 90 ? 'bg-green-500/10 text-green-600' :
+                        uni.matchScore >= 80 ? 'bg-primary/10 text-primary' :
+                        'bg-amber-500/10 text-amber-600'
+                      }`}>
+                        {uni.matchScore}% match
+                      </span>
+                      <span className="text-sm flex items-center gap-1">
+                        {flag} {uni.country === 'USA' || uni.country === 'UK' ? uni.country : ''}
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-sm text-foreground mb-1.5 line-clamp-2 min-h-[2.5rem]">
+                      {uni.name}
+                    </h4>
+                    <p className="text-[11px] text-muted-foreground line-clamp-2 mb-2 min-h-[2rem]">
+                      {uni.reason || 'Подходит под твой профиль'}
+                    </p>
+                    <span className="inline-block px-2 py-1 bg-accent/10 text-accent text-[10px] font-semibold rounded-md">
                       {uni.scholarshipType}
                     </span>
-                  )}
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
         )}
