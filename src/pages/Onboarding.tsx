@@ -12,6 +12,7 @@ import {
   ProfileStep,
   AuthStep,
   AnalyzingAnimation,
+  TOP_UNIVERSITIES,
   type OnboardingStep,
 } from "@/features/onboarding";
 
@@ -27,8 +28,9 @@ const Onboarding = () => {
   const [goal, setGoal] = useState("");
   const [grade, setGrade] = useState("");
   const [country, setCountry] = useState("");
+  const [universities, setUniversities] = useState<string[]>([]);
   
-  // Language (можно потом связать с контекстом)
+  // Language
   const language = 'ru' as const;
 
   const canProceed = () => {
@@ -68,6 +70,12 @@ const Onboarding = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
+        // Get university names for display
+        const selectedUniNames = universities
+          .map(id => TOP_UNIVERSITIES.find(u => u.id === id)?.name)
+          .filter(Boolean)
+          .join(', ');
+
         await supabase.from('roadmaps').insert({
           user_id: user.id,
           main_goal: goal,
@@ -76,9 +84,9 @@ const Onboarding = () => {
           desired_major: '',
         });
         
-        // Update profile with target country
+        // Update profile with target universities
         await supabase.from('profiles').update({
-          target_university: country
+          target_university: selectedUniNames || country
         }).eq('user_id', user.id);
       }
 
@@ -128,8 +136,8 @@ const Onboarding = () => {
       </header>
 
       {/* Content */}
-      <main className="flex-1 px-6 pb-6 flex flex-col">
-        <div className="flex-1 max-w-lg mx-auto w-full">
+      <main className="flex-1 px-6 pb-6 flex flex-col overflow-hidden">
+        <div className="flex-1 max-w-lg mx-auto w-full overflow-y-auto">
           <AnimatePresence mode="wait">
             {step === 1 && (
               <GoalStep
@@ -144,8 +152,10 @@ const Onboarding = () => {
                 key="profile"
                 grade={grade}
                 country={country}
+                universities={universities}
                 onGradeSelect={setGrade}
                 onCountrySelect={setCountry}
+                onUniversitiesChange={setUniversities}
                 language={language}
               />
             )}
@@ -165,7 +175,7 @@ const Onboarding = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-8 max-w-lg mx-auto w-full"
+            className="mt-6 max-w-lg mx-auto w-full shrink-0"
           >
             <Button
               variant="hero"

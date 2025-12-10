@@ -17,6 +17,7 @@ const translations: Translations = {
   path: { ru: "Путь", en: "Path", kk: "Жол" },
   ai: { ru: "AI", en: "AI", kk: "AI" },
   statistics: { ru: "Статистика", en: "Stats", kk: "Статистика" },
+  stats: { ru: "Стата", en: "Stats", kk: "Стат." },
   settings: { ru: "Настройки", en: "Settings", kk: "Баптаулар" },
   
   // Dashboard
