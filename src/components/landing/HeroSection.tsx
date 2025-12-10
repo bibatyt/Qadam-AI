@@ -56,7 +56,7 @@ export function HeroSection() {
           className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in"
           style={{ animationDelay: "0.3s" }}
         >
-          <Link to="/auth">
+          <Link to="/onboarding">
             <Button variant="hero" size="lg" className="w-full sm:w-auto group">
               {t.startJourney}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
