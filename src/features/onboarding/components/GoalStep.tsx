@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Target, Sparkles, GraduationCap, Briefcase } from "lucide-react";
+import { Target, Sparkles, GraduationCap, Briefcase, Check } from "lucide-react";
 import { GOALS } from "../types";
 
 interface GoalStepProps {
@@ -15,86 +15,124 @@ const icons = {
   career: Briefcase,
 };
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.12 }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  show: { opacity: 1, y: 0, scale: 1 }
+};
+
 export function GoalStep({ selectedGoal, onSelect, language }: GoalStepProps) {
+  const t = {
+    title: {
+      ru: "Какая твоя мечта?",
+      en: "What's your dream?",
+      kk: "Сенің арманың қандай?"
+    },
+    subtitle: {
+      ru: "Выбери главную цель",
+      en: "Choose your main goal",
+      kk: "Басты мақсатыңды таңда"
+    }
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: 50 }}
-      animate={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0, x: -50 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="space-y-6"
+      className="flex flex-col min-h-[60vh] justify-center"
     >
-      <div className="text-center space-y-3">
-        <motion.h1 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-3xl md:text-4xl font-extrabold text-foreground"
-        >
-          {language === 'ru' ? 'Какая твоя главная цель?' : 
-           language === 'kk' ? 'Сенің басты мақсатың қандай?' :
-           'What\'s your main goal?'}
-        </motion.h1>
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-lg text-muted-foreground"
-        >
-          {language === 'ru' ? 'Мы построим план специально для тебя' :
-           language === 'kk' ? 'Біз саған арнайы жоспар құрамыз' :
-           'We\'ll build a plan just for you'}
-        </motion.p>
-      </div>
+      {/* Magic sparkle decoration */}
+      <motion.div
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", delay: 0.2 }}
+        className="w-20 h-20 mx-auto mb-6 rounded-3xl gradient-primary flex items-center justify-center shadow-primary"
+      >
+        <Sparkles className="w-10 h-10 text-primary-foreground" />
+      </motion.div>
 
-      <div className="grid gap-4 mt-8">
-        {GOALS.map((goal, index) => {
+      <motion.h1 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="text-4xl md:text-5xl font-black text-center text-foreground mb-2"
+      >
+        {t.title[language]}
+      </motion.h1>
+      
+      <motion.p 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="text-lg text-center text-muted-foreground mb-10"
+      >
+        {t.subtitle[language]}
+      </motion.p>
+
+      <motion.div 
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="space-y-4"
+      >
+        {GOALS.map((goal) => {
           const Icon = icons[goal.id as keyof typeof icons] || Target;
           const isSelected = selectedGoal === goal.id;
           
           return (
             <motion.button
               key={goal.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
+              variants={item}
+              whileHover={{ scale: 1.02, x: 4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onSelect(goal.id)}
               className={`
-                relative flex items-center gap-4 p-5 rounded-2xl text-left
-                transition-all duration-300 border-2
+                w-full relative flex items-center gap-5 p-5 rounded-2xl text-left
+                transition-all duration-300 border-2 touch-target
                 ${isSelected 
                   ? "border-primary bg-primary/10 shadow-lg shadow-primary/20" 
-                  : "border-border bg-card hover:border-primary/40 hover:bg-muted/50"
+                  : "border-border bg-card hover:border-primary/40"
                 }
               `}
             >
-              <div className={`
-                w-14 h-14 rounded-xl flex items-center justify-center shrink-0
-                transition-colors duration-300
-                ${isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}
-              `}>
-                <Icon className="w-7 h-7" />
-              </div>
-              <span className="text-lg font-semibold text-foreground">
+              <motion.div 
+                animate={isSelected ? { scale: [1, 1.1, 1], rotate: [0, 5, 0] } : {}}
+                transition={{ duration: 0.4 }}
+                className={`
+                  w-16 h-16 rounded-2xl flex items-center justify-center shrink-0
+                  transition-all duration-300
+                  ${isSelected ? "gradient-primary shadow-primary" : "bg-muted"}
+                `}
+              >
+                <Icon className={`w-8 h-8 ${isSelected ? "text-primary-foreground" : "text-muted-foreground"}`} />
+              </motion.div>
+              
+              <span className="text-xl font-bold text-foreground flex-1">
                 {goal.label[language]}
               </span>
+              
               {isSelected && (
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute right-4 w-6 h-6 rounded-full bg-primary flex items-center justify-center"
+                  transition={{ type: "spring", stiffness: 500 }}
+                  className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center"
                 >
-                  <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <Check className="w-5 h-5 text-primary-foreground" strokeWidth={3} />
                 </motion.div>
               )}
             </motion.button>
           );
         })}
-      </div>
+      </motion.div>
     </motion.div>
   );
 }

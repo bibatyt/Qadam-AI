@@ -16,6 +16,7 @@ import Path from "./pages/Path";
 import Counselor from "./pages/Counselor";
 import Statistics from "./pages/Statistics";
 import Settings from "./pages/Settings";
+import EssayEngine from "./pages/EssayEngine";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
                   <Route path="/counselor" element={<Counselor />} />
                   <Route path="/statistics" element={<Statistics />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/essay" element={<EssayEngine />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />
