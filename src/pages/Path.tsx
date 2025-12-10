@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  CheckCircle2, Circle, ChevronRight, Sparkles, 
+  CheckCircle2, Circle, Sparkles, 
   GraduationCap, FileText, DollarSign, ClipboardList,
-  BookOpen, Target, Loader2, User, RefreshCw
+  BookOpen, Target, Loader2, User, RefreshCw, ChevronRight,
+  Star, MapPin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,16 +20,15 @@ interface Milestone {
   completed: boolean;
   order_index: number;
   efc_specific: boolean;
+  metadata?: any;
 }
 
-interface SuccessStory {
-  id: string;
+interface UniversityRecommendation {
   name: string;
-  university: string;
   country: string;
-  efc_segment: string;
-  story: string;
-  scholarship_amount: string | null;
+  matchScore: number;
+  scholarshipType: string;
+  reason: string;
 }
 
 interface EFCData {
@@ -38,27 +38,21 @@ interface EFCData {
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  exam: <BookOpen className="w-5 h-5" />,
-  essay: <FileText className="w-5 h-5" />,
-  application: <ClipboardList className="w-5 h-5" />,
-  financial: <DollarSign className="w-5 h-5" />,
-  document: <ClipboardList className="w-5 h-5" />,
-  general: <Target className="w-5 h-5" />,
+  exam: <BookOpen className="w-4 h-4" />,
+  essay: <FileText className="w-4 h-4" />,
+  application: <ClipboardList className="w-4 h-4" />,
+  financial: <DollarSign className="w-4 h-4" />,
+  document: <ClipboardList className="w-4 h-4" />,
+  general: <Target className="w-4 h-4" />,
 };
 
 const categoryColors: Record<string, string> = {
-  exam: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  essay: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-  application: "bg-green-500/10 text-green-500 border-green-500/20",
-  financial: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-  document: "bg-slate-500/10 text-slate-500 border-slate-500/20",
-  general: "bg-primary/10 text-primary border-primary/20",
-};
-
-const priorityLabels: Record<string, { label: string; color: string }> = {
-  high: { label: "Важно", color: "bg-red-500/10 text-red-500" },
-  medium: { label: "Средний", color: "bg-amber-500/10 text-amber-500" },
-  low: { label: "Низкий", color: "bg-green-500/10 text-green-500" },
+  exam: "bg-blue-500/10 text-blue-500",
+  essay: "bg-purple-500/10 text-purple-500",
+  application: "bg-green-500/10 text-green-500",
+  financial: "bg-amber-500/10 text-amber-500",
+  document: "bg-slate-500/10 text-slate-500",
+  general: "bg-primary/10 text-primary",
 };
 
 export default function Path() {
@@ -66,9 +60,11 @@ export default function Path() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [efcData, setEfcData] = useState<EFCData | null>(null);
   const [efcExplanation, setEfcExplanation] = useState("");
-  const [successStory, setSuccessStory] = useState<SuccessStory | null>(null);
+  const [universities, setUniversities] = useState<UniversityRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [currentPart, setCurrentPart] = useState(1);
+  const [totalParts, setTotalParts] = useState(5);
 
   useEffect(() => {
     if (user) {
@@ -81,7 +77,6 @@ export default function Path() {
     
     setLoading(true);
     try {
-      // Fetch EFC data
       const { data: efcResult } = await supabase
         .from('user_efc_data')
         .select('*')
@@ -91,7 +86,6 @@ export default function Path() {
       if (efcResult) {
         setEfcData(efcResult);
         
-        // Fetch milestones
         const { data: milestonesResult } = await supabase
           .from('path_milestones')
           .select('*')
@@ -100,24 +94,29 @@ export default function Path() {
 
         if (milestonesResult && milestonesResult.length > 0) {
           setMilestones(milestonesResult);
+          calculateCurrentPart(milestonesResult);
         } else {
-          // Generate path if no milestones exist
           await generatePath(efcResult);
         }
 
-        // Fetch matching success story
-        const { data: storyResult } = await supabase
-          .from('success_stories')
+        // Fetch university recommendations
+        const { data: uniResult } = await supabase
+          .from('university_recommendations')
           .select('*')
-          .eq('efc_segment', efcResult.efc_segment)
-          .limit(1)
-          .single();
+          .eq('user_id', user.id)
+          .order('match_score', { ascending: false })
+          .limit(5);
 
-        if (storyResult) {
-          setSuccessStory(storyResult);
+        if (uniResult && uniResult.length > 0) {
+          setUniversities(uniResult.map(u => ({
+            name: u.university_name,
+            country: u.country,
+            matchScore: u.match_score,
+            scholarshipType: u.scholarship_type || '',
+            reason: u.reason || ''
+          })));
         }
 
-        // Set EFC explanation
         updateEfcExplanation(efcResult.efc_segment, efcResult.role);
       }
     } catch (error) {
@@ -127,21 +126,32 @@ export default function Path() {
     }
   };
 
+  const calculateCurrentPart = (ms: Milestone[]) => {
+    // Find the first incomplete milestone's part
+    const firstIncomplete = ms.find(m => !m.completed);
+    if (firstIncomplete) {
+      const part = Math.ceil(firstIncomplete.order_index / 10);
+      setCurrentPart(Math.min(part, totalParts));
+    } else {
+      setCurrentPart(totalParts);
+    }
+  };
+
   const updateEfcExplanation = (segment: string, role: string) => {
     if (role === 'parent') {
-      setEfcExplanation('Ваш путь настроен для поддержки ребёнка в процессе поступления.');
+      setEfcExplanation('План настроен для поддержки ребёнка в процессе поступления.');
       return;
     }
 
     switch (segment) {
       case 'low':
-        setEfcExplanation('Этот путь оптимизирован под максимальные стипендии и гранты. Фокус на Need-Blind университетах.');
+        setEfcExplanation('План оптимизирован под максимальные стипендии. Фокус на Need-Blind университетах.');
         break;
       case 'medium':
-        setEfcExplanation('Комбинация Need-based и Merit-based стратегий для оптимального покрытия.');
+        setEfcExplanation('Комбинация Need-based и Merit-based стратегий.');
         break;
       case 'high':
-        setEfcExplanation('Фокус на Merit-based стипендиях и престижных программах.');
+        setEfcExplanation('Фокус на Merit стипендиях и Early Decision.');
         break;
     }
   };
@@ -151,7 +161,6 @@ export default function Path() {
     
     setGenerating(true);
     try {
-      // Get roadmap data for additional context
       const { data: roadmap } = await supabase
         .from('roadmaps')
         .select('*')
@@ -166,12 +175,19 @@ export default function Path() {
           currentGrade: roadmap?.current_grade || '11',
           mainGoal: roadmap?.main_goal || 'top_uni',
           targetUniversities: [],
+          satScore: roadmap?.sat_score,
+          ieltsScore: roadmap?.ielts_score,
+          desiredMajor: roadmap?.desired_major,
         }
       });
 
       if (error) throw error;
 
-      // Save milestones to database
+      if (data.totalParts) {
+        setTotalParts(data.totalParts);
+      }
+
+      // Save milestones
       const milestonesToInsert = data.milestones.map((m: any, index: number) => ({
         user_id: user.id,
         title: m.title,
@@ -180,7 +196,7 @@ export default function Path() {
         priority: m.priority,
         order_index: index + 1,
         efc_specific: m.efc_specific,
-        metadata: m.metadata,
+        metadata: { ...m.metadata, part: m.part },
       }));
 
       const { data: insertedMilestones, error: insertError } = await supabase
@@ -192,6 +208,25 @@ export default function Path() {
 
       setMilestones(insertedMilestones || []);
       setEfcExplanation(data.efcExplanation);
+
+      // Save university recommendations
+      if (data.universityRecommendations?.length > 0) {
+        const unisToInsert = data.universityRecommendations.map((u: any) => ({
+          user_id: user.id,
+          university_name: u.name,
+          country: u.country,
+          match_score: u.matchScore,
+          scholarship_type: u.scholarshipType,
+          reason: u.reason,
+          financial_aid_available: u.needBlind || false,
+        }));
+
+        await supabase.from('university_recommendations').delete().eq('user_id', user.id);
+        await supabase.from('university_recommendations').insert(unisToInsert);
+        
+        setUniversities(data.universityRecommendations);
+      }
+
       toast.success('Персональный путь создан!');
     } catch (error) {
       console.error('Error generating path:', error);
@@ -215,11 +250,11 @@ export default function Path() {
 
       if (error) throw error;
 
-      setMilestones(prev => 
-        prev.map(m => 
-          m.id === milestone.id ? { ...m, completed: newCompleted } : m
-        )
+      const updated = milestones.map(m => 
+        m.id === milestone.id ? { ...m, completed: newCompleted } : m
       );
+      setMilestones(updated);
+      calculateCurrentPart(updated);
 
       if (newCompleted) {
         toast.success('Отлично! Шаг выполнен! 🎉');
@@ -234,24 +269,25 @@ export default function Path() {
     if (!user || !efcData) return;
     
     try {
-      // Delete existing milestones
-      await supabase
-        .from('path_milestones')
-        .delete()
-        .eq('user_id', user.id);
-
-      // Regenerate
+      await supabase.from('path_milestones').delete().eq('user_id', user.id);
       await generatePath(efcData);
     } catch (error) {
       console.error('Error resetting path:', error);
-      toast.error('Ошибка при сбросе пути');
+      toast.error('Ошибка при сбросе');
     }
   };
 
   const completedCount = milestones.filter(m => m.completed).length;
   const totalCount = milestones.length;
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-  const nextMilestone = milestones.find(m => !m.completed);
+  
+  // Get milestones for current part
+  const currentPartMilestones = milestones.filter(m => {
+    const part = m.metadata?.part || Math.ceil(m.order_index / 10);
+    return part === currentPart;
+  });
+  
+  const nextMilestone = currentPartMilestones.find(m => !m.completed) || milestones.find(m => !m.completed);
 
   if (loading) {
     return (
@@ -270,7 +306,7 @@ export default function Path() {
           </div>
           <h1 className="text-2xl font-black text-foreground mb-3">Путь ещё не создан</h1>
           <p className="text-muted-foreground mb-6">
-            Пройдите онбординг, чтобы получить персональный путь поступления
+            Пройдите онбординг, чтобы получить персональный путь
           </p>
           <Button variant="hero" onClick={() => window.location.href = '/onboarding'}>
             Начать
@@ -285,7 +321,7 @@ export default function Path() {
       {/* Header */}
       <header className="bg-card border-b border-border px-4 py-4">
         <div className="container max-w-lg mx-auto">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
                 {efcData.role === 'parent' ? (
@@ -295,9 +331,9 @@ export default function Path() {
                 )}
               </div>
               <div>
-                <h1 className="text-xl font-extrabold text-foreground">Мой путь</h1>
+                <h1 className="text-lg font-extrabold text-foreground">Мой путь</h1>
                 <p className="text-xs text-muted-foreground">
-                  {efcData.role === 'parent' ? 'Родитель' : 'Студент'} • EFC: {efcData.efc_segment}
+                  Часть {currentPart} из {totalParts}
                 </p>
               </div>
             </div>
@@ -312,132 +348,92 @@ export default function Path() {
           </div>
 
           {/* Progress */}
-          <div className="bg-muted/50 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-foreground">Прогресс</span>
-              <span className="text-sm font-bold text-primary">{completedCount}/{totalCount}</span>
-            </div>
-            <div className="h-3 bg-muted rounded-full overflow-hidden">
-              <motion.div 
-                className="h-full gradient-primary rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${progressPercent}%` }}
-                transition={{ duration: 0.5 }}
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalParts }).map((_, i) => (
+              <div 
+                key={i} 
+                className={`flex-1 h-2 rounded-full transition-colors ${
+                  i + 1 <= currentPart ? 'bg-primary' : 'bg-muted'
+                }`}
               />
-            </div>
+            ))}
           </div>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            {completedCount} из {totalCount} шагов выполнено
+          </p>
         </div>
       </header>
 
-      <main className="container max-w-lg mx-auto px-4 py-5 space-y-5">
+      <main className="container max-w-lg mx-auto px-4 py-4 space-y-4">
         {/* EFC Explanation */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-primary/5 border border-primary/20 rounded-2xl p-4"
+          className="bg-primary/5 border border-primary/20 rounded-2xl p-3"
         >
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground mb-1">
-                Персонализированный путь
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {efcExplanation}
-              </p>
-            </div>
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-primary shrink-0" />
+            <p className="text-xs text-muted-foreground">{efcExplanation}</p>
           </div>
         </motion.div>
 
-        {/* Next Important Step */}
-        {nextMilestone && (
+        {/* University Recommendations */}
+        {universities.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="duolingo-card overflow-hidden"
+            className="space-y-2"
           >
-            <div className="gradient-primary p-4 text-white">
-              <div className="flex items-center gap-2 mb-2">
-                <Target className="w-5 h-5" />
-                <span className="font-bold">Следующий важный шаг</span>
-              </div>
-              <h2 className="text-xl font-black">{nextMilestone.title}</h2>
-            </div>
-            <div className="p-4">
-              <p className="text-sm text-muted-foreground mb-4">
-                {nextMilestone.description}
-              </p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-lg text-xs font-bold ${categoryColors[nextMilestone.category] || categoryColors.general}`}>
-                    {categoryIcons[nextMilestone.category]}
-                  </span>
-                  <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${priorityLabels[nextMilestone.priority]?.color}`}>
-                    {priorityLabels[nextMilestone.priority]?.label}
-                  </span>
-                </div>
-                <Button 
-                  variant="hero" 
-                  size="sm"
-                  onClick={() => toggleMilestone(nextMilestone)}
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-2">
+              <Star className="w-3.5 h-3.5" />
+              Рекомендуемые университеты
+            </h3>
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              {universities.map((uni, index) => (
+                <motion.div
+                  key={uni.name}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="shrink-0 w-48 bg-card border border-border rounded-xl p-3"
                 >
-                  <CheckCircle2 className="w-4 h-4 mr-1" />
-                  Готово
-                </Button>
-              </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-primary">{uni.matchScore}% match</span>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      {uni.country}
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-sm text-foreground mb-1 truncate">{uni.name}</h4>
+                  <p className="text-[10px] text-muted-foreground line-clamp-2">{uni.reason}</p>
+                  {uni.scholarshipType && (
+                    <span className="inline-block mt-2 px-2 py-0.5 bg-accent/10 text-accent text-[10px] font-semibold rounded">
+                      {uni.scholarshipType}
+                    </span>
+                  )}
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         )}
 
-        {/* Success Story */}
-        {successStory && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 rounded-2xl p-4"
-          >
-            <div className="flex items-start gap-3">
-              <div className="text-3xl">🎓</div>
-              <div className="flex-1">
-                <p className="text-xs font-bold text-accent uppercase tracking-wider mb-1">
-                  История успеха
-                </p>
-                <p className="text-sm font-bold text-foreground mb-1">
-                  {successStory.name} → {successStory.university}
-                </p>
-                <p className="text-xs text-muted-foreground mb-2">
-                  {successStory.story}
-                </p>
-                {successStory.scholarship_amount && (
-                  <span className="inline-block px-2 py-1 bg-accent/10 text-accent text-xs font-bold rounded-lg">
-                    {successStory.scholarship_amount}
-                  </span>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* All Milestones */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
-            Все шаги ({completedCount}/{totalCount})
+        {/* Current Part Tasks */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
+            Часть {currentPart}: Задачи
           </h3>
           
           <AnimatePresence>
-            {milestones.map((milestone, index) => (
+            {currentPartMilestones.map((milestone, index) => (
               <motion.div
                 key={milestone.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: index * 0.03 }}
                 className={`
-                  duolingo-card p-4 transition-all
-                  ${milestone.completed ? 'opacity-60' : ''}
+                  bg-card border rounded-xl p-3 transition-all
+                  ${milestone.completed ? 'opacity-60 border-border' : 'border-primary/20'}
                 `}
               >
                 <button
@@ -445,22 +441,22 @@ export default function Path() {
                   className="w-full flex items-start gap-3 text-left"
                 >
                   <div className={`
-                    w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5
+                    w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5
                     ${milestone.completed 
                       ? 'gradient-primary' 
                       : 'border-2 border-muted-foreground/30'
                     }
                   `}>
                     {milestone.completed ? (
-                      <CheckCircle2 className="w-4 h-4 text-primary-foreground" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-primary-foreground" />
                     ) : (
-                      <Circle className="w-4 h-4 text-muted-foreground/30" />
+                      <Circle className="w-3.5 h-3.5 text-muted-foreground/30" />
                     )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className={`font-bold text-foreground ${milestone.completed ? 'line-through' : ''}`}>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h4 className={`font-semibold text-sm text-foreground ${milestone.completed ? 'line-through' : ''}`}>
                         {milestone.title}
                       </h4>
                       {milestone.efc_specific && (
@@ -470,25 +466,56 @@ export default function Path() {
                       )}
                     </div>
                     {milestone.description && (
-                      <p className="text-xs text-muted-foreground mb-2">
+                      <p className="text-xs text-muted-foreground line-clamp-2">
                         {milestone.description}
                       </p>
                     )}
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${categoryColors[milestone.category] || categoryColors.general}`}>
-                        {milestone.category}
-                      </span>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${priorityLabels[milestone.priority]?.color}`}>
-                        {priorityLabels[milestone.priority]?.label}
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${categoryColors[milestone.category] || categoryColors.general}`}>
+                        {categoryIcons[milestone.category]} {milestone.category}
                       </span>
                     </div>
                   </div>
 
-                  <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                 </button>
               </motion.div>
             ))}
           </AnimatePresence>
+        </div>
+
+        {/* Next Part Navigation */}
+        {currentPart < totalParts && currentPartMilestones.every(m => m.completed) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Button
+              variant="hero"
+              className="w-full"
+              onClick={() => setCurrentPart(prev => Math.min(prev + 1, totalParts))}
+            >
+              Перейти к части {currentPart + 1}
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </motion.div>
+        )}
+
+        {/* Part Navigation */}
+        <div className="flex justify-center gap-2 pt-2">
+          {Array.from({ length: totalParts }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPart(i + 1)}
+              className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${
+                i + 1 === currentPart 
+                  ? 'gradient-primary text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
         </div>
       </main>
     </div>

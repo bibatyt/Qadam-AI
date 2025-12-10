@@ -15,10 +15,17 @@ export interface OnboardingData {
   targetCountry: string;
   targetUniversities: string[];
   
-  // Step 5: Auth (handled separately)
+  // Step 5: Academic (NEW)
+  satScore?: number;
+  ieltsScore?: number;
+  englishLevel: string;
+  deadline: string;
+  desiredMajor: string;
+  
+  // Step 6: Auth (handled separately)
 }
 
-export type OnboardingStep = 1 | 2 | 3 | 4 | 5;
+export type OnboardingStep = 1 | 2 | 3 | 4 | 5 | 6;
 
 export const ROLES = [
   { 
@@ -110,6 +117,33 @@ export const BUDGET_RANGES = [
     label: { ru: 'Свыше $40,000 / год', en: 'Over $40,000 / year', kk: '$40,000 жоғары / жыл' },
     description: { ru: 'Можем покрыть полную стоимость', en: 'Can cover full cost', kk: 'Толық құнын жабамыз' }
   },
+] as const;
+
+export const ENGLISH_LEVELS = [
+  { id: 'beginner', label: { ru: 'Начальный (A1-A2)', en: 'Beginner (A1-A2)', kk: 'Бастапқы (A1-A2)' } },
+  { id: 'intermediate', label: { ru: 'Средний (B1-B2)', en: 'Intermediate (B1-B2)', kk: 'Орта (B1-B2)' } },
+  { id: 'advanced', label: { ru: 'Продвинутый (C1-C2)', en: 'Advanced (C1-C2)', kk: 'Жоғары (C1-C2)' } },
+  { id: 'native', label: { ru: 'Носитель', en: 'Native', kk: 'Тілдің түбі' } },
+] as const;
+
+export const DEADLINES = [
+  { id: '2025_fall', label: { ru: 'Осень 2025', en: 'Fall 2025', kk: 'Күз 2025' } },
+  { id: '2026_fall', label: { ru: 'Осень 2026', en: 'Fall 2026', kk: 'Күз 2026' } },
+  { id: '2027_fall', label: { ru: 'Осень 2027', en: 'Fall 2027', kk: 'Күз 2027' } },
+  { id: 'undecided', label: { ru: 'Ещё не определился', en: 'Undecided', kk: 'Әлі шешілмеген' } },
+] as const;
+
+export const MAJORS = [
+  { id: 'cs', label: { ru: 'Computer Science / IT', en: 'Computer Science / IT', kk: 'Информатика / IT' }, icon: '💻' },
+  { id: 'business', label: { ru: 'Бизнес / Финансы', en: 'Business / Finance', kk: 'Бизнес / Қаржы' }, icon: '📊' },
+  { id: 'engineering', label: { ru: 'Инженерия', en: 'Engineering', kk: 'Инженерия' }, icon: '⚙️' },
+  { id: 'medicine', label: { ru: 'Медицина', en: 'Medicine', kk: 'Медицина' }, icon: '🏥' },
+  { id: 'law', label: { ru: 'Право', en: 'Law', kk: 'Құқық' }, icon: '⚖️' },
+  { id: 'arts', label: { ru: 'Искусство / Дизайн', en: 'Arts / Design', kk: 'Өнер / Дизайн' }, icon: '🎨' },
+  { id: 'science', label: { ru: 'Естественные науки', en: 'Natural Sciences', kk: 'Жаратылыстану' }, icon: '🔬' },
+  { id: 'social', label: { ru: 'Социальные науки', en: 'Social Sciences', kk: 'Әлеуметтік ғылымдар' }, icon: '🌍' },
+  { id: 'humanities', label: { ru: 'Гуманитарные науки', en: 'Humanities', kk: 'Гуманитарлық ғылымдар' }, icon: '📚' },
+  { id: 'undecided', label: { ru: 'Ещё не определился', en: 'Undecided', kk: 'Әлі шешілмеген' }, icon: '🤔' },
 ] as const;
 
 // Топовые университеты мира для выбора "фаворитов"

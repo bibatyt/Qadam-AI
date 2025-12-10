@@ -14,6 +14,7 @@ import {
   AnalyzingAnimation,
   RoleStep,
   EFCStep,
+  AcademicStep,
   TOP_UNIVERSITIES,
   calculateEFCSegment,
   type OnboardingStep,
@@ -39,6 +40,13 @@ const Onboarding = () => {
   const [country, setCountry] = useState("");
   const [universities, setUniversities] = useState<string[]>([]);
   
+  // New academic fields
+  const [satScore, setSatScore] = useState("");
+  const [ieltsScore, setIeltsScore] = useState("");
+  const [englishLevel, setEnglishLevel] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [desiredMajor, setDesiredMajor] = useState("");
+  
   // Language
   const language = 'ru' as const;
 
@@ -47,11 +55,12 @@ const Onboarding = () => {
     if (step === 2) return !!goal;
     if (step === 3) return !!residenceCountry && !!incomeRange && !!budgetRange;
     if (step === 4) return !!grade && !!country;
+    if (step === 5) return !!englishLevel && !!deadline && !!desiredMajor;
     return true;
   };
 
   const handleNext = () => {
-    if (step < 5) {
+    if (step < 6) {
       setStep((step + 1) as OnboardingStep);
     }
   };
@@ -103,18 +112,22 @@ const Onboarding = () => {
           .filter(Boolean)
           .join(', ');
 
-        // Save roadmap data
+        // Save roadmap data with new fields
         await supabase.from('roadmaps').insert({
           user_id: user.id,
           main_goal: goal,
           current_grade: grade,
           target_country: country,
-          desired_major: '',
+          desired_major: desiredMajor,
+          sat_score: satScore ? parseInt(satScore) : null,
+          ielts_score: ieltsScore ? parseFloat(ieltsScore) : null,
         });
         
-        // Update profile with target universities
+        // Update profile with target universities and scores
         await supabase.from('profiles').update({
-          target_university: selectedUniNames || country
+          target_university: selectedUniNames || country,
+          sat_score: satScore ? parseInt(satScore) : null,
+          ielts_score: ieltsScore ? parseFloat(ieltsScore) : null,
         }).eq('user_id', user.id);
       }
 
@@ -158,7 +171,7 @@ const Onboarding = () => {
           <div className="w-10" />
         )}
         
-        <StepIndicator currentStep={step} totalSteps={5} />
+        <StepIndicator currentStep={step} totalSteps={6} />
         
         <div className="w-10" />
       </header>
@@ -208,6 +221,22 @@ const Onboarding = () => {
               />
             )}
             {step === 5 && (
+              <AcademicStep
+                key="academic"
+                satScore={satScore}
+                ieltsScore={ieltsScore}
+                englishLevel={englishLevel}
+                deadline={deadline}
+                desiredMajor={desiredMajor}
+                onSatChange={setSatScore}
+                onIeltsChange={setIeltsScore}
+                onEnglishLevelSelect={setEnglishLevel}
+                onDeadlineSelect={setDeadline}
+                onMajorSelect={setDesiredMajor}
+                language={language}
+              />
+            )}
+            {step === 6 && (
               <AuthStep
                 key="auth"
                 onSubmit={handleAuthSubmit}
@@ -218,8 +247,8 @@ const Onboarding = () => {
           </AnimatePresence>
         </div>
 
-        {/* Navigation Button (only for steps 1-4) */}
-        {step < 5 && (
+        {/* Navigation Button (only for steps 1-5) */}
+        {step < 6 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
