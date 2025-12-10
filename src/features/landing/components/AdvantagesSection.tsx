@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { landingContent } from "../content";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 const container = {
   hidden: { opacity: 0 },
@@ -15,7 +15,16 @@ const item = {
 };
 
 export function AdvantagesSection() {
-  const { advantages } = landingContent;
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
+
+  const advantages = [
+    { emoji: "🎯", title: t.advantage1Title, description: t.advantage1Desc },
+    { emoji: "⏰", title: t.advantage2Title, description: t.advantage2Desc },
+    { emoji: "🏛️", title: t.advantage3Title, description: t.advantage3Desc },
+    { emoji: "🌟", title: t.advantage4Title, description: t.advantage4Desc },
+    { emoji: "🤖", title: t.advantage5Title, description: t.advantage5Desc },
+  ];
 
   return (
     <section className="py-20 px-4 bg-muted/30">
@@ -27,10 +36,10 @@ export function AdvantagesSection() {
           className="text-center mb-14"
         >
           <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-4">
-            {advantages.title}
+            {t.advantagesTitle}
           </h2>
           <p className="text-lg text-muted-foreground">
-            {advantages.subtitle}
+            {t.advantagesSubtitle}
           </p>
         </motion.div>
 
@@ -41,7 +50,7 @@ export function AdvantagesSection() {
           viewport={{ once: true }}
           className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
         >
-          {advantages.items.map((advantage, index) => (
+          {advantages.map((advantage, index) => (
             <motion.div
               key={index}
               variants={item}

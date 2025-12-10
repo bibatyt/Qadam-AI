@@ -1,14 +1,57 @@
 import { motion } from "framer-motion";
 import { Star, MapPin, GraduationCap } from "lucide-react";
-import { landingContent } from "../content";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 export function SuccessStoriesSection() {
-  const { successStories } = landingContent;
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
+
+  const stories = [
+    {
+      name: language === 'ru' ? "Алия К." : language === 'kz' ? "Әлия К." : "Aliya K.",
+      country: language === 'ru' ? "Казахстан" : language === 'kz' ? "Қазақстан" : "Kazakhstan",
+      university: "Harvard University",
+      scholarship: "Full Financial Aid",
+      avatar: "🎓",
+      text: language === 'ru' 
+        ? "EFC-алгоритм показал мне Need-Blind университеты. Я получила 100% покрытие!"
+        : language === 'kz'
+        ? "EFC-алгоритм маған Need-Blind университеттерін көрсетті. Мен 100% қаржыландыру алдым!"
+        : "EFC-algorithm showed me Need-Blind universities. I got 100% coverage!",
+      efcSegment: "low"
+    },
+    {
+      name: language === 'ru' ? "Данияр М." : language === 'kz' ? "Данияр М." : "Daniyar M.",
+      country: language === 'ru' ? "Узбекистан" : language === 'kz' ? "Өзбекстан" : "Uzbekistan",
+      university: "ETH Zurich",
+      scholarship: "Excellence Scholarship",
+      avatar: "🚀",
+      text: language === 'ru'
+        ? "Система подсказала бесплатные варианты в Европе. Идеально под мой бюджет."
+        : language === 'kz'
+        ? "Жүйе Еуропадағы тегін нұсқаларды ұсынды. Менің бюджетіме тамаша сәйкес."
+        : "System suggested free options in Europe. Perfect for my budget.",
+      efcSegment: "low"
+    },
+    {
+      name: language === 'ru' ? "Камила Т." : language === 'kz' ? "Камила Т." : "Kamila T.",
+      country: language === 'ru' ? "Россия" : language === 'kz' ? "Ресей" : "Russia",
+      university: "Oxford University",
+      scholarship: "Rhodes Scholarship",
+      avatar: "✨",
+      text: language === 'ru'
+        ? "Персональный путь и AI-ментор помогли собрать идеальную заявку."
+        : language === 'kz'
+        ? "Жеке жол және AI-тәлімгер тамаша өтінім жасауға көмектесті."
+        : "Personal path and AI mentor helped create the perfect application.",
+      efcSegment: "medium"
+    }
+  ];
 
   const efcLabels: Record<string, string> = {
-    low: "EFC Низкий",
-    medium: "EFC Средний",
-    high: "EFC Высокий"
+    low: language === 'ru' ? "EFC Низкий" : language === 'kz' ? "EFC Төмен" : "EFC Low",
+    medium: language === 'ru' ? "EFC Средний" : language === 'kz' ? "EFC Орташа" : "EFC Medium",
+    high: language === 'ru' ? "EFC Высокий" : language === 'kz' ? "EFC Жоғары" : "EFC High"
   };
 
   const efcColors: Record<string, string> = {
@@ -16,6 +59,12 @@ export function SuccessStoriesSection() {
     medium: "bg-amber-500/10 text-amber-600",
     high: "bg-blue-500/10 text-blue-600"
   };
+
+  const swipeHint = language === 'ru' 
+    ? '← Свайпните для просмотра →' 
+    : language === 'kz' 
+    ? '← Қарау үшін сырғытыңыз →'
+    : '← Swipe to view →';
 
   return (
     <section className="py-20 px-4">
@@ -32,16 +81,16 @@ export function SuccessStoriesSection() {
             ))}
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-4">
-            {successStories.title}
+            {t.successStoriesTitle}
           </h2>
           <p className="text-lg text-muted-foreground">
-            {successStories.subtitle}
+            {t.successStoriesSubtitle}
           </p>
         </motion.div>
 
         {/* Carousel */}
         <div className="flex gap-6 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
-          {successStories.items.map((story, index) => (
+          {stories.map((story, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30 }}
@@ -98,7 +147,7 @@ export function SuccessStoriesSection() {
           viewport={{ once: true }}
           className="text-center text-sm text-muted-foreground mt-4"
         >
-          ← Свайпните для просмотра →
+          {swipeHint}
         </motion.p>
       </div>
     </section>

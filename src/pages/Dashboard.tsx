@@ -11,6 +11,7 @@ import { useDailyQuests } from "@/hooks/useDailyQuests";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import confetti from "canvas-confetti";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 const Dashboard = () => {
   const { profile, loading, updateStreak } = useProfile();
@@ -19,6 +20,8 @@ const Dashboard = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationText, setCelebrationText] = useState("");
   const [showOtherTasks, setShowOtherTasks] = useState(false);
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
 
   useEffect(() => {
     if (profile) {
@@ -27,13 +30,11 @@ const Dashboard = () => {
   }, [profile?.id]);
 
   const triggerConfetti = useCallback(() => {
-    const messages = [
-      "Ты супер! 🔥",
-      "Так держать! 💪", 
-      "Молодец! ⚡",
-      "Отлично! 🎯",
-      "Невероятно! ✨"
-    ];
+    const messages = language === 'ru' 
+      ? ["Ты супер! 🔥", "Так держать! 💪", "Молодец! ⚡", "Отлично! 🎯", "Невероятно! ✨"]
+      : language === 'kz'
+      ? ["Сен керемет! 🔥", "Осылай жалғастыр! 💪", "Жарайсың! ⚡", "Тамаша! 🎯", "Керемет! ✨"]
+      : ["You're amazing! 🔥", "Keep it up! 💪", "Great job! ⚡", "Excellent! 🎯", "Incredible! ✨"];
     setCelebrationText(messages[Math.floor(Math.random() * messages.length)]);
     
     confetti({
@@ -44,7 +45,7 @@ const Dashboard = () => {
     });
     setShowCelebration(true);
     setTimeout(() => setShowCelebration(false), 2000);
-  }, []);
+  }, [language]);
 
   const handleTaskComplete = async (questId: string, completed: boolean) => {
     await toggleQuest(questId, completed);
@@ -68,11 +69,11 @@ const Dashboard = () => {
   const allCompleted = completedQuests === totalQuests && totalQuests > 0;
 
   const getProgressMessage = () => {
-    if (allCompleted) return { text: "Ты герой дня! Все задачи выполнены!", emoji: "🏆" };
-    if (progressPercent >= 66) return { text: "Почти у цели! Ещё немного!", emoji: "🔥" };
-    if (progressPercent >= 33) return { text: "Хороший темп! Продолжай!", emoji: "💪" };
-    if ((profile?.streak || 0) > 3) return { text: `${profile?.streak} дней подряд! Ты в ударе!`, emoji: "⚡" };
-    return { text: "Начни с одной задачи!", emoji: "🎯" };
+    if (allCompleted) return { text: t.heroOfDay, emoji: "🏆" };
+    if (progressPercent >= 66) return { text: t.almostThere, emoji: "🔥" };
+    if (progressPercent >= 33) return { text: t.goodPace, emoji: "💪" };
+    if ((profile?.streak || 0) > 3) return { text: `${profile?.streak} ${t.daysInRow}`, emoji: "⚡" };
+    return { text: t.startWithOneTask, emoji: "🎯" };
   };
 
   const progressInfo = getProgressMessage();
@@ -119,9 +120,9 @@ const Dashboard = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-black text-lg text-foreground">{profile?.name || "Студент"}</p>
+              <p className="font-black text-lg text-foreground">{profile?.name || t.student}</p>
               <p className="text-sm text-muted-foreground">
-                {profile?.target_university || "Будущий студент"}
+                {profile?.target_university || t.futureStudent}
               </p>
             </div>
           </div>
@@ -150,16 +151,16 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
-                <span className="font-bold">Задача дня</span>
+                <span className="font-bold">{t.taskOfDay}</span>
               </div>
               <span className="text-sm bg-white/20 px-3 py-1.5 rounded-full font-semibold">
-                ~12 мин
+                {t.approxTime}
               </span>
             </div>
             <h2 className="text-2xl font-black leading-tight">
               {allCompleted 
-                ? "🎉 Все задачи выполнены!" 
-                : taskOfDay?.quest_title || "Загрузка..."}
+                ? t.allTasksCompleted 
+                : taskOfDay?.quest_title || t.loading}
             </h2>
           </div>
 
@@ -174,8 +175,8 @@ const Dashboard = () => {
                 >
                   🏆
                 </motion.div>
-                <p className="text-xl font-bold text-foreground mb-2">Невероятно!</p>
-                <p className="text-muted-foreground">Возвращайся завтра за новыми задачами</p>
+                <p className="text-xl font-bold text-foreground mb-2">{t.incredible}</p>
+                <p className="text-muted-foreground">{t.comeBackTomorrow}</p>
               </div>
             ) : taskOfDay && (
               <>
@@ -188,7 +189,7 @@ const Dashboard = () => {
                     ✨
                   </motion.div>
                   <span className="font-bold text-muted-foreground">
-                    Выполни и двигайся к цели!
+                    {t.completeAndProgress}
                   </span>
                 </div>
                 
@@ -199,7 +200,7 @@ const Dashboard = () => {
                   onClick={() => handleTaskComplete(taskOfDay.id, taskOfDay.completed)}
                 >
                   <CheckCircle2 className="w-7 h-7 mr-3" />
-                  Выполнено!
+                  {t.completed}
                 </Button>
               </>
             )}
@@ -248,8 +249,8 @@ const Dashboard = () => {
                 <FileText className="w-6 h-6 text-accent" />
               </div>
               <div>
-                <p className="font-bold text-foreground">Проверить эссе</p>
-                <p className="text-xs text-muted-foreground">Получи Impact Score</p>
+                <p className="font-bold text-foreground">{t.checkEssay}</p>
+                <p className="text-xs text-muted-foreground">{t.getImpactScore}</p>
               </div>
             </div>
           </button>
@@ -269,7 +270,7 @@ const Dashboard = () => {
             >
               <div className="flex items-center gap-2">
                 <span className="text-xl">📋</span>
-                <span className="font-bold text-foreground">Другие задачи</span>
+                <span className="font-bold text-foreground">{t.otherTasks}</span>
                 <span className="text-sm text-muted-foreground">
                   ({quests.filter(q => q.id !== taskOfDay?.id).length})
                 </span>
@@ -340,10 +341,10 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="text-xs font-bold text-wisdom-foreground/80 uppercase tracking-wider mb-0.5">
-                AI Ментор
+                {t.aiMentor}
               </p>
               <p className="text-sm text-wisdom-foreground font-semibold">
-                Нажми на 💬 справа, если нужна помощь
+                {t.clickForHelp}
               </p>
             </div>
           </div>

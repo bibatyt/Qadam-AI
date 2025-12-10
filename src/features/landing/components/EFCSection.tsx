@@ -1,12 +1,30 @@
 import { motion } from "framer-motion";
 import { Shield, CheckCircle2 } from "lucide-react";
-import { landingContent } from "../content";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 export function EFCSection() {
-  const { efc } = landingContent;
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
+
+  const points = [
+    { icon: "💰", title: t.efcPoint1Title, text: t.efcPoint1Desc },
+    { icon: "📋", title: t.efcPoint2Title, text: t.efcPoint2Desc },
+    { icon: "🎓", title: t.efcPoint3Title, text: t.efcPoint3Desc },
+  ];
+
+  const trustItems = [t.efcTrust1, t.efcTrust2, t.efcTrust3, t.efcTrust4];
+
+  const segmentLabels = language === 'ru' 
+    ? ['Низкий', 'Средний', 'Высокий'] 
+    : language === 'kz' 
+    ? ['Төмен', 'Орташа', 'Жоғары']
+    : ['Low', 'Medium', 'High'];
+
+  const efcSegmentLabel = language === 'ru' ? 'EFC Сегмент' : language === 'kz' ? 'EFC Сегменті' : 'EFC Segment';
+  const autoLabel = language === 'ru' ? 'Автоматически' : language === 'kz' ? 'Автоматты' : 'Automatic';
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-muted/30 to-background">
+    <section id="efc" className="py-20 px-4 bg-gradient-to-b from-muted/30 to-background">
       <div className="container max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -16,13 +34,13 @@ export function EFCSection() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
             <Shield className="w-4 h-4" />
-            EFC-Алгоритм
+            EFC-{language === 'ru' ? 'Алгоритм' : language === 'kz' ? 'Алгоритм' : 'Algorithm'}
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-4">
-            {efc.title}
+            {t.efcTitle}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {efc.subtitle}
+            {t.efcSubtitle}
           </p>
         </motion.div>
 
@@ -34,7 +52,7 @@ export function EFCSection() {
             viewport={{ once: true }}
             className="space-y-4"
           >
-            {efc.points.map((point, index) => (
+            {points.map((point, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -63,10 +81,10 @@ export function EFCSection() {
           >
             <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
               <Shield className="w-5 h-5 text-primary" />
-              {efc.trust.title}
+              {t.efcTrustTitle}
             </h3>
             <div className="space-y-4">
-              {efc.trust.items.map((item, index) => (
+              {trustItems.map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: 20 }}
@@ -92,11 +110,11 @@ export function EFCSection() {
               className="mt-8 p-4 bg-card/50 rounded-xl border border-border/30"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-muted-foreground">EFC Сегмент</span>
-                <span className="text-xs font-bold text-primary">Автоматически</span>
+                <span className="text-xs font-medium text-muted-foreground">{efcSegmentLabel}</span>
+                <span className="text-xs font-bold text-primary">{autoLabel}</span>
               </div>
               <div className="flex gap-2">
-                {['Низкий', 'Средний', 'Высокий'].map((seg, i) => (
+                {segmentLabels.map((seg, i) => (
                   <div 
                     key={seg}
                     className={`

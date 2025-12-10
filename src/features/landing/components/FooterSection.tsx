@@ -2,11 +2,17 @@ import { motion } from "framer-motion";
 import { ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { landingContent } from "../content";
 import { QadamLogo } from "@/components/landing/QadamLogo";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 export function FooterSection() {
-  const { footer } = landingContent;
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
+
+  const startLink = language === 'ru' ? 'Начать' : language === 'kz' ? 'Бастау' : 'Start';
+  const howItWorksLink = language === 'ru' ? 'Как это работает' : language === 'kz' ? 'Қалай жұмыс істейді' : 'How It Works';
+  const whatIsEfcLink = language === 'ru' ? 'Что такое EFC' : language === 'kz' ? 'EFC дегеніміз не' : 'What is EFC';
+  const tagline = language === 'ru' ? 'Твой путь к поступлению' : language === 'kz' ? 'Түсуге жолыңыз' : 'Your path to admission';
 
   return (
     <>
@@ -39,10 +45,10 @@ export function FooterSection() {
               </motion.div>
               
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-foreground mb-4">
-                {footer.cta.title}
+                {t.footerCtaTitle}
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto">
-                {footer.cta.subtitle}
+                {t.footerCtaSubtitle}
               </p>
               <Link to="/onboarding">
                 <Button 
@@ -50,7 +56,7 @@ export function FooterSection() {
                   size="lg" 
                   className="h-12 sm:h-14 px-6 sm:px-10 text-base sm:text-lg font-bold group"
                 >
-                  {footer.cta.button}
+                  {t.startFree}
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
@@ -68,7 +74,7 @@ export function FooterSection() {
               <QadamLogo size={40} animated />
               <div>
                 <span className="font-bold text-foreground text-lg">Qadam AI</span>
-                <p className="text-xs text-muted-foreground">Твой путь к поступлению</p>
+                <p className="text-xs text-muted-foreground">{tagline}</p>
               </div>
             </div>
 
@@ -89,18 +95,18 @@ export function FooterSection() {
           {/* Links */}
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-8 text-sm">
             <Link to="/onboarding" className="text-muted-foreground hover:text-foreground transition-colors">
-              Начать
+              {startLink}
             </Link>
             <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
-              Как это работает
+              {howItWorksLink}
             </a>
             <a href="#efc" className="text-muted-foreground hover:text-foreground transition-colors">
-              Что такое EFC
+              {whatIsEfcLink}
             </a>
           </div>
 
           <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-muted-foreground">
-            {footer.copyright}
+            {t.footerCopyright}
           </div>
         </div>
       </footer>

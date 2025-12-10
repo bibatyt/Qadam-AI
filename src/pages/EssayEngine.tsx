@@ -3,11 +3,14 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { EssayUploader, EssayAnalysisResult, type EssayAnalysis } from "@/features/essay-engine";
 import { supabase } from "@/integrations/supabase/client";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 const EssayEngine = () => {
   const [analysis, setAnalysis] = useState<EssayAnalysis | null>(null);
   const [essayTitle, setEssayTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
 
   const handleSubmit = async (content: string, title: string) => {
     setLoading(true);
@@ -20,7 +23,7 @@ const EssayEngine = () => {
       
       if (error) {
         console.error("Analysis error:", error);
-        toast.error("Ошибка анализа. Попробуй ещё раз.");
+        toast.error(t.analysisError);
         return;
       }
       
@@ -30,10 +33,10 @@ const EssayEngine = () => {
       }
       
       setAnalysis(data as EssayAnalysis);
-      toast.success("Анализ завершён!");
+      toast.success(t.analysisComplete);
     } catch (err) {
       console.error("Submit error:", err);
-      toast.error("Не удалось проанализировать эссе");
+      toast.error(t.couldNotAnalyze);
     } finally {
       setLoading(false);
     }

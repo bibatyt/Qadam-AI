@@ -1,8 +1,17 @@
 import { motion } from "framer-motion";
-import { landingContent } from "../content";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 export function ProcessSection() {
-  const { process } = landingContent;
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
+
+  const steps = [
+    { number: "01", emoji: "📝", title: t.step1Title, description: t.step1Desc },
+    { number: "02", emoji: "📊", title: t.step2Title, description: t.step2Desc },
+    { number: "03", emoji: "🚀", title: t.step3Title, description: t.step3Desc },
+  ];
+
+  const stepLabel = language === 'ru' ? 'Шаг' : language === 'kz' ? 'Қадам' : 'Step';
 
   return (
     <section id="how-it-works" className="py-24 px-4">
@@ -16,16 +25,13 @@ export function ProcessSection() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground mb-4">
-            {process.title}
+            {t.howItWorks}
           </h2>
-          <p className="text-lg text-muted-foreground">
-            {process.subtitle}
-          </p>
         </motion.div>
 
         {/* Steps */}
         <div className="space-y-6">
-          {process.steps.map((step, i) => (
+          {steps.map((step, i) => (
             <motion.div
               key={step.number}
               initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
@@ -49,7 +55,7 @@ export function ProcessSection() {
                 <div className="flex-1 pt-1">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-sm font-bold text-primary">
-                      Шаг {step.number}
+                      {stepLabel} {step.number}
                     </span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
@@ -62,7 +68,7 @@ export function ProcessSection() {
               </div>
 
               {/* Connector line */}
-              {i < process.steps.length - 1 && (
+              {i < steps.length - 1 && (
                 <div className="absolute left-[2.5rem] sm:left-[3rem] top-full w-0.5 h-6 bg-border" />
               )}
             </motion.div>

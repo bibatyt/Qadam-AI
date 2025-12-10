@@ -2,10 +2,11 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { landingContent } from "../content";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 export function HeroSection() {
-  const { hero } = landingContent;
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center px-4 py-20 overflow-hidden">
@@ -41,7 +42,7 @@ export function HeroSection() {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold mb-8"
         >
           <Sparkles className="w-4 h-4" />
-          {hero.badge}
+          {t.efcBadge}
         </motion.div>
 
         {/* Title */}
@@ -51,9 +52,9 @@ export function HeroSection() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground mb-6 leading-[1.15]"
         >
-          {hero.title}
+          {t.heroMainTitle}
           <br />
-          <span className="text-gradient">{hero.titleHighlight}</span>
+          <span className="text-gradient">{t.heroHighlight}</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -63,7 +64,7 @@ export function HeroSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          {hero.subtitle}
+          {t.heroSubtitle}
         </motion.p>
 
         {/* CTA Button */}
@@ -79,7 +80,7 @@ export function HeroSection() {
               size="lg" 
               className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-bold group"
             >
-              {hero.cta}
+              {t.startFree}
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
@@ -89,11 +90,37 @@ export function HeroSection() {
               size="lg" 
               className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gap-2"
             >
-              Узнать больше
+              {t.learnMore}
             </Button>
           </a>
         </motion.div>
 
+        {/* Stats Badges */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex flex-wrap items-center justify-center gap-4 sm:gap-6"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+            className="flex items-center gap-2 px-4 py-2 bg-card/50 rounded-full border border-border/50"
+          >
+            <span className="text-2xl">🏛️</span>
+            <span className="text-sm font-medium text-foreground">{t.stat50Unis}</span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+            className="flex items-center gap-2 px-4 py-2 bg-card/50 rounded-full border border-border/50"
+          >
+            <span className="text-2xl">🎯</span>
+            <span className="text-sm font-medium text-foreground">{t.statPersonalPath}</span>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Scroll indicator */}
