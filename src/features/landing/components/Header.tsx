@@ -4,10 +4,14 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { QadamLogo } from "@/components/landing/QadamLogo";
+import { LanguageSwitcher } from "@/components/landing/LanguageSwitcher";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,16 +37,17 @@ export function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6">
           <a 
             href="#how-it-works" 
             className="text-muted-foreground hover:text-foreground transition-colors font-medium"
           >
-            Как это работает
+            {t.howItWorks}
           </a>
+          <LanguageSwitcher />
           <Link to="/onboarding">
             <Button variant="hero" size="sm" className="font-bold">
-              Начать
+              {t.startFree}
             </Button>
           </Link>
         </nav>
@@ -75,11 +80,14 @@ export function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block text-lg font-medium text-foreground"
               >
-                Как это работает
+                {t.howItWorks}
               </a>
+              <div className="flex justify-center py-2">
+                <LanguageSwitcher />
+              </div>
               <Link to="/onboarding" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="hero" className="w-full font-bold">
-                  Начать бесплатно
+                  {t.startFree}
                 </Button>
               </Link>
             </div>
