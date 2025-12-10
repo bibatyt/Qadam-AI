@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Flame, Target, CheckCircle2, Clock, 
-  ChevronDown, Loader2, Zap, Trophy, Sparkles, FileText 
+  Flame, CheckCircle2, Clock, 
+  ChevronDown, Loader2, Trophy, Sparkles, FileText 
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -97,7 +97,6 @@ const Dashboard = () => {
                 <Trophy className="w-10 h-10" />
                 <div>
                   <p className="text-2xl font-black">{celebrationText}</p>
-                  <p className="text-sm opacity-90">+XP получено</p>
                 </div>
               </div>
             </motion.div>
@@ -113,22 +112,16 @@ const Dashboard = () => {
           className="flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <Avatar className="w-14 h-14 border-2 border-primary shadow-primary">
-                <AvatarImage src={profile?.avatar_url || undefined} />
-                <AvatarFallback className="gradient-primary text-primary-foreground font-black text-lg">
-                  {profile?.name?.charAt(0)?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-1 -right-1 gradient-primary text-primary-foreground text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg">
-                {profile?.level || 1}
-              </div>
-            </div>
+            <Avatar className="w-14 h-14 border-2 border-primary shadow-primary">
+              <AvatarImage src={profile?.avatar_url || undefined} />
+              <AvatarFallback className="gradient-primary text-primary-foreground font-black text-lg">
+                {profile?.name?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
             <div>
               <p className="font-black text-lg text-foreground">{profile?.name || "Студент"}</p>
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <Zap className="w-3 h-3 text-xp" />
-                {profile?.xp || 0} XP
+              <p className="text-sm text-muted-foreground">
+                {profile?.target_university || "Будущий студент"}
               </p>
             </div>
           </div>
@@ -190,11 +183,13 @@ const Dashboard = () => {
                   <motion.div
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-xp/10"
+                    className="text-2xl"
                   >
-                    <Zap className="w-6 h-6 text-xp" />
-                    <span className="font-black text-xl text-xp">+{taskOfDay.xp_reward} XP</span>
+                    ✨
                   </motion.div>
+                  <span className="font-bold text-muted-foreground">
+                    Выполни и двигайся к цели!
+                  </span>
                 </div>
                 
                 <Button
@@ -238,33 +233,25 @@ const Dashboard = () => {
           </div>
         </motion.div>
 
-        {/* Quick Actions */}
+        {/* Quick Action - Essay */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="grid grid-cols-2 gap-3"
         >
           <button
-            onClick={() => navigate("/path")}
-            className="duolingo-card p-4 text-left hover:shadow-lg transition-all active:scale-[0.98] touch-target"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
-              <Target className="w-6 h-6 text-primary" />
-            </div>
-            <p className="font-bold text-foreground">Мой план</p>
-            <p className="text-xs text-muted-foreground">Roadmap</p>
-          </button>
-
-          <button
             onClick={() => navigate("/essay")}
-            className="duolingo-card p-4 text-left hover:shadow-lg transition-all active:scale-[0.98] touch-target"
+            className="w-full duolingo-card p-4 text-left hover:shadow-lg transition-all active:scale-[0.98] touch-target"
           >
-            <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center mb-3">
-              <FileText className="w-6 h-6 text-accent" />
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center">
+                <FileText className="w-6 h-6 text-accent" />
+              </div>
+              <div>
+                <p className="font-bold text-foreground">Проверить эссе</p>
+                <p className="text-xs text-muted-foreground">Получи Impact Score</p>
+              </div>
             </div>
-            <p className="font-bold text-foreground">Эссе</p>
-            <p className="text-xs text-muted-foreground">Impact Score</p>
           </button>
         </motion.div>
 
@@ -330,11 +317,6 @@ const Dashboard = () => {
                           quest.completed ? "line-through text-muted-foreground" : "text-foreground"
                         }`}>
                           {quest.quest_title}
-                        </span>
-                        <span className={`text-xs font-bold px-2 py-1 rounded-lg ${
-                          quest.completed ? "text-primary bg-primary/10" : "text-xp bg-xp/10"
-                        }`}>
-                          +{quest.xp_reward}
                         </span>
                       </button>
                     ))}
