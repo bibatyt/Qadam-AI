@@ -15,6 +15,7 @@ import {
   RoleStep,
   EFCStep,
   AcademicStep,
+  ParentQuestionsStep,
   TOP_UNIVERSITIES,
   calculateEFCSegment,
   type OnboardingStep,
@@ -47,12 +48,24 @@ const Onboarding = () => {
   const [deadline, setDeadline] = useState("");
   const [desiredMajor, setDesiredMajor] = useState("");
   
+  // Parent-specific fields
+  const [childGrade, setChildGrade] = useState("");
+  const [childGoal, setChildGoal] = useState("");
+  const [involvementLevel, setInvolvementLevel] = useState("");
+  
   // Language
   const language = 'ru' as const;
 
+  const isParent = role === 'parent';
+
   const canProceed = () => {
     if (step === 1) return !!role;
-    if (step === 2) return !!goal;
+    if (step === 2) {
+      if (isParent) {
+        return !!childGrade && !!childGoal && !!involvementLevel;
+      }
+      return !!goal;
+    }
     if (step === 3) return !!residenceCountry && !!incomeRange && !!budgetRange;
     if (step === 4) return !!grade && !!country;
     if (step === 5) return !!englishLevel && !!deadline && !!desiredMajor;
@@ -96,7 +109,7 @@ const Onboarding = () => {
           budgetRange as BudgetRange
         );
 
-        // Save EFC data
+        // Save EFC data with parent info if applicable
         await supabase.from('user_efc_data').insert({
           user_id: user.id,
           role: role,
@@ -112,11 +125,14 @@ const Onboarding = () => {
           .filter(Boolean)
           .join(', ');
 
-        // Save roadmap data with new fields
+        // Save roadmap data with new fields (use parent's child data if parent)
+        const effectiveGoal = isParent ? childGoal : goal;
+        const effectiveGrade = isParent ? childGrade : grade;
+        
         await supabase.from('roadmaps').insert({
           user_id: user.id,
-          main_goal: goal,
-          current_grade: grade,
+          main_goal: effectiveGoal,
+          current_grade: effectiveGrade,
           target_country: country,
           desired_major: desiredMajor,
           sat_score: satScore ? parseInt(satScore) : null,
@@ -188,11 +204,23 @@ const Onboarding = () => {
                 language={language}
               />
             )}
-            {step === 2 && (
+            {step === 2 && !isParent && (
               <GoalStep
                 key="goal"
                 selectedGoal={goal}
                 onSelect={setGoal}
+                language={language}
+              />
+            )}
+            {step === 2 && isParent && (
+              <ParentQuestionsStep
+                key="parent-questions"
+                childGrade={childGrade}
+                childGoal={childGoal}
+                involvementLevel={involvementLevel}
+                onChildGradeSelect={setChildGrade}
+                onChildGoalSelect={setChildGoal}
+                onInvolvementSelect={setInvolvementLevel}
                 language={language}
               />
             )}

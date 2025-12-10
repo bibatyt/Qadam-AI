@@ -1,10 +1,13 @@
+import { motion } from "framer-motion";
+
 interface QadamLogoProps {
   size?: number;
   className?: string;
+  animated?: boolean;
 }
 
-export function QadamLogo({ size = 36, className = "" }: QadamLogoProps) {
-  return (
+export function QadamLogo({ size = 36, className = "", animated = false }: QadamLogoProps) {
+  const LogoContent = () => (
     <svg
       width={size}
       height={size}
@@ -13,31 +16,42 @@ export function QadamLogo({ size = 36, className = "" }: QadamLogoProps) {
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      <defs>
-        <linearGradient id="qadamGreen" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#14B8A6" />
-          <stop offset="100%" stopColor="#0D9488" />
-        </linearGradient>
-      </defs>
+      {/* Minimalist path/step design */}
+      <rect 
+        x="4" 
+        y="4" 
+        width="32" 
+        height="32" 
+        rx="8" 
+        className="fill-primary"
+      />
       
-      {/* Background circle */}
-      <circle cx="20" cy="20" r="18" fill="url(#qadamGreen)" />
+      {/* Stylized "Q" with step accent */}
+      <path
+        d="M20 10C14.48 10 10 14.48 10 20C10 25.52 14.48 30 20 30C22.76 30 25.25 28.9 27.1 27.1L30 30L32 28L29.1 25.1C30.24 23.54 30.9 21.6 30.9 19.5C30.9 14.26 26.64 10 21.4 10H20ZM20 14C24.42 14 28 17.58 28 22C28 24.2 27.12 26.2 25.66 27.66L23 25V22C23 20.34 21.66 19 20 19C18.34 19 17 20.34 17 22C17 23.66 18.34 25 20 25V28C15.58 28 12 24.42 12 20C12 15.58 15.58 12 20 12V14Z"
+        className="fill-primary-foreground"
+        fillRule="evenodd"
+        clipRule="evenodd"
+      />
       
-      {/* Letter Q */}
-      <text
-        x="20"
-        y="26"
-        textAnchor="middle"
-        fontSize="18"
-        fontWeight="700"
-        fill="white"
-        fontFamily="system-ui, sans-serif"
-      >
-        Q
-      </text>
-      
-      {/* Small step accent */}
-      <circle cx="30" cy="28" r="3" fill="white" opacity="0.3" />
+      {/* Step dots */}
+      <circle cx="32" cy="32" r="2.5" className="fill-primary-foreground/40" />
+      <circle cx="26" cy="32" r="1.5" className="fill-primary-foreground/25" />
     </svg>
   );
+
+  if (animated) {
+    return (
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        whileHover={{ scale: 1.05 }}
+      >
+        <LogoContent />
+      </motion.div>
+    );
+  }
+
+  return <LogoContent />;
 }

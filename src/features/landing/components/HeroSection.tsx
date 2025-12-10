@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Play } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { landingContent } from "../content";
@@ -66,7 +66,7 @@ export function HeroSection() {
           {hero.subtitle}
         </motion.p>
 
-        {/* CTA Buttons */}
+        {/* CTA Button */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -77,20 +77,19 @@ export function HeroSection() {
             <Button 
               variant="hero" 
               size="lg" 
-              className="w-full sm:w-auto h-14 px-8 text-lg font-bold group"
+              className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-bold group"
             >
               {hero.cta}
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
-          <a href="#demo" className="w-full sm:w-auto">
+          <a href="#how-it-works" className="w-full sm:w-auto">
             <Button 
               variant="outline" 
               size="lg" 
-              className="w-full sm:w-auto h-14 px-8 text-lg gap-2"
+              className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gap-2"
             >
-              <Play className="w-5 h-5" />
-              {hero.secondary}
+              Узнать больше
             </Button>
           </a>
         </motion.div>

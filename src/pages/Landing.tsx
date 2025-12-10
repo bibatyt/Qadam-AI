@@ -1,7 +1,6 @@
 import {
   Header,
   HeroSection,
-  VideoDemoSection,
   ScreenshotsSection,
   AdvantagesSection,
   ProcessSection,
@@ -16,7 +15,6 @@ const Landing = () => {
       <Header />
       <main>
         <HeroSection />
-        <VideoDemoSection />
         <ScreenshotsSection />
         <AdvantagesSection />
         <ProcessSection />

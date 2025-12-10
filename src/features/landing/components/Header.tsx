@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { QadamLogo } from "@/components/landing/QadamLogo";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -20,20 +21,15 @@ export function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? "bg-background/80 backdrop-blur-lg border-b border-border/50 py-3" 
-          : "bg-transparent py-5"
+          ? "bg-background/80 backdrop-blur-lg border-b border-border/50 py-2 sm:py-3" 
+          : "bg-transparent py-3 sm:py-5"
       }`}
     >
       <div className="container max-w-5xl mx-auto px-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-primary"
-          >
-            <span className="text-white font-black text-lg">Q</span>
-          </motion.div>
-          <span className="font-black text-xl text-foreground">Qadam</span>
+          <QadamLogo size={36} animated />
+          <span className="font-black text-lg sm:text-xl text-foreground">Qadam</span>
         </Link>
 
         {/* Desktop nav */}

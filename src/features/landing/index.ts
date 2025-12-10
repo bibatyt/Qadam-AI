@@ -1,7 +1,6 @@
 export * from './content';
 export * from './components/Header';
 export * from './components/HeroSection';
-export * from './components/VideoDemoSection';
 export * from './components/ScreenshotsSection';
 export * from './components/AdvantagesSection';
 export * from './components/ProcessSection';
