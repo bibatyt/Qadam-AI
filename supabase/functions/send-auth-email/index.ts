@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -33,7 +34,7 @@ const translations = {
       subject: "Welcome to Qadam!",
       title: "Welcome to Qadam!",
       greeting: (name: string) => `Hello${name ? `, ${name}` : ''}!`,
-      message: "Your account has been successfully created. Start your journey to study abroad today!",
+      message: "Your account has been successfully verified. Start your journey to study abroad today!",
       cta: "Get Started",
       footer: "Qadam - Your Path to Study Abroad"
     },
@@ -63,7 +64,7 @@ const translations = {
       subject: "Добро пожаловать в Qadam!",
       title: "Добро пожаловать в Qadam!",
       greeting: (name: string) => `Привет${name ? `, ${name}` : ''}!`,
-      message: "Ваш аккаунт успешно создан. Начните свой путь к обучению за рубежом уже сегодня!",
+      message: "Ваш email успешно подтверждён. Начните свой путь к обучению за рубежом уже сегодня!",
       cta: "Начать",
       footer: "Qadam - Твой путь к обучению за рубежом"
     },
@@ -93,7 +94,7 @@ const translations = {
       subject: "Qadam-ға қош келдіңіз!",
       title: "Qadam-ға қош келдіңіз!",
       greeting: (name: string) => `Сәлем${name ? `, ${name}` : ''}!`,
-      message: "Аккаунтыңыз сәтті құрылды. Шетелде оқуға жолыңызды бүгін бастаңыз!",
+      message: "Email-іңіз сәтті расталды. Шетелде оқуға жолыңызды бүгін бастаңыз!",
       cta: "Бастау",
       footer: "Qadam - Шетелде оқуға жолыңыз"
     },
@@ -109,6 +110,10 @@ const translations = {
     }
   }
 };
+
+function generateVerificationCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 function generateVerificationEmail(t: typeof translations.en.verification, name: string, code: string): string {
   return `
@@ -133,7 +138,7 @@ function generateVerificationEmail(t: typeof translations.en.verification, name:
           </p>
           <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">${t.codeLabel}</p>
           <div style="background: #f3f4f6; border-radius: 12px; padding: 20px; text-align: center; margin: 0 0 24px 0;">
-            <span style="font-size: 32px; font-weight: 700; letter-spacing: 8px; color: #6366f1;">${code}</span>
+            <span style="font-size: 36px; font-weight: 700; letter-spacing: 12px; color: #6366f1; font-family: monospace;">${code}</span>
           </div>
           <p style="color: #9ca3af; font-size: 14px; margin: 0 0 16px 0;">${t.expiry}</p>
           <p style="color: #9ca3af; font-size: 14px; margin: 0;">${t.ignore}</p>
@@ -232,11 +237,42 @@ serve(async (req) => {
     const t = translations[language] || translations.en;
     let subject: string;
     let html: string;
+    let code = verificationCode;
+
+    // For verification emails, generate and store code
+    if (type === 'verification') {
+      code = generateVerificationCode();
+      
+      // Store code in database
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      // Delete any existing codes for this email
+      await supabase
+        .from('email_verification_codes')
+        .delete()
+        .eq('email', to);
+      
+      // Insert new code
+      const { error: insertError } = await supabase
+        .from('email_verification_codes')
+        .insert({
+          email: to,
+          code: code,
+          expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString() // 1 hour
+        });
+      
+      if (insertError) {
+        console.error("Error storing verification code:", insertError);
+        throw new Error("Failed to create verification code");
+      }
+    }
 
     switch (type) {
       case 'verification':
         subject = t.verification.subject;
-        html = generateVerificationEmail(t.verification, name, verificationCode || '000000');
+        html = generateVerificationEmail(t.verification, name, code!);
         break;
       case 'welcome':
         subject = t.welcome.subject;
