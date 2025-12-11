@@ -51,6 +51,7 @@ const Onboarding = () => {
   // New academic fields
   const [satScore, setSatScore] = useState("");
   const [ieltsScore, setIeltsScore] = useState("");
+  const [gpa, setGpa] = useState("");
   const [englishLevel, setEnglishLevel] = useState("");
   const [deadline, setDeadline] = useState("");
   const [desiredMajor, setDesiredMajor] = useState("");
@@ -155,6 +156,7 @@ const Onboarding = () => {
         desired_major: desiredMajor,
         sat_score: satScore ? parseInt(satScore) : null,
         ielts_score: ieltsScore ? parseFloat(ieltsScore) : null,
+        gpa: gpa ? parseFloat(gpa) : null,
       });
       
       // Update profile with target universities and scores
@@ -226,6 +228,7 @@ const Onboarding = () => {
           desired_major: desiredMajor,
           sat_score: satScore ? parseInt(satScore) : null,
           ielts_score: ieltsScore ? parseFloat(ieltsScore) : null,
+          gpa: gpa ? parseFloat(gpa) : null,
         });
         
         // Update profile with target universities and scores
@@ -342,11 +345,13 @@ const Onboarding = () => {
                 key="academic"
                 satScore={satScore}
                 ieltsScore={ieltsScore}
+                gpa={gpa}
                 englishLevel={englishLevel}
                 deadline={deadline}
                 desiredMajor={desiredMajor}
                 onSatChange={setSatScore}
                 onIeltsChange={setIeltsScore}
+                onGpaChange={setGpa}
                 onEnglishLevelSelect={setEnglishLevel}
                 onDeadlineSelect={setDeadline}
                 onMajorSelect={setDesiredMajor}

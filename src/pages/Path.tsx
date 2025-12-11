@@ -183,6 +183,7 @@ export default function Path() {
           targetUniversities: [],
           satScore: roadmap?.sat_score,
           ieltsScore: roadmap?.ielts_score,
+          gpa: roadmap?.gpa,
           desiredMajor: roadmap?.desired_major,
           budgetRange: efc.budget_range || 'under_10k',
           language: language,

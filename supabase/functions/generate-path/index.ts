@@ -14,6 +14,7 @@ interface PathRequest {
   targetUniversities: string[];
   satScore?: number;
   ieltsScore?: number;
+  gpa?: number;
   englishLevel?: string;
   deadline?: string;
   desiredMajor?: string;
@@ -736,17 +737,19 @@ const UNIVERSITY_DATABASE = [
   { name: 'KIMEP University', country: 'Kazakhstan', countryCode: 'KZ', region: 'cis', minSAT: 1100, minIELTS: 5.5, needBlind: false, annualCost: 8000, scholarshipType: 'Merit Scholarship', majors: ['business', 'economics', 'law'], ranking: 600 },
 ];
 
-// Calculate match score
+// Calculate match score with GPA
 function calculateMatchScore(
   uni: typeof UNIVERSITY_DATABASE[0],
   satScore: number | undefined,
   ieltsScore: number | undefined,
+  gpa: number | undefined,
   efcSegment: string,
   budgetRange: string,
   desiredMajor: string | undefined
 ): number {
   let score = 70;
   
+  // SAT scoring (weight: 20%)
   if (satScore) {
     if (satScore >= uni.minSAT + 100) score += 15;
     else if (satScore >= uni.minSAT) score += 10;
@@ -754,30 +757,50 @@ function calculateMatchScore(
     else score -= 10;
   }
   
+  // IELTS scoring (weight: 10%)
   if (ieltsScore) {
     if (ieltsScore >= uni.minIELTS + 0.5) score += 10;
     else if (ieltsScore >= uni.minIELTS) score += 5;
     else score -= 5;
   }
   
+  // GPA scoring (weight: 15%) - critical for top universities
+  if (gpa) {
+    if (gpa >= 3.9) score += 15;
+    else if (gpa >= 3.7) score += 12;
+    else if (gpa >= 3.5) score += 8;
+    else if (gpa >= 3.0) score += 3;
+    else score -= 5;
+    
+    // Penalize reach schools if GPA is too low
+    if (uni.ranking <= 10 && gpa < 3.5) {
+      score -= 10;
+    }
+  }
+  
+  // Budget/Financial fit scoring (weight: 15%)
   const budgetMap: Record<string, number> = {
     'under_10k': 10000,
     '10k_30k': 30000,
     '30k_50k': 50000,
     'over_50k': 100000,
+    'low': 15000,
+    'medium': 40000,
+    'high': 80000,
   };
   const userBudget = budgetMap[budgetRange] || 30000;
   
   if (efcSegment === 'low' && uni.needBlind) {
-    score += 10;
+    score += 12;
   } else if (uni.annualCost <= userBudget) {
-    score += 8;
+    score += 10;
   } else if (uni.annualCost <= userBudget * 1.5) {
     score += 3;
   } else {
-    score -= 5;
+    score -= 8;
   }
   
+  // Major fit scoring (weight: 10%)
   if (desiredMajor) {
     const majorLower = desiredMajor.toLowerCase();
     const majorMap: Record<string, string[]> = {
@@ -792,13 +815,13 @@ function calculateMatchScore(
     
     for (const [key, keywords] of Object.entries(majorMap)) {
       if (keywords.some(k => majorLower.includes(k)) && uni.majors.includes(key)) {
-        score += 5;
+        score += 8;
         break;
       }
     }
   }
   
-  return Math.min(99, Math.max(50, score));
+  return Math.min(99, Math.max(40, score));
 }
 
 // Generate university recommendations
@@ -808,6 +831,7 @@ function generateUniversityRecommendations(
   budgetRange: string,
   satScore: number | undefined,
   ieltsScore: number | undefined,
+  gpa: number | undefined,
   desiredMajor: string | undefined,
   lang: Lang
 ): any[] {
@@ -840,11 +864,11 @@ function generateUniversityRecommendations(
     name: uni.name,
     country: uni.country,
     countryCode: uni.countryCode,
-    matchScore: calculateMatchScore(uni, satScore, ieltsScore, efcSegment, budgetRange, desiredMajor),
+    matchScore: calculateMatchScore(uni, satScore, ieltsScore, gpa, efcSegment, budgetRange, desiredMajor),
     scholarshipType: uni.scholarshipType,
     needBlind: uni.needBlind,
     annualCost: uni.annualCost,
-    reason: generateMatchReason(uni, efcSegment, satScore, ieltsScore, desiredMajor, lang),
+    reason: generateMatchReason(uni, efcSegment, satScore, ieltsScore, gpa, desiredMajor, lang),
   }));
   
   recommendations.sort((a, b) => b.matchScore - a.matchScore);
@@ -857,6 +881,7 @@ function generateMatchReason(
   efcSegment: string, 
   satScore: number | undefined,
   ieltsScore: number | undefined,
+  gpa: number | undefined,
   desiredMajor: string | undefined,
   lang: Lang
 ): string {
@@ -869,11 +894,17 @@ function generateMatchReason(
   if (uni.annualCost < 2000) {
     reasons.push(t.freeTuition);
   }
-  if (satScore && satScore >= 1450) {
+  if (satScore && satScore >= uni.minSAT) {
     reasons.push(t.satMatch);
   }
+  if (gpa && gpa >= 3.7 && uni.ranking <= 20) {
+    const gpaText = lang === 'ru' ? `GPA ${gpa} подходит для топ-вузов` : 
+                    lang === 'kz' ? `GPA ${gpa} үздік университеттерге сәйкес` :
+                    `GPA ${gpa} meets top university standards`;
+    reasons.push(gpaText);
+  }
   if (desiredMajor && (desiredMajor === 'cs' || desiredMajor === 'engineering')) {
-    if (uni.name.includes('MIT') || uni.name.includes('ETH') || uni.name.includes('Stanford')) {
+    if (uni.name.includes('MIT') || uni.name.includes('ETH') || uni.name.includes('Stanford') || uni.name.includes('Carnegie')) {
       reasons.push(t.topProgram);
     }
   }
@@ -890,13 +921,13 @@ serve(async (req) => {
     const requestData: PathRequest = await req.json();
     const { 
       role, efcSegment, targetCountry, currentGrade, mainGoal, 
-      targetUniversities, satScore, ieltsScore, englishLevel, deadline, desiredMajor,
+      targetUniversities, satScore, ieltsScore, gpa, englishLevel, deadline, desiredMajor,
       language = 'en'
     } = requestData;
 
     const lang: Lang = language as Lang;
 
-    console.log("Generating path for:", { role, efcSegment, targetCountry, deadline, desiredMajor, language });
+    console.log("Generating path for:", { role, efcSegment, targetCountry, deadline, desiredMajor, gpa, language });
 
     let milestones: Milestone[] = [];
     let totalParts = 5;
@@ -926,7 +957,7 @@ serve(async (req) => {
 
     const budgetRange = requestData.budgetRange || 'under_10k';
     const universityRecommendations = generateUniversityRecommendations(
-      targetCountry, efcSegment, budgetRange, satScore, ieltsScore, desiredMajor, lang
+      targetCountry, efcSegment, budgetRange, satScore, ieltsScore, gpa, desiredMajor, lang
     );
 
     return new Response(

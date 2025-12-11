@@ -1,16 +1,18 @@
 import { motion } from "framer-motion";
-import { BookOpen, Clock, Briefcase } from "lucide-react";
+import { BookOpen, Clock, Briefcase, GraduationCap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ENGLISH_LEVELS, DEADLINES, MAJORS } from "../types";
 
 interface AcademicStepProps {
   satScore: string;
   ieltsScore: string;
+  gpa: string;
   englishLevel: string;
   deadline: string;
   desiredMajor: string;
   onSatChange: (value: string) => void;
   onIeltsChange: (value: string) => void;
+  onGpaChange: (value: string) => void;
   onEnglishLevelSelect: (level: string) => void;
   onDeadlineSelect: (deadline: string) => void;
   onMajorSelect: (major: string) => void;
@@ -20,11 +22,13 @@ interface AcademicStepProps {
 export function AcademicStep({
   satScore,
   ieltsScore,
+  gpa,
   englishLevel,
   deadline,
   desiredMajor,
   onSatChange,
   onIeltsChange,
+  onGpaChange,
   onEnglishLevelSelect,
   onDeadlineSelect,
   onMajorSelect,
@@ -34,6 +38,7 @@ export function AcademicStep({
     title: { ru: 'Академические данные', en: 'Academic Info', kk: 'Академиялық деректер' },
     sat: { ru: 'SAT балл (опционально)', en: 'SAT Score (optional)', kk: 'SAT ұпайы (қосымша)' },
     ielts: { ru: 'IELTS балл (опционально)', en: 'IELTS Score (optional)', kk: 'IELTS ұпайы (қосымша)' },
+    gpa: { ru: 'GPA (из 4.0)', en: 'GPA (out of 4.0)', kk: 'GPA (4.0-ден)' },
     english: { ru: 'Уровень английского', en: 'English Level', kk: 'Ағылшын деңгейі' },
     deadline: { ru: 'Планируемый год поступления', en: 'Target Admission Year', kk: 'Жоспарланған жыл' },
     major: { ru: 'Желаемая специальность', en: 'Desired Major', kk: 'Қалаған мамандық' },
@@ -58,16 +63,16 @@ export function AcademicStep({
         </motion.h1>
       </div>
 
-      {/* SAT & IELTS Row */}
+      {/* SAT, IELTS & GPA Row */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
-        className="grid grid-cols-2 gap-3"
+        className="grid grid-cols-3 gap-2"
       >
         <div className="space-y-2">
-          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <BookOpen className="w-3.5 h-3.5" />
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <BookOpen className="w-3 h-3" />
             SAT
           </label>
           <Input
@@ -77,12 +82,12 @@ export function AcademicStep({
             onChange={(e) => onSatChange(e.target.value)}
             min={400}
             max={1600}
-            className="h-12 text-base font-semibold"
+            className="h-11 text-sm font-semibold"
           />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <BookOpen className="w-3.5 h-3.5" />
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <BookOpen className="w-3 h-3" />
             IELTS
           </label>
           <Input
@@ -93,7 +98,23 @@ export function AcademicStep({
             min={0}
             max={9}
             step={0.5}
-            className="h-12 text-base font-semibold"
+            className="h-11 text-sm font-semibold"
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <GraduationCap className="w-3 h-3" />
+            GPA
+          </label>
+          <Input
+            type="number"
+            placeholder="0-4.0"
+            value={gpa}
+            onChange={(e) => onGpaChange(e.target.value)}
+            min={0}
+            max={4}
+            step={0.1}
+            className="h-11 text-sm font-semibold"
           />
         </div>
       </motion.div>
