@@ -87,7 +87,7 @@ export function ProfileStep({
                 }
               `}
             >
-              {g.label}
+              {g.label[language]}
             </motion.button>
           ))}
         </div>
@@ -119,7 +119,7 @@ export function ProfileStep({
               `}
             >
               <span className="text-xl">{c.flag}</span>
-              <span className="text-xs">{c.label.replace(c.flag + ' ', '')}</span>
+              <span className="text-xs">{c.label[language].replace(c.flag + ' ', '')}</span>
             </motion.button>
           ))}
         </div>
