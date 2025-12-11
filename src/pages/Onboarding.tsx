@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,8 +27,12 @@ import {
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { user, signUp, loading: authLoading } = useAuth();
   const { language } = useLandingLanguage();
+  
+  // Check if user is already logged in - they skip auth step
+  const isLoggedIn = !!user;
+  const totalSteps = isLoggedIn ? 5 : 6;
   
   const [step, setStep] = useState<OnboardingStep>(1);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
@@ -75,8 +79,14 @@ const Onboarding = () => {
     return true;
   };
 
-  const handleNext = () => {
-    if (step < 6) {
+  const handleNext = async () => {
+    // If logged in and on step 5, save data and show analyzing
+    if (isLoggedIn && step === 5) {
+      await saveOnboardingData();
+      return;
+    }
+    
+    if (step < totalSteps) {
       setStep((step + 1) as OnboardingStep);
     }
   };
@@ -102,6 +112,64 @@ const Onboarding = () => {
       emailExists: "Бұл email тіркелген",
       error: "Қате болды. Қайтадан көріңіз.",
       welcome: "Қош келдіңіз! Жеке жолыңыз дайын."
+    }
+  };
+
+  // Function to save onboarding data for already logged-in users
+  const saveOnboardingData = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      // Calculate EFC segment
+      const efcSegment = calculateEFCSegment(
+        incomeRange as IncomeRange, 
+        budgetRange as BudgetRange
+      );
+
+      // Save EFC data
+      await supabase.from('user_efc_data').insert({
+        user_id: user.id,
+        role: role,
+        residence_country: residenceCountry,
+        income_range: incomeRange,
+        budget_range: budgetRange,
+        efc_segment: efcSegment,
+      });
+
+      // Get university names for display
+      const selectedUniNames = universities
+        .map(id => TOP_UNIVERSITIES.find(u => u.id === id)?.name)
+        .filter(Boolean)
+        .join(', ');
+
+      // Save roadmap data
+      const effectiveGoal = isParent ? childGoal : goal;
+      const effectiveGrade = isParent ? childGrade : grade;
+      
+      await supabase.from('roadmaps').insert({
+        user_id: user.id,
+        main_goal: effectiveGoal,
+        current_grade: effectiveGrade,
+        target_country: country,
+        desired_major: desiredMajor,
+        sat_score: satScore ? parseInt(satScore) : null,
+        ielts_score: ieltsScore ? parseFloat(ieltsScore) : null,
+      });
+      
+      // Update profile with target universities and scores
+      await supabase.from('profiles').update({
+        target_university: selectedUniNames || country,
+        sat_score: satScore ? parseInt(satScore) : null,
+        ielts_score: ieltsScore ? parseFloat(ieltsScore) : null,
+      }).eq('user_id', user.id);
+
+      // Show analyzing animation
+      setShowAnalyzing(true);
+    } catch (error) {
+      console.error('Error saving onboarding data:', error);
+      toast.error(toastMessages[language].error);
+      setLoading(false);
     }
   };
 
@@ -195,7 +263,7 @@ const Onboarding = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="p-4 flex items-center justify-between">
-        {step > 1 ? (
+      {step > 1 ? (
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -208,7 +276,7 @@ const Onboarding = () => {
           <div className="w-10" />
         )}
         
-        <StepIndicator currentStep={step} totalSteps={6} />
+        <StepIndicator currentStep={step} totalSteps={totalSteps} />
         
         <LanguageSwitcher />
       </header>
@@ -285,7 +353,7 @@ const Onboarding = () => {
                 language={componentLang}
               />
             )}
-            {step === 6 && (
+            {step === 6 && !isLoggedIn && (
               <AuthStep
                 key="auth"
                 onSubmit={handleAuthSubmit}
@@ -296,8 +364,8 @@ const Onboarding = () => {
           </AnimatePresence>
         </div>
 
-        {/* Navigation Button (only for steps 1-5) */}
-        {step < 6 && (
+        {/* Navigation Button (for steps 1-5, or 1-4 if logged in) */}
+        {step < totalSteps || (isLoggedIn && step === 5) ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -308,15 +376,23 @@ const Onboarding = () => {
               size="lg"
               className="w-full h-14 text-lg"
               onClick={handleNext}
-              disabled={!canProceed()}
+              disabled={!canProceed() || loading}
             >
-              {componentLang === 'ru' ? 'Продолжить' :
-               componentLang === 'kk' ? 'Жалғастыру' :
-               'Continue'}
-              <ArrowRight className="w-5 h-5" />
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : isLoggedIn && step === 5 ? (
+                componentLang === 'ru' ? 'Создать путь' :
+                componentLang === 'kk' ? 'Жол құру' :
+                'Create Path'
+              ) : (
+                componentLang === 'ru' ? 'Продолжить' :
+                componentLang === 'kk' ? 'Жалғастыру' :
+                'Continue'
+              )}
+              {!loading && <ArrowRight className="w-5 h-5" />}
             </Button>
           </motion.div>
-        )}
+        ) : null}
       </main>
     </div>
   );
