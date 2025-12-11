@@ -185,6 +185,7 @@ export default function Path() {
           ieltsScore: roadmap?.ielts_score,
           desiredMajor: roadmap?.desired_major,
           budgetRange: efc.budget_range || 'under_10k',
+          language: language,
         }
       });
 
