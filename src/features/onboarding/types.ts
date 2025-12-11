@@ -72,6 +72,7 @@ export const COUNTRIES = [
   { id: 'eu', label: '🇪🇺 Европа', flag: '🇪🇺' },
   { id: 'canada', label: '🇨🇦 Канада', flag: '🇨🇦' },
   { id: 'asia', label: '🇸🇬 Азия', flag: '🇸🇬' },
+  { id: 'middle_east', label: '🇸🇦 Ближний Восток', flag: '🇸🇦' },
   { id: 'kz', label: '🇰🇿 Казахстан', flag: '🇰🇿' },
 ] as const;
 
@@ -193,12 +194,22 @@ export const TOP_UNIVERSITIES = [
   { id: 'peking', name: 'Peking University', country: 'asia', logo: '🇨🇳', rank: 17, needBlind: false },
   { id: 'kaist', name: 'KAIST', country: 'asia', logo: '🇰🇷', rank: 41, needBlind: false },
   
-  // Kazakhstan
-  { id: 'nu', name: 'Nazarbayev University', country: 'kz', logo: '🇰🇿', rank: 1, needBlind: false },
-  { id: 'kimep', name: 'KIMEP University', country: 'kz', logo: '🇰🇿', rank: 2, needBlind: false },
-  { id: 'kbtu', name: 'KBTU', country: 'kz', logo: '🇰🇿', rank: 3, needBlind: false },
-  { id: 'kaznu', name: 'КазНУ им. Аль-Фараби', country: 'kz', logo: '🇰🇿', rank: 4, needBlind: false },
-  { id: 'satbayev', name: 'Satbayev University', country: 'kz', logo: '🇰🇿', rank: 5, needBlind: false },
+  // Middle East
+  { id: 'kaust', name: 'KAUST', country: 'middle_east', logo: '🇸🇦', rank: 101, needBlind: false },
+  { id: 'ksu', name: 'King Saud University', country: 'middle_east', logo: '🇸🇦', rank: 203, needBlind: false },
+  { id: 'kfupm', name: 'King Fahd University', country: 'middle_east', logo: '🇸🇦', rank: 186, needBlind: false },
+  { id: 'qatar', name: 'Qatar University', country: 'middle_east', logo: '🇶🇦', rank: 224, needBlind: false },
+  { id: 'uaeu', name: 'UAE University', country: 'middle_east', logo: '🇦🇪', rank: 296, needBlind: false },
+  { id: 'khalifa', name: 'Khalifa University', country: 'middle_east', logo: '🇦🇪', rank: 181, needBlind: false },
+  { id: 'auc', name: 'American Univ. in Cairo', country: 'middle_east', logo: '🇪🇬', rank: 411, needBlind: false },
+  
+  // Kazakhstan (correct world rankings 500+)
+  { id: 'nu', name: 'Nazarbayev University', country: 'kz', logo: '🇰🇿', rank: 507, needBlind: false },
+  { id: 'kaznu', name: 'КазНУ им. Аль-Фараби', country: 'kz', logo: '🇰🇿', rank: 230, needBlind: false },
+  { id: 'satbayev', name: 'Satbayev University', country: 'kz', logo: '🇰🇿', rank: 561, needBlind: false },
+  { id: 'kbtu', name: 'KBTU', country: 'kz', logo: '🇰🇿', rank: 601, needBlind: false },
+  { id: 'kimep', name: 'KIMEP University', country: 'kz', logo: '🇰🇿', rank: 701, needBlind: false },
+  { id: 'enu', name: 'ЕНУ им. Гумилёва', country: 'kz', logo: '🇰🇿', rank: 651, needBlind: false },
 ] as const;
 
 export type University = typeof TOP_UNIVERSITIES[number];

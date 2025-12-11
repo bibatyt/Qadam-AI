@@ -203,7 +203,9 @@ export function ProfileStep({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground text-sm truncate">{uni.name}</p>
-                  <p className="text-xs text-muted-foreground">#{uni.rank} в мире</p>
+                  <p className="text-xs text-muted-foreground">
+                    #{uni.rank} {language === 'ru' ? 'в мире' : language === 'kk' ? 'әлемде' : 'in the world'}
+                  </p>
                 </div>
                 {isSelected && (
                   <Star className="w-5 h-5 text-primary fill-primary" />

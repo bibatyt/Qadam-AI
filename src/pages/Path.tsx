@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 
 interface Milestone {
   id: string;
@@ -60,6 +61,8 @@ const categoryColors: Record<string, string> = {
 
 export default function Path() {
   const { user } = useAuth();
+  const { language } = useLandingLanguage();
+  const t = landingTranslations[language];
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [efcData, setEfcData] = useState<EFCData | null>(null);
   const [efcExplanation, setEfcExplanation] = useState("");
@@ -142,19 +145,19 @@ export default function Path() {
 
   const updateEfcExplanation = (segment: string, role: string) => {
     if (role === 'parent') {
-      setEfcExplanation('План настроен для поддержки ребёнка в процессе поступления.');
+      setEfcExplanation(t.planForParent);
       return;
     }
 
     switch (segment) {
       case 'low':
-        setEfcExplanation('План оптимизирован под максимальные стипендии. Фокус на Need-Blind университетах.');
+        setEfcExplanation(t.planOptimizedForScholarships);
         break;
       case 'medium':
-        setEfcExplanation('Комбинация Need-based и Merit-based стратегий.');
+        setEfcExplanation(t.combinationStrategy);
         break;
       case 'high':
-        setEfcExplanation('Фокус на Merit стипендиях и Early Decision.');
+        setEfcExplanation(t.focusOnMerit);
         break;
     }
   };
@@ -231,10 +234,10 @@ export default function Path() {
         setUniversities(data.universityRecommendations);
       }
 
-      toast.success('Персональный путь создан!');
+      toast.success(t.personalPathCreated);
     } catch (error) {
       console.error('Error generating path:', error);
-      toast.error('Ошибка при генерации пути');
+      toast.error(t.errorGeneratingPath);
     } finally {
       setGenerating(false);
     }
@@ -261,11 +264,11 @@ export default function Path() {
       calculateCurrentPart(updated);
 
       if (newCompleted) {
-        toast.success('Отлично! Шаг выполнен! 🎉');
+        toast.success(t.stepCompleted);
       }
     } catch (error) {
       console.error('Error toggling milestone:', error);
-      toast.error('Ошибка при обновлении');
+      toast.error(t.errorUpdating);
     }
   };
 
@@ -277,7 +280,7 @@ export default function Path() {
       await generatePath(efcData);
     } catch (error) {
       console.error('Error resetting path:', error);
-      toast.error('Ошибка при сбросе');
+      toast.error(t.errorResetting);
     }
   };
 
@@ -308,12 +311,12 @@ export default function Path() {
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <Target className="w-10 h-10 text-primary" />
           </div>
-          <h1 className="text-2xl font-black text-foreground mb-3">Путь ещё не создан</h1>
+          <h1 className="text-2xl font-black text-foreground mb-3">{t.pathNotCreated}</h1>
           <p className="text-muted-foreground mb-6">
-            Пройдите онбординг, чтобы получить персональный путь
+            {t.goThroughOnboarding}
           </p>
           <Button variant="hero" onClick={() => window.location.href = '/onboarding'}>
-            Начать
+            {t.start}
           </Button>
         </div>
       </div>
@@ -335,9 +338,9 @@ export default function Path() {
                 )}
               </div>
               <div>
-                <h1 className="text-lg font-extrabold text-foreground">Мой путь</h1>
+                <h1 className="text-lg font-extrabold text-foreground">{t.myPath}</h1>
                 <p className="text-xs text-muted-foreground">
-                  Часть {currentPart} из {totalParts}
+                  {t.partOf} {currentPart} {t.of} {totalParts}
                 </p>
               </div>
             </div>
@@ -363,7 +366,7 @@ export default function Path() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            {completedCount} из {totalCount} шагов выполнено
+            {completedCount} {t.of} {totalCount} {t.stepsCompleted}
           </p>
         </div>
       </header>
@@ -391,7 +394,7 @@ export default function Path() {
           >
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1 flex items-center gap-2">
               <Star className="w-3.5 h-3.5" />
-              Рекомендуемые университеты
+              {t.recommendedUniversities}
             </h3>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {universities.map((uni, index) => {
@@ -412,6 +415,10 @@ export default function Path() {
                   'Kazakhstan': '🇰🇿',
                   'Czech Republic': '🇨🇿',
                   'Poland': '🇵🇱',
+                  'Qatar': '🇶🇦',
+                  'UAE': '🇦🇪',
+                  'Saudi Arabia': '🇸🇦',
+                  'Egypt': '🇪🇬',
                 };
                 const flag = countryFlags[uni.country] || '🌍';
                 
@@ -432,14 +439,14 @@ export default function Path() {
                         {uni.matchScore}% match
                       </span>
                       <span className="text-sm flex items-center gap-1">
-                        {flag} {uni.country === 'USA' || uni.country === 'UK' ? uni.country : ''}
+                        {flag}
                       </span>
                     </div>
                     <h4 className="font-bold text-sm text-foreground mb-1.5 line-clamp-2 min-h-[2.5rem]">
                       {uni.name}
                     </h4>
                     <p className="text-[11px] text-muted-foreground line-clamp-2 mb-2 min-h-[2rem]">
-                      {uni.reason || 'Подходит под твой профиль'}
+                      {uni.reason || t.fitsYourProfile}
                     </p>
                     <span className="inline-block px-2 py-1 bg-accent/10 text-accent text-[10px] font-semibold rounded-md">
                       {uni.scholarshipType}
@@ -454,7 +461,7 @@ export default function Path() {
         {/* Current Part Tasks */}
         <div className="space-y-2">
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
-            Часть {currentPart}: Задачи
+            {t.partOf} {currentPart}: {t.partTasks}
           </h3>
           
           <AnimatePresence>
@@ -528,7 +535,9 @@ export default function Path() {
               className="w-full"
               onClick={() => setCurrentPart(prev => Math.min(prev + 1, totalParts))}
             >
-              Перейти к части {currentPart + 1}
+              {language === 'ru' ? `Перейти к части ${currentPart + 1}` : 
+               language === 'kz' ? `${currentPart + 1}-бөлімге өту` : 
+               `Go to part ${currentPart + 1}`}
               <ChevronRight className="w-4 h-4" />
             </Button>
           </motion.div>

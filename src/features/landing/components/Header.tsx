@@ -45,6 +45,11 @@ export function Header() {
             {t.howItWorks}
           </a>
           <LanguageSwitcher />
+          <Link to="/auth">
+            <Button variant="ghost" size="sm" className="font-medium">
+              {t.signIn}
+            </Button>
+          </Link>
           <Link to="/onboarding">
             <Button variant="hero" size="sm" className="font-bold">
               {t.startFree}
@@ -85,6 +90,11 @@ export function Header() {
               <div className="flex justify-center py-2">
                 <LanguageSwitcher />
               </div>
+              <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="ghost" className="w-full font-medium">
+                  {t.signIn}
+                </Button>
+              </Link>
               <Link to="/onboarding" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="hero" className="w-full font-bold">
                   {t.startFree}
