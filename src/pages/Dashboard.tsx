@@ -14,6 +14,7 @@ import confetti from "canvas-confetti";
 import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLanguage";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 const Dashboard = () => {
   const { profile, loading, updateStreak } = useProfile();
@@ -155,15 +156,20 @@ const Dashboard = () => {
             </div>
           </div>
           
-          {/* Streak Badge */}
-          <motion.div 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl gradient-streak text-white shadow-streak"
-          >
-            <Flame className={`w-6 h-6 ${(profile?.streak || 0) > 0 ? 'animate-pulse' : ''}`} />
-            <span className="font-black text-xl">{profile?.streak || 0}</span>
-          </motion.div>
+          <div className="flex items-center gap-2">
+            {/* Notification Bell */}
+            <NotificationBell />
+            
+            {/* Streak Badge */}
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl gradient-streak text-white shadow-streak"
+            >
+              <Flame className={`w-6 h-6 ${(profile?.streak || 0) > 0 ? 'animate-pulse' : ''}`} />
+              <span className="font-black text-xl">{profile?.streak || 0}</span>
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* MAIN FOCUS: Task of the Day - Takes ~60% of mobile screen */}
