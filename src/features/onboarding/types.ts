@@ -58,22 +58,22 @@ export const GOALS = [
 ] as const;
 
 export const GRADES = [
-  { id: '9', label: '9 класс' },
-  { id: '10', label: '10 класс' },
-  { id: '11', label: '11 класс' },
-  { id: '12', label: '12 класс' },
-  { id: 'gap', label: 'Gap Year' },
-  { id: 'bachelor', label: 'Бакалавриат' },
+  { id: '9', label: { ru: '9 класс', en: '9th grade', kk: '9 сынып' } },
+  { id: '10', label: { ru: '10 класс', en: '10th grade', kk: '10 сынып' } },
+  { id: '11', label: { ru: '11 класс', en: '11th grade', kk: '11 сынып' } },
+  { id: '12', label: { ru: '12 класс', en: '12th grade', kk: '12 сынып' } },
+  { id: 'gap', label: { ru: 'Gap Year', en: 'Gap Year', kk: 'Gap Year' } },
+  { id: 'bachelor', label: { ru: 'Бакалавриат', en: 'Bachelor\'s', kk: 'Бакалавриат' } },
 ] as const;
 
 export const COUNTRIES = [
-  { id: 'usa', label: '🇺🇸 США', flag: '🇺🇸' },
-  { id: 'uk', label: '🇬🇧 Великобритания', flag: '🇬🇧' },
-  { id: 'eu', label: '🇪🇺 Европа', flag: '🇪🇺' },
-  { id: 'canada', label: '🇨🇦 Канада', flag: '🇨🇦' },
-  { id: 'asia', label: '🇸🇬 Азия', flag: '🇸🇬' },
-  { id: 'middle_east', label: '🇸🇦 Ближний Восток', flag: '🇸🇦' },
-  { id: 'kz', label: '🇰🇿 Казахстан', flag: '🇰🇿' },
+  { id: 'usa', label: { ru: '🇺🇸 США', en: '🇺🇸 USA', kk: '🇺🇸 АҚШ' }, flag: '🇺🇸' },
+  { id: 'uk', label: { ru: '🇬🇧 Великобритания', en: '🇬🇧 United Kingdom', kk: '🇬🇧 Ұлыбритания' }, flag: '🇬🇧' },
+  { id: 'eu', label: { ru: '🇪🇺 Европа', en: '🇪🇺 Europe', kk: '🇪🇺 Еуропа' }, flag: '🇪🇺' },
+  { id: 'canada', label: { ru: '🇨🇦 Канада', en: '🇨🇦 Canada', kk: '🇨🇦 Канада' }, flag: '🇨🇦' },
+  { id: 'asia', label: { ru: '🇸🇬 Азия', en: '🇸🇬 Asia', kk: '🇸🇬 Азия' }, flag: '🇸🇬' },
+  { id: 'middle_east', label: { ru: '🇸🇦 Ближний Восток', en: '🇸🇦 Middle East', kk: '🇸🇦 Таяу Шығыс' }, flag: '🇸🇦' },
+  { id: 'kz', label: { ru: '🇰🇿 Казахстан', en: '🇰🇿 Kazakhstan', kk: '🇰🇿 Қазақстан' }, flag: '🇰🇿' },
 ] as const;
 
 export const RESIDENCE_COUNTRIES = [

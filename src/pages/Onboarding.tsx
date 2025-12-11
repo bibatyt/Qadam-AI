@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useLandingLanguage } from "@/hooks/useLandingLanguage";
+import { LanguageSwitcher } from "@/components/landing/LanguageSwitcher";
 import {
   StepIndicator,
   GoalStep,
@@ -26,6 +28,7 @@ import {
 const Onboarding = () => {
   const navigate = useNavigate();
   const { signUp } = useAuth();
+  const { language } = useLandingLanguage();
   
   const [step, setStep] = useState<OnboardingStep>(1);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
@@ -53,8 +56,8 @@ const Onboarding = () => {
   const [childGoal, setChildGoal] = useState("");
   const [involvementLevel, setInvolvementLevel] = useState("");
   
-  // Language
-  const language = 'ru' as const;
+  // Map 'kz' to 'kk' for components
+  const componentLang = language === 'kz' ? 'kk' : language;
 
   const isParent = role === 'parent';
 
@@ -84,6 +87,24 @@ const Onboarding = () => {
     }
   };
 
+  const toastMessages = {
+    en: {
+      emailExists: "This email is already registered",
+      error: "An error occurred. Please try again.",
+      welcome: "Welcome! Your personal path is ready."
+    },
+    ru: {
+      emailExists: "Этот email уже зарегистрирован",
+      error: "Произошла ошибка. Попробуйте снова.",
+      welcome: "Добро пожаловать! Твой персональный путь готов."
+    },
+    kz: {
+      emailExists: "Бұл email тіркелген",
+      error: "Қате болды. Қайтадан көріңіз.",
+      welcome: "Қош келдіңіз! Жеке жолыңыз дайын."
+    }
+  };
+
   const handleAuthSubmit = async (email: string, password: string, name: string) => {
     setLoading(true);
     try {
@@ -91,7 +112,7 @@ const Onboarding = () => {
       
       if (error) {
         if (error.message.includes("already registered")) {
-          toast.error("Этот email уже зарегистрирован");
+          toast.error(toastMessages[language].emailExists);
         } else {
           toast.error(error.message);
         }
@@ -151,13 +172,13 @@ const Onboarding = () => {
       setShowAnalyzing(true);
       
     } catch (error) {
-      toast.error("Произошла ошибка. Попробуйте снова.");
+      toast.error(toastMessages[language].error);
       setLoading(false);
     }
   };
 
   const handleAnalyzingComplete = () => {
-    toast.success("Добро пожаловать! Твой персональный путь готов.");
+    toast.success(toastMessages[language].welcome);
     navigate("/dashboard", { replace: true });
   };
 
@@ -165,7 +186,7 @@ const Onboarding = () => {
     return (
       <AnalyzingAnimation 
         onComplete={handleAnalyzingComplete}
-        language={language}
+        language={componentLang}
       />
     );
   }
@@ -189,7 +210,7 @@ const Onboarding = () => {
         
         <StepIndicator currentStep={step} totalSteps={6} />
         
-        <div className="w-10" />
+        <LanguageSwitcher />
       </header>
 
       {/* Content */}
@@ -201,7 +222,7 @@ const Onboarding = () => {
                 key="role"
                 selectedRole={role}
                 onSelect={setRole}
-                language={language}
+                language={componentLang}
               />
             )}
             {step === 2 && !isParent && (
@@ -209,7 +230,7 @@ const Onboarding = () => {
                 key="goal"
                 selectedGoal={goal}
                 onSelect={setGoal}
-                language={language}
+                language={componentLang}
               />
             )}
             {step === 2 && isParent && (
@@ -221,7 +242,7 @@ const Onboarding = () => {
                 onChildGradeSelect={setChildGrade}
                 onChildGoalSelect={setChildGoal}
                 onInvolvementSelect={setInvolvementLevel}
-                language={language}
+                language={componentLang}
               />
             )}
             {step === 3 && (
@@ -233,7 +254,7 @@ const Onboarding = () => {
                 onResidenceSelect={setResidenceCountry}
                 onIncomeSelect={setIncomeRange}
                 onBudgetSelect={setBudgetRange}
-                language={language}
+                language={componentLang}
               />
             )}
             {step === 4 && (
@@ -245,7 +266,7 @@ const Onboarding = () => {
                 onGradeSelect={setGrade}
                 onCountrySelect={setCountry}
                 onUniversitiesChange={setUniversities}
-                language={language}
+                language={componentLang}
               />
             )}
             {step === 5 && (
@@ -261,7 +282,7 @@ const Onboarding = () => {
                 onEnglishLevelSelect={setEnglishLevel}
                 onDeadlineSelect={setDeadline}
                 onMajorSelect={setDesiredMajor}
-                language={language}
+                language={componentLang}
               />
             )}
             {step === 6 && (
@@ -269,7 +290,7 @@ const Onboarding = () => {
                 key="auth"
                 onSubmit={handleAuthSubmit}
                 loading={loading}
-                language={language}
+                language={componentLang}
               />
             )}
           </AnimatePresence>
@@ -289,8 +310,8 @@ const Onboarding = () => {
               onClick={handleNext}
               disabled={!canProceed()}
             >
-              {language === 'ru' ? 'Продолжить' :
-               language === 'kk' ? 'Жалғастыру' :
+              {componentLang === 'ru' ? 'Продолжить' :
+               componentLang === 'kk' ? 'Жалғастыру' :
                'Continue'}
               <ArrowRight className="w-5 h-5" />
             </Button>
