@@ -8,40 +8,40 @@ export function SuccessStoriesSection() {
 
   const stories = [
     {
-      name: language === 'ru' ? "Алия К." : language === 'kz' ? "Әлия К." : "Aliya K.",
-      country: language === 'ru' ? "Казахстан" : language === 'kz' ? "Қазақстан" : "Kazakhstan",
+      name: language === 'ru' ? "Алия К." : language === 'kk' ? "Әлия К." : "Aliya K.",
+      country: language === 'ru' ? "Казахстан" : language === 'kk' ? "Қазақстан" : "Kazakhstan",
       university: "Harvard University",
       scholarship: "Full Financial Aid",
       avatar: "🎓",
       text: language === 'ru' 
         ? "EFC-алгоритм показал мне Need-Blind университеты. Я получила 100% покрытие!"
-        : language === 'kz'
+        : language === 'kk'
         ? "EFC-алгоритм маған Need-Blind университеттерін көрсетті. Мен 100% қаржыландыру алдым!"
         : "EFC-algorithm showed me Need-Blind universities. I got 100% coverage!",
       efcSegment: "low"
     },
     {
-      name: language === 'ru' ? "Данияр М." : language === 'kz' ? "Данияр М." : "Daniyar M.",
-      country: language === 'ru' ? "Узбекистан" : language === 'kz' ? "Өзбекстан" : "Uzbekistan",
+      name: language === 'ru' ? "Данияр М." : language === 'kk' ? "Данияр М." : "Daniyar M.",
+      country: language === 'ru' ? "Узбекистан" : language === 'kk' ? "Өзбекстан" : "Uzbekistan",
       university: "ETH Zurich",
       scholarship: "Excellence Scholarship",
       avatar: "🚀",
       text: language === 'ru'
         ? "Система подсказала бесплатные варианты в Европе. Идеально под мой бюджет."
-        : language === 'kz'
+        : language === 'kk'
         ? "Жүйе Еуропадағы тегін нұсқаларды ұсынды. Менің бюджетіме тамаша сәйкес."
         : "System suggested free options in Europe. Perfect for my budget.",
       efcSegment: "low"
     },
     {
-      name: language === 'ru' ? "Камила Т." : language === 'kz' ? "Камила Т." : "Kamila T.",
-      country: language === 'ru' ? "Россия" : language === 'kz' ? "Ресей" : "Russia",
+      name: language === 'ru' ? "Камила Т." : language === 'kk' ? "Камила Т." : "Kamila T.",
+      country: language === 'ru' ? "Россия" : language === 'kk' ? "Ресей" : "Russia",
       university: "Oxford University",
       scholarship: "Rhodes Scholarship",
       avatar: "✨",
       text: language === 'ru'
         ? "Персональный путь и AI-ментор помогли собрать идеальную заявку."
-        : language === 'kz'
+        : language === 'kk'
         ? "Жеке жол және AI-тәлімгер тамаша өтінім жасауға көмектесті."
         : "Personal path and AI mentor helped create the perfect application.",
       efcSegment: "medium"
@@ -49,9 +49,9 @@ export function SuccessStoriesSection() {
   ];
 
   const efcLabels: Record<string, string> = {
-    low: language === 'ru' ? "EFC Низкий" : language === 'kz' ? "EFC Төмен" : "EFC Low",
-    medium: language === 'ru' ? "EFC Средний" : language === 'kz' ? "EFC Орташа" : "EFC Medium",
-    high: language === 'ru' ? "EFC Высокий" : language === 'kz' ? "EFC Жоғары" : "EFC High"
+    low: language === 'ru' ? "EFC Низкий" : language === 'kk' ? "EFC Төмен" : "EFC Low",
+    medium: language === 'ru' ? "EFC Средний" : language === 'kk' ? "EFC Орташа" : "EFC Medium",
+    high: language === 'ru' ? "EFC Высокий" : language === 'kk' ? "EFC Жоғары" : "EFC High"
   };
 
   const efcColors: Record<string, string> = {
@@ -62,7 +62,7 @@ export function SuccessStoriesSection() {
 
   const swipeHint = language === 'ru' 
     ? '← Свайпните для просмотра →' 
-    : language === 'kz' 
+    : language === 'kk' 
     ? '← Қарау үшін сырғытыңыз →'
     : '← Swipe to view →';
 

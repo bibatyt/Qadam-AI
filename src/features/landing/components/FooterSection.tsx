@@ -9,10 +9,10 @@ export function FooterSection() {
   const { language } = useLandingLanguage();
   const t = landingTranslations[language];
 
-  const startLink = language === 'ru' ? 'Начать' : language === 'kz' ? 'Бастау' : 'Start';
-  const howItWorksLink = language === 'ru' ? 'Как это работает' : language === 'kz' ? 'Қалай жұмыс істейді' : 'How It Works';
-  const whatIsEfcLink = language === 'ru' ? 'Что такое EFC' : language === 'kz' ? 'EFC дегеніміз не' : 'What is EFC';
-  const tagline = language === 'ru' ? 'Твой путь к поступлению' : language === 'kz' ? 'Түсуге жолыңыз' : 'Your path to admission';
+  const startLink = language === 'ru' ? 'Начать' : language === 'kk' ? 'Бастау' : 'Start';
+  const howItWorksLink = language === 'ru' ? 'Как это работает' : language === 'kk' ? 'Қалай жұмыс істейді' : 'How It Works';
+  const whatIsEfcLink = language === 'ru' ? 'Что такое EFC' : language === 'kk' ? 'EFC дегеніміз не' : 'What is EFC';
+  const tagline = language === 'ru' ? 'Твой путь к поступлению' : language === 'kk' ? 'Түсуге жолыңыз' : 'Your path to admission';
 
   return (
     <>

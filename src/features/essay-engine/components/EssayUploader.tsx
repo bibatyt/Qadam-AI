@@ -20,17 +20,17 @@ export function EssayUploader({ onSubmit, loading = false }: EssayUploaderProps)
 
   const handleSubmit = () => {
     if (content.trim().length < 50) return;
-    onSubmit(content.trim(), title || (language === 'ru' ? "Мое эссе" : language === 'kz' ? "Менің эссем" : "My Essay"));
+    onSubmit(content.trim(), title || (language === 'ru' ? "Мое эссе" : language === 'kk' ? "Менің эссем" : "My Essay"));
   };
 
-  const uploadTitle = language === 'ru' ? 'Загрузи своё эссе' : language === 'kz' ? 'Эссеңізді жүктеңіз' : 'Upload Your Essay';
-  const getImpactScore = language === 'ru' ? 'Получи Impact Score и рекомендации' : language === 'kz' ? 'Impact Score және ұсыныстар алыңыз' : 'Get Impact Score and recommendations';
-  const titleOptional = language === 'ru' ? 'Название (опционально)' : language === 'kz' ? 'Атауы (міндетті емес)' : 'Title (optional)';
-  const titlePlaceholder = language === 'ru' ? 'Personal Statement для Harvard' : language === 'kz' ? 'Harvard үшін Personal Statement' : 'Personal Statement for Harvard';
-  const essayText = language === 'ru' ? 'Текст эссе' : language === 'kz' ? 'Эссе мәтіні' : 'Essay text';
-  const wordsLabel = language === 'ru' ? 'слов' : language === 'kz' ? 'сөз' : 'words';
-  const pastePlaceholder = language === 'ru' ? 'Вставь текст своего эссе сюда...' : language === 'kz' ? 'Эссе мәтінін осында қойыңыз...' : 'Paste your essay text here...';
-  const minChars = language === 'ru' ? 'Минимум 50 символов для анализа' : language === 'kz' ? 'Талдау үшін кем дегенде 50 таңба' : 'Minimum 50 characters for analysis';
+  const uploadTitle = language === 'ru' ? 'Загрузи своё эссе' : language === 'kk' ? 'Эссеңізді жүктеңіз' : 'Upload Your Essay';
+  const getImpactScore = language === 'ru' ? 'Получи Impact Score и рекомендации' : language === 'kk' ? 'Impact Score және ұсыныстар алыңыз' : 'Get Impact Score and recommendations';
+  const titleOptional = language === 'ru' ? 'Название (опционально)' : language === 'kk' ? 'Атауы (міндетті емес)' : 'Title (optional)';
+  const titlePlaceholder = language === 'ru' ? 'Personal Statement для Harvard' : language === 'kk' ? 'Harvard үшін Personal Statement' : 'Personal Statement for Harvard';
+  const essayText = language === 'ru' ? 'Текст эссе' : language === 'kk' ? 'Эссе мәтіні' : 'Essay text';
+  const wordsLabel = language === 'ru' ? 'слов' : language === 'kk' ? 'сөз' : 'words';
+  const pastePlaceholder = language === 'ru' ? 'Вставь текст своего эссе сюда...' : language === 'kk' ? 'Эссе мәтінін осында қойыңыз...' : 'Paste your essay text here...';
+  const minChars = language === 'ru' ? 'Минимум 50 символов для анализа' : language === 'kk' ? 'Талдау үшін кем дегенде 50 таңба' : 'Minimum 50 characters for analysis';
 
   return (
     <motion.div
