@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type LandingLanguage = 'en' | 'ru' | 'kz';
+type LandingLanguage = 'en' | 'ru' | 'kk';
 
 interface LandingLanguageStore {
   language: LandingLanguage;
@@ -345,7 +345,7 @@ export const landingTranslations = {
     error: 'Ошибка',
     success: 'Успешно',
   },
-  kz: {
+  kk: {
     // Header
     bookDemo: 'Демоға жазылу',
     signIn: 'Кіру',

@@ -16,12 +16,12 @@ export function EFCSection() {
 
   const segmentLabels = language === 'ru' 
     ? ['Низкий', 'Средний', 'Высокий'] 
-    : language === 'kz' 
+    : language === 'kk' 
     ? ['Төмен', 'Орташа', 'Жоғары']
     : ['Low', 'Medium', 'High'];
 
-  const efcSegmentLabel = language === 'ru' ? 'EFC Сегмент' : language === 'kz' ? 'EFC Сегменті' : 'EFC Segment';
-  const autoLabel = language === 'ru' ? 'Автоматически' : language === 'kz' ? 'Автоматты' : 'Automatic';
+  const efcSegmentLabel = language === 'ru' ? 'EFC Сегмент' : language === 'kk' ? 'EFC Сегменті' : 'EFC Segment';
+  const autoLabel = language === 'ru' ? 'Автоматически' : language === 'kk' ? 'Автоматты' : 'Automatic';
 
   return (
     <section id="efc" className="py-20 px-4 bg-gradient-to-b from-muted/30 to-background">
@@ -34,7 +34,7 @@ export function EFCSection() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
             <Shield className="w-4 h-4" />
-            EFC-{language === 'ru' ? 'Алгоритм' : language === 'kz' ? 'Алгоритм' : 'Algorithm'}
+            EFC-{language === 'ru' ? 'Алгоритм' : language === 'kk' ? 'Алгоритм' : 'Algorithm'}
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-4">
             {t.efcTitle}

@@ -61,8 +61,8 @@ const Onboarding = () => {
   const [childGoal, setChildGoal] = useState("");
   const [involvementLevel, setInvolvementLevel] = useState("");
   
-  // Map 'kz' to 'kk' for components
-  const componentLang = language === 'kz' ? 'kk' : language;
+  // No mapping needed - language is already 'kk'
+  const componentLang = language;
 
   const isParent = role === 'parent';
 

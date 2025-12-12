@@ -61,7 +61,7 @@ const Dashboard = () => {
   const triggerConfetti = useCallback(() => {
     const messages = language === 'ru' 
       ? ["Ты супер! 🔥", "Так держать! 💪", "Молодец! ⚡", "Отлично! 🎯", "Невероятно! ✨"]
-      : language === 'kz'
+      : language === 'kk'
       ? ["Сен керемет! 🔥", "Осылай жалғастыр! 💪", "Жарайсың! ⚡", "Тамаша! 🎯", "Керемет! ✨"]
       : ["You're amazing! 🔥", "Keep it up! 💪", "Great job! ⚡", "Excellent! 🎯", "Incredible! ✨"];
     setCelebrationText(messages[Math.floor(Math.random() * messages.length)]);

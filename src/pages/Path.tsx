@@ -538,7 +538,7 @@ export default function Path() {
               onClick={() => setCurrentPart(prev => Math.min(prev + 1, totalParts))}
             >
               {language === 'ru' ? `Перейти к части ${currentPart + 1}` : 
-               language === 'kz' ? `${currentPart + 1}-бөлімге өту` : 
+               language === 'kk' ? `${currentPart + 1}-бөлімге өту` : 
                `Go to part ${currentPart + 1}`}
               <ChevronRight className="w-4 h-4" />
             </Button>

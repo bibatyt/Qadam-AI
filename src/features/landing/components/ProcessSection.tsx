@@ -11,7 +11,7 @@ export function ProcessSection() {
     { number: "03", emoji: "🚀", title: t.step3Title, description: t.step3Desc },
   ];
 
-  const stepLabel = language === 'ru' ? 'Шаг' : language === 'kz' ? 'Қадам' : 'Step';
+  const stepLabel = language === 'ru' ? 'Шаг' : language === 'kk' ? 'Қадам' : 'Step';
 
   return (
     <section id="how-it-works" className="py-24 px-4">
