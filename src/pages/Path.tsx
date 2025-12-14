@@ -307,18 +307,48 @@ export default function Path() {
   }
 
   if (!efcData) {
+    const emptyStateContent = {
+      en: {
+        title: "Start your admission journey",
+        subtitle: "Answer a few questions and get a personalized plan",
+        cta: "Build my path",
+      },
+      ru: {
+        title: "Начните путь к поступлению",
+        subtitle: "Ответьте на несколько вопросов и получите персональный план",
+        cta: "Построить мой путь",
+      },
+      kk: {
+        title: "Түсу жолыңызды бастаңыз",
+        subtitle: "Бірнеше сұраққа жауап беріп, жеке жоспар алыңыз",
+        cta: "Жолымды құру",
+      },
+    };
+    const content = emptyStateContent[language];
+    
     return (
-      <div className="min-h-screen bg-background pb-24 px-4 py-6">
-        <div className="max-w-lg mx-auto text-center">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Target className="w-10 h-10 text-primary" />
-          </div>
-          <h1 className="text-2xl font-black text-foreground mb-3">{t.pathNotCreated}</h1>
-          <p className="text-muted-foreground mb-6">
-            {t.goThroughOnboarding}
+      <div className="min-h-screen bg-background pb-24 px-4 py-6 flex flex-col items-center justify-center">
+        <div className="max-w-md mx-auto text-center">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200 }}
+            className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6"
+          >
+            <Target className="w-12 h-12 text-primary" />
+          </motion.div>
+          <h1 className="text-2xl font-bold text-foreground mb-3">{content.title}</h1>
+          <p className="text-muted-foreground mb-8">
+            {content.subtitle}
           </p>
-          <Button variant="hero" onClick={() => window.location.href = '/onboarding'}>
-            {t.start}
+          <Button 
+            variant="hero" 
+            size="lg"
+            className="w-full h-14 text-lg font-bold"
+            onClick={() => window.location.href = '/onboarding'}
+          >
+            {content.cta}
+            <ChevronRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
       </div>
