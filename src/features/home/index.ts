@@ -1,0 +1,1 @@
+export { SimpleHome } from './SimpleHome';

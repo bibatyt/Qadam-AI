@@ -15,6 +15,7 @@ import { useLandingLanguage, landingTranslations } from "@/hooks/useLandingLangu
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { MyPathCard } from "@/features/path";
 
 const Dashboard = () => {
   const { profile, loading, updateStreak } = useProfile();
@@ -27,6 +28,14 @@ const Dashboard = () => {
   const t = landingTranslations[language];
   const { user } = useAuth();
   const [checkingRoadmap, setCheckingRoadmap] = useState(true);
+  const [pathData, setPathData] = useState<{
+    university?: string;
+    totalSteps: number;
+    completedSteps: number;
+    nextStep?: string;
+    currentPart: number;
+    totalParts: number;
+  } | null>(null);
 
   // Check if user has a roadmap, if not redirect to onboarding
   useEffect(() => {
@@ -44,6 +53,8 @@ const Dashboard = () => {
         navigate('/onboarding', { replace: true });
       } else {
         setCheckingRoadmap(false);
+        // Fetch path data for the card
+        fetchPathData();
       }
     };
     
@@ -51,6 +62,44 @@ const Dashboard = () => {
       checkRoadmap();
     }
   }, [user, navigate]);
+
+  const fetchPathData = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: milestones } = await supabase
+        .from('path_milestones')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('order_index');
+      
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('target_university')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (milestones && milestones.length > 0) {
+        const completed = milestones.filter(m => m.completed).length;
+        const nextMilestone = milestones.find(m => !m.completed);
+        const firstIncomplete = milestones.find(m => !m.completed);
+        const currentPart = firstIncomplete 
+          ? Math.ceil(firstIncomplete.order_index / 10)
+          : 5;
+        
+        setPathData({
+          university: profileData?.target_university || undefined,
+          totalSteps: milestones.length,
+          completedSteps: completed,
+          nextStep: nextMilestone?.title,
+          currentPart: Math.min(currentPart, 5),
+          totalParts: 5,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching path data:', error);
+    }
+  };
 
   useEffect(() => {
     if (profile) {
@@ -267,6 +316,19 @@ const Dashboard = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* My Path Card - Always accessible */}
+        {pathData && (
+          <MyPathCard
+            university={pathData.university}
+            progress={pathData.totalSteps > 0 ? (pathData.completedSteps / pathData.totalSteps) * 100 : 0}
+            totalSteps={pathData.totalSteps}
+            completedSteps={pathData.completedSteps}
+            nextStep={pathData.nextStep}
+            currentPart={pathData.currentPart}
+            totalParts={pathData.totalParts}
+          />
+        )}
 
         {/* Quick Action - Essay */}
         <motion.div
