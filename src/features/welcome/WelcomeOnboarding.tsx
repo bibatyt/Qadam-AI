@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, GraduationCap, CheckCircle, Compass } from "lucide-react";
+import { ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLandingLanguage } from "@/hooks/useLandingLanguage";
+import { TooltipHint, tooltipContent } from "@/components/ui/tooltip-hint";
 
 interface WelcomeOnboardingProps {
   onComplete: () => void;
@@ -191,15 +192,24 @@ export function WelcomeOnboarding({ onComplete }: WelcomeOnboardingProps) {
 
       {/* Bottom action */}
       <div className="px-6 pb-8 pt-4">
-        <Button
-          variant="hero"
-          size="lg"
-          className="w-full h-14 text-lg font-bold"
-          onClick={handleNext}
+        <TooltipHint
+          id="welcome-continue-btn"
+          message={tooltipContent[language].continueOnboarding}
+          position="top"
+          delay={1500}
+          pulse={currentScreen === 0}
+          fullWidth
         >
-          {currentScreen === 2 ? screen.cta : content.next}
-          <ArrowRight className="w-5 h-5 ml-2" />
-        </Button>
+          <Button
+            variant="hero"
+            size="lg"
+            className="w-full h-14 text-lg font-bold"
+            onClick={handleNext}
+          >
+            {currentScreen === 2 ? screen.cta : content.next}
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </TooltipHint>
       </div>
     </div>
   );

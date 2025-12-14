@@ -8,6 +8,9 @@ interface TooltipHintProps {
   message: string;
   position?: "top" | "bottom" | "left" | "right";
   showOnce?: boolean;
+  delay?: number;
+  pulse?: boolean;
+  fullWidth?: boolean;
 }
 
 const DISMISSED_TOOLTIPS_KEY = "qadam_dismissed_tooltips";
@@ -35,6 +38,9 @@ export function TooltipHint({
   message,
   position = "bottom",
   showOnce = true,
+  delay = 800,
+  pulse = false,
+  fullWidth = false,
 }: TooltipHintProps) {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -42,14 +48,14 @@ export function TooltipHint({
     if (showOnce) {
       const dismissed = getDismissedTooltips();
       if (!dismissed.includes(id)) {
-        // Show after a short delay
-        const timer = setTimeout(() => setIsVisible(true), 500);
+        const timer = setTimeout(() => setIsVisible(true), delay);
         return () => clearTimeout(timer);
       }
     } else {
-      setIsVisible(true);
+      const timer = setTimeout(() => setIsVisible(true), delay);
+      return () => clearTimeout(timer);
     }
-  }, [id, showOnce]);
+  }, [id, showOnce, delay]);
 
   const handleDismiss = () => {
     setIsVisible(false);
@@ -58,41 +64,68 @@ export function TooltipHint({
     }
   };
 
+  // Auto-dismiss on interaction with the element
+  const handleInteraction = () => {
+    if (isVisible) {
+      handleDismiss();
+    }
+  };
+
   const positionClasses = {
-    top: "bottom-full left-1/2 -translate-x-1/2 mb-2",
-    bottom: "top-full left-1/2 -translate-x-1/2 mt-2",
-    left: "right-full top-1/2 -translate-y-1/2 mr-2",
-    right: "left-full top-1/2 -translate-y-1/2 ml-2",
+    top: "bottom-full left-1/2 -translate-x-1/2 mb-3",
+    bottom: "top-full left-1/2 -translate-x-1/2 mt-3",
+    left: "right-full top-1/2 -translate-y-1/2 mr-3",
+    right: "left-full top-1/2 -translate-y-1/2 ml-3",
   };
 
   const arrowClasses = {
-    top: "bottom-0 left-1/2 -translate-x-1/2 translate-y-full border-l-transparent border-r-transparent border-b-transparent border-t-primary",
-    bottom: "top-0 left-1/2 -translate-x-1/2 -translate-y-full border-l-transparent border-r-transparent border-t-transparent border-b-primary",
-    left: "right-0 top-1/2 -translate-y-1/2 translate-x-full border-t-transparent border-b-transparent border-r-transparent border-l-primary",
-    right: "left-0 top-1/2 -translate-y-1/2 -translate-x-full border-t-transparent border-b-transparent border-l-transparent border-r-primary",
+    top: "top-full left-1/2 -translate-x-1/2 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-primary",
+    bottom: "bottom-full left-1/2 -translate-x-1/2 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-primary",
+    left: "left-full top-1/2 -translate-y-1/2 border-t-8 border-b-8 border-l-8 border-t-transparent border-b-transparent border-l-primary",
+    right: "right-full top-1/2 -translate-y-1/2 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-primary",
   };
 
   return (
-    <div className="relative inline-block">
+    <div className={`relative ${fullWidth ? 'w-full block' : 'inline-block'}`} onClick={handleInteraction}>
+      {/* Pulse ring effect */}
+      <AnimatePresence>
+        {isVisible && pulse && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="absolute inset-0 rounded-xl"
+          >
+            <div className="absolute inset-0 rounded-xl border-2 border-primary animate-ping opacity-75" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       {children}
+      
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.9, y: position === 'bottom' ? -10 : position === 'top' ? 10 : 0 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className={`absolute z-50 ${positionClasses[position]}`}
           >
-            <div className="relative bg-primary text-primary-foreground px-3 py-2 rounded-lg shadow-lg max-w-[200px]">
+            <div className="relative bg-primary text-primary-foreground px-4 py-2.5 rounded-xl shadow-lg max-w-[220px]">
               <button
-                onClick={handleDismiss}
-                className="absolute -top-1 -right-1 w-5 h-5 bg-background text-foreground rounded-full flex items-center justify-center shadow-md hover:bg-muted transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDismiss();
+                }}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-background text-foreground rounded-full flex items-center justify-center shadow-md hover:bg-muted transition-colors border border-border"
               >
-                <X className="w-3 h-3" />
+                <X className="w-3.5 h-3.5" />
               </button>
-              <p className="text-xs font-medium pr-2">{message}</p>
+              <p className="text-sm font-medium pr-3 leading-snug">{message}</p>
+              {/* Arrow */}
               <div
-                className={`absolute w-0 h-0 border-4 ${arrowClasses[position]}`}
+                className={`absolute w-0 h-0 ${arrowClasses[position]}`}
               />
             </div>
           </motion.div>
@@ -118,3 +151,28 @@ export function useTooltipDismissed(id: string): boolean {
 export function resetAllTooltips() {
   localStorage.removeItem(DISMISSED_TOOLTIPS_KEY);
 }
+
+// Tooltip content translations
+export const tooltipContent = {
+  en: {
+    continueOnboarding: "Tap to continue to the next step",
+    viewPath: "View your personalized admission path",
+    completeTask: "Tap to mark as complete",
+    aiMentor: "Need help? Ask our AI mentor!",
+    checkEssay: "Get feedback on your essay",
+  },
+  ru: {
+    continueOnboarding: "Нажмите, чтобы перейти к следующему шагу",
+    viewPath: "Посмотрите ваш персональный путь к поступлению",
+    completeTask: "Нажмите, чтобы отметить выполненным",
+    aiMentor: "Нужна помощь? Спросите AI-ментора!",
+    checkEssay: "Получите обратную связь по эссе",
+  },
+  kk: {
+    continueOnboarding: "Келесі қадамға өту үшін басыңыз",
+    viewPath: "Жеке түсу жолыңызды қараңыз",
+    completeTask: "Орындалды деп белгілеу үшін басыңыз",
+    aiMentor: "Көмек керек пе? AI-тәлімгерден сұраңыз!",
+    checkEssay: "Эссеңіз бойынша кері байланыс алыңыз",
+  },
+};

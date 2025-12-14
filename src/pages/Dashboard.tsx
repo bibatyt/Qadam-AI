@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { MyPathCard } from "@/features/path";
+import { TooltipHint, tooltipContent } from "@/components/ui/tooltip-hint";
 
 const Dashboard = () => {
   const { profile, loading, updateStreak } = useProfile();
@@ -336,20 +337,28 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <button
-            onClick={() => navigate("/essay")}
-            className="w-full duolingo-card p-4 text-left hover:shadow-lg transition-all active:scale-[0.98] touch-target"
+          <TooltipHint
+            id="dashboard-essay-action"
+            message={tooltipContent[language].checkEssay}
+            position="top"
+            delay={3000}
+            fullWidth
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-accent" />
+            <button
+              onClick={() => navigate("/essay")}
+              className="w-full duolingo-card p-4 text-left hover:shadow-lg transition-all active:scale-[0.98] touch-target"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-accent" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">{t.checkEssay}</p>
+                  <p className="text-xs text-muted-foreground">{t.getImpactScore}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-foreground">{t.checkEssay}</p>
-                <p className="text-xs text-muted-foreground">{t.getImpactScore}</p>
-              </div>
-            </div>
-          </button>
+            </button>
+          </TooltipHint>
         </motion.div>
 
         {/* Other Quests (collapsible) */}
