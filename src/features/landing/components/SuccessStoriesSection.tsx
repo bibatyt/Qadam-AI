@@ -10,7 +10,7 @@ export function SuccessStoriesSection() {
     {
       name: "Syrym",
       country: language === 'ru' ? "Казахстан" : language === 'kk' ? "Қазақстан" : "Kazakhstan",
-      university: "Harvard University",
+      university: "Future student",
       scholarship: "Full Financial Aid",
       avatar: "🎓",
       text: language === 'ru' 
