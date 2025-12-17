@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -11,132 +10,111 @@ type Language = "ru" | "en" | "kk";
 
 const translations = {
   ru: {
-    step1Title: "Выберите класс",
-    step1Subtitle: "В каком классе вы сейчас учитесь?",
+    step1Title: "В каком вы классе?",
     grade9: "9 класс",
     grade10: "10 класс",
     grade11: "11 класс",
-    step2Title: "Выберите цель",
-    step2Subtitle: "Куда вы хотите поступить?",
-    local: "Местный университет",
-    localDesc: "Университеты в вашей стране",
-    international: "Зарубежный университет",
-    internationalDesc: "США, Европа, Азия и другие страны",
-    step3Title: "Выберите экзамены",
-    step3Subtitle: "Какие экзамены вы планируете сдавать?",
-    ielts: "IELTS",
-    sat: "SAT",
-    ent: "ЕНТ",
-    toefl: "TOEFL",
-    step4Title: "Год поступления",
-    step4Subtitle: "В каком году вы планируете поступать?",
+    step2Title: "Куда планируете поступать?",
+    local: "В местный университет",
+    localDesc: "Казахстан, Россия",
+    international: "В зарубежный университет",
+    internationalDesc: "США, Европа, Азия",
+    step3Title: "Какие экзамены будете сдавать?",
+    step3Hint: "Можно выбрать несколько",
+    step4Title: "В каком году планируете поступать?",
     continue: "Продолжить",
-    createPath: "Создать мой путь",
-    creating: "Создаём ваш путь...",
-    success: "Путь создан!",
+    createPath: "Создать мой план",
+    creating: "Создаём план...",
+    success: "План создан",
     error: "Ошибка. Попробуйте снова.",
   },
   en: {
-    step1Title: "Select your grade",
-    step1Subtitle: "What grade are you currently in?",
+    step1Title: "What grade are you in?",
     grade9: "Grade 9",
     grade10: "Grade 10",
     grade11: "Grade 11",
-    step2Title: "Select your goal",
-    step2Subtitle: "Where do you want to study?",
-    local: "Local University",
-    localDesc: "Universities in your country",
-    international: "International University",
-    internationalDesc: "USA, Europe, Asia and more",
-    step3Title: "Select exams",
-    step3Subtitle: "Which exams are you planning to take?",
-    ielts: "IELTS",
-    sat: "SAT",
-    ent: "National Exam",
-    toefl: "TOEFL",
-    step4Title: "Target year",
-    step4Subtitle: "When do you plan to start university?",
+    step2Title: "Where do you plan to apply?",
+    local: "Local university",
+    localDesc: "Kazakhstan, Russia",
+    international: "International university",
+    internationalDesc: "USA, Europe, Asia",
+    step3Title: "Which exams will you take?",
+    step3Hint: "You can select multiple",
+    step4Title: "What year do you plan to start?",
     continue: "Continue",
-    createPath: "Create my path",
-    creating: "Creating your path...",
-    success: "Path created!",
+    createPath: "Create my plan",
+    creating: "Creating plan...",
+    success: "Plan created",
     error: "Error. Please try again.",
   },
   kk: {
-    step1Title: "Сыныпты таңдаңыз",
-    step1Subtitle: "Қазір қай сыныпта оқисыз?",
+    step1Title: "Қай сыныпта оқисыз?",
     grade9: "9 сынып",
     grade10: "10 сынып",
     grade11: "11 сынып",
-    step2Title: "Мақсатты таңдаңыз",
-    step2Subtitle: "Қайда оқығыңыз келеді?",
+    step2Title: "Қайда түсуді жоспарлап жатырсыз?",
     local: "Жергілікті университет",
-    localDesc: "Өз еліңіздегі университеттер",
+    localDesc: "Қазақстан, Ресей",
     international: "Шетелдік университет",
-    internationalDesc: "АҚШ, Еуропа, Азия және т.б.",
-    step3Title: "Емтихандарды таңдаңыз",
-    step3Subtitle: "Қандай емтихандар тапсырасыз?",
-    ielts: "IELTS",
-    sat: "SAT",
-    ent: "ҰБТ",
-    toefl: "TOEFL",
-    step4Title: "Түсу жылы",
-    step4Subtitle: "Қай жылы түсесіз?",
+    internationalDesc: "АҚШ, Еуропа, Азия",
+    step3Title: "Қандай емтихандар тапсырасыз?",
+    step3Hint: "Бірнешеуін таңдауға болады",
+    step4Title: "Қай жылы түсуді жоспарлап жатырсыз?",
     continue: "Жалғастыру",
-    createPath: "Жолымды құру",
-    creating: "Жолыңыз құрылуда...",
-    success: "Жол құрылды!",
+    createPath: "Жоспарымды құру",
+    creating: "Жоспар құрылуда...",
+    success: "Жоспар құрылды",
     error: "Қате. Қайтадан көріңіз.",
   },
 };
 
-interface OptionCardProps {
+interface OptionProps {
   selected: boolean;
   onClick: () => void;
   title: string;
   subtitle?: string;
-  icon?: React.ReactNode;
 }
 
-const OptionCard = ({ selected, onClick, title, subtitle, icon }: OptionCardProps) => (
-  <motion.button
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
+const Option = ({ selected, onClick, title, subtitle }: OptionProps) => (
+  <button
     onClick={onClick}
-    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+    className={`w-full p-4 rounded-lg border text-left transition-colors ${
       selected
         ? "border-primary bg-primary/5"
-        : "border-border bg-card hover:border-primary/50"
+        : "border-border bg-card hover:border-primary/30"
     }`}
   >
-    <div className="flex items-center gap-3">
-      {icon}
-      <div className="flex-1">
-        <p className={`font-medium ${selected ? "text-primary" : "text-foreground"}`}>
+    <div className="flex items-center justify-between">
+      <div>
+        <span className={`block font-medium ${selected ? "text-primary" : "text-foreground"}`}>
           {title}
-        </p>
+        </span>
         {subtitle && (
-          <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
+          <span className="text-sm text-muted-foreground">{subtitle}</span>
         )}
       </div>
-      {selected && <Check className="w-5 h-5 text-primary" />}
+      {selected && (
+        <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+          <Check className="w-3 h-3 text-primary-foreground" />
+        </div>
+      )}
     </div>
-  </motion.button>
+  </button>
 );
 
-interface ExamChipProps {
+interface ExamOptionProps {
   selected: boolean;
   onClick: () => void;
   label: string;
 }
 
-const ExamChip = ({ selected, onClick, label }: ExamChipProps) => (
+const ExamOption = ({ selected, onClick, label }: ExamOptionProps) => (
   <button
     onClick={onClick}
-    className={`px-4 py-3 rounded-xl font-medium transition-all ${
+    className={`px-5 py-3 rounded-lg border font-medium transition-colors ${
       selected
-        ? "bg-primary text-primary-foreground"
-        : "bg-muted text-muted-foreground hover:bg-muted/80"
+        ? "border-primary bg-primary text-primary-foreground"
+        : "border-border bg-card text-foreground hover:border-primary/30"
     }`}
   >
     {label}
@@ -175,15 +153,11 @@ export default function StudentOnboarding() {
   };
 
   const handleNext = () => {
-    if (step < 4) {
-      setStep(step + 1);
-    }
+    if (step < 4) setStep(step + 1);
   };
 
   const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    }
+    if (step > 1) setStep(step - 1);
   };
 
   const handleCreatePath = async () => {
@@ -191,23 +165,18 @@ export default function StudentOnboarding() {
 
     setLoading(true);
     try {
-      // Save user role
       await supabase.from("user_roles").upsert({
         user_id: user.id,
         role: "student" as const,
       });
 
-      // Generate path using AI
       const { data: pathData, error: pathError } = await supabase.functions.invoke(
         "generate-student-path",
-        {
-          body: { grade, goal, exams, targetYear, language },
-        }
+        { body: { grade, goal, exams, targetYear, language } }
       );
 
       if (pathError) throw pathError;
 
-      // Save path to database
       const { error: saveError } = await supabase.from("student_paths").insert({
         user_id: user.id,
         grade,
@@ -231,20 +200,14 @@ export default function StudentOnboarding() {
     }
   };
 
-  const stepVariants = {
-    initial: { opacity: 0, x: 20 },
-    animate: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -20 },
-  };
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="p-4 flex items-center justify-between border-b border-border/50">
+      <header className="h-14 flex items-center justify-between px-4 border-b border-border">
         {step > 1 ? (
           <button
             onClick={handleBack}
-            className="p-2 rounded-full hover:bg-muted transition-colors"
+            className="p-2 -ml-2 rounded hover:bg-muted transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </button>
@@ -256,8 +219,8 @@ export default function StudentOnboarding() {
           {[1, 2, 3, 4].map((s) => (
             <div
               key={s}
-              className={`h-1.5 w-8 rounded-full transition-colors ${
-                s <= step ? "bg-primary" : "bg-muted"
+              className={`h-1 w-8 rounded-full transition-colors ${
+                s <= step ? "bg-primary" : "bg-border"
               }`}
             />
           ))}
@@ -269,141 +232,92 @@ export default function StudentOnboarding() {
       {/* Content */}
       <main className="flex-1 p-6 flex flex-col">
         <div className="flex-1 max-w-md mx-auto w-full">
-          <AnimatePresence mode="wait">
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                variants={stepVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="space-y-6"
-              >
-                <div className="text-center mb-8">
-                  <h1 className="text-2xl font-semibold text-foreground">{t.step1Title}</h1>
-                  <p className="text-muted-foreground mt-2">{t.step1Subtitle}</p>
-                </div>
-                <div className="space-y-3">
-                  <OptionCard
-                    selected={grade === "9"}
-                    onClick={() => setGrade("9")}
-                    title={t.grade9}
-                  />
-                  <OptionCard
-                    selected={grade === "10"}
-                    onClick={() => setGrade("10")}
-                    title={t.grade10}
-                  />
-                  <OptionCard
-                    selected={grade === "11"}
-                    onClick={() => setGrade("11")}
-                    title={t.grade11}
-                  />
-                </div>
-              </motion.div>
-            )}
+          {step === 1 && (
+            <div className="space-y-4">
+              <h1 className="text-xl font-semibold text-foreground text-center mb-6">
+                {t.step1Title}
+              </h1>
+              <Option
+                selected={grade === "9"}
+                onClick={() => setGrade("9")}
+                title={t.grade9}
+              />
+              <Option
+                selected={grade === "10"}
+                onClick={() => setGrade("10")}
+                title={t.grade10}
+              />
+              <Option
+                selected={grade === "11"}
+                onClick={() => setGrade("11")}
+                title={t.grade11}
+              />
+            </div>
+          )}
 
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                variants={stepVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="space-y-6"
-              >
-                <div className="text-center mb-8">
-                  <h1 className="text-2xl font-semibold text-foreground">{t.step2Title}</h1>
-                  <p className="text-muted-foreground mt-2">{t.step2Subtitle}</p>
-                </div>
-                <div className="space-y-3">
-                  <OptionCard
-                    selected={goal === "local"}
-                    onClick={() => setGoal("local")}
-                    title={t.local}
-                    subtitle={t.localDesc}
-                  />
-                  <OptionCard
-                    selected={goal === "international"}
-                    onClick={() => setGoal("international")}
-                    title={t.international}
-                    subtitle={t.internationalDesc}
-                  />
-                </div>
-              </motion.div>
-            )}
+          {step === 2 && (
+            <div className="space-y-4">
+              <h1 className="text-xl font-semibold text-foreground text-center mb-6">
+                {t.step2Title}
+              </h1>
+              <Option
+                selected={goal === "local"}
+                onClick={() => setGoal("local")}
+                title={t.local}
+                subtitle={t.localDesc}
+              />
+              <Option
+                selected={goal === "international"}
+                onClick={() => setGoal("international")}
+                title={t.international}
+                subtitle={t.internationalDesc}
+              />
+            </div>
+          )}
 
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                variants={stepVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="space-y-6"
-              >
-                <div className="text-center mb-8">
-                  <h1 className="text-2xl font-semibold text-foreground">{t.step3Title}</h1>
-                  <p className="text-muted-foreground mt-2">{t.step3Subtitle}</p>
-                </div>
-                <div className="flex flex-wrap gap-3 justify-center">
-                  <ExamChip
-                    selected={exams.includes("IELTS")}
-                    onClick={() => toggleExam("IELTS")}
-                    label={t.ielts}
+          {step === 3 && (
+            <div className="space-y-4">
+              <div className="text-center mb-6">
+                <h1 className="text-xl font-semibold text-foreground">
+                  {t.step3Title}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">{t.step3Hint}</p>
+              </div>
+              <div className="flex flex-wrap gap-3 justify-center">
+                {["IELTS", "SAT", "ЕНТ", "TOEFL"].map((exam) => (
+                  <ExamOption
+                    key={exam}
+                    selected={exams.includes(exam)}
+                    onClick={() => toggleExam(exam)}
+                    label={exam}
                   />
-                  <ExamChip
-                    selected={exams.includes("SAT")}
-                    onClick={() => toggleExam("SAT")}
-                    label={t.sat}
-                  />
-                  <ExamChip
-                    selected={exams.includes("ENT")}
-                    onClick={() => toggleExam("ENT")}
-                    label={t.ent}
-                  />
-                  <ExamChip
-                    selected={exams.includes("TOEFL")}
-                    onClick={() => toggleExam("TOEFL")}
-                    label={t.toefl}
-                  />
-                </div>
-              </motion.div>
-            )}
+                ))}
+              </div>
+            </div>
+          )}
 
-            {step === 4 && (
-              <motion.div
-                key="step4"
-                variants={stepVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="space-y-6"
-              >
-                <div className="text-center mb-8">
-                  <h1 className="text-2xl font-semibold text-foreground">{t.step4Title}</h1>
-                  <p className="text-muted-foreground mt-2">{t.step4Subtitle}</p>
-                </div>
-                <div className="space-y-3">
-                  {years.map((year) => (
-                    <OptionCard
-                      key={year}
-                      selected={targetYear === year}
-                      onClick={() => setTargetYear(year)}
-                      title={String(year)}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {step === 4 && (
+            <div className="space-y-4">
+              <h1 className="text-xl font-semibold text-foreground text-center mb-6">
+                {t.step4Title}
+              </h1>
+              {years.map((year) => (
+                <Option
+                  key={year}
+                  selected={targetYear === year}
+                  onClick={() => setTargetYear(year)}
+                  title={String(year)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Bottom Button */}
         <div className="mt-6 max-w-md mx-auto w-full">
           {step < 4 ? (
             <Button
-              className="w-full h-12"
+              className="w-full h-11"
               onClick={handleNext}
               disabled={!canProceed()}
             >
@@ -412,7 +326,7 @@ export default function StudentOnboarding() {
             </Button>
           ) : (
             <Button
-              className="w-full h-12"
+              className="w-full h-11"
               onClick={handleCreatePath}
               disabled={!canProceed() || loading}
             >

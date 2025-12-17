@@ -1,128 +1,67 @@
 @tailwind base;
-
-@keyframes slide-down {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(400%);
-    opacity: 0;
-  }
-}
-
-.animate-slide-down {
-  animation: slide-down 3s ease-in-out infinite;
-}
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 25% 12%;
+    /* Calm, academic color palette */
+    --background: 40 20% 98%;
+    --foreground: 220 25% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 12%;
+    --card-foreground: 220 25% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 12%;
+    --popover-foreground: 220 25% 18%;
 
-    /* Duolingo-inspired teal/green primary */
-    --primary: 162 73% 46%;
+    /* Deep blue - trust and professionalism */
+    --primary: 220 60% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 162 40% 95%;
-    --secondary-foreground: 162 73% 35%;
+    /* Soft blue-gray secondary */
+    --secondary: 220 20% 96%;
+    --secondary-foreground: 220 25% 35%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 45%;
+    /* Neutral muted tones */
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 10% 50%;
 
-    /* Orange/red accent for streaks */
-    --accent: 24 95% 53%;
+    /* Muted green - growth and progress */
+    --accent: 160 35% 45%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    /* Status colors */
+    --success: 160 40% 42%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 70% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 55% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 162 73% 46%;
+    /* Borders and inputs */
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 220 60% 35%;
 
-    --radius: 1rem;
+    --radius: 0.5rem;
 
-    /* Custom Duolingo tokens */
-    --streak: 24 95% 53%;
-    --streak-foreground: 0 0% 100%;
-    --xp: 45 100% 51%;
-    --success: 162 73% 46%;
-    --wisdom: 45 100% 60%;
-    --wisdom-foreground: 24 90% 25%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(162, 73%, 46%) 0%, hsl(170, 70%, 40%) 100%);
-    --gradient-streak: linear-gradient(135deg, hsl(24, 95%, 53%) 0%, hsl(35, 100%, 55%) 100%);
-    --gradient-wisdom: linear-gradient(135deg, hsl(45, 100%, 60%) 0%, hsl(35, 100%, 55%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(162, 40%, 97%) 0%, hsl(0, 0%, 100%) 100%);
-    
-    /* Shadows */
-    --shadow-card: 0 2px 12px -2px hsl(220 25% 12% / 0.06);
-    --shadow-lg: 0 8px 30px -8px hsl(220 25% 12% / 0.12);
-    --shadow-primary: 0 4px 14px -4px hsl(162 73% 46% / 0.35);
-    --shadow-streak: 0 4px 14px -4px hsl(24 95% 53% / 0.35);
+    /* Shadows - subtle and professional */
+    --shadow-sm: 0 1px 2px 0 hsl(220 25% 18% / 0.03);
+    --shadow-md: 0 4px 6px -1px hsl(220 25% 18% / 0.05), 0 2px 4px -2px hsl(220 25% 18% / 0.03);
+    --shadow-lg: 0 10px 15px -3px hsl(220 25% 18% / 0.05), 0 4px 6px -4px hsl(220 25% 18% / 0.03);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 220 25% 8%;
-    --foreground: 0 0% 98%;
-
-    --card: 220 25% 12%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 220 25% 12%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 162 73% 50%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 25% 18%;
-    --secondary-foreground: 162 73% 60%;
-
-    --muted: 220 25% 18%;
-    --muted-foreground: 220 10% 55%;
-
-    --accent: 24 95% 55%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 25% 20%;
-    --input: 220 25% 20%;
-    --ring: 162 73% 50%;
-
-    --sidebar-background: 220 25% 10%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 162 73% 50%;
+    --sidebar-background: 40 20% 98%;
+    --sidebar-foreground: 220 25% 18%;
+    --sidebar-primary: 220 60% 35%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 25% 15%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 220 25% 20%;
-    --sidebar-ring: 162 73% 50%;
+    --sidebar-accent: 220 14% 94%;
+    --sidebar-accent-foreground: 220 25% 35%;
+    --sidebar-border: 220 13% 88%;
+    --sidebar-ring: 220 60% 35%;
   }
 }
 
@@ -132,139 +71,95 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Nunito', system-ui, sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-foreground;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl leading-tight;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl leading-tight;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+
+  p {
+    @apply leading-relaxed;
   }
 }
 
 @layer utilities {
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-  
-  .gradient-streak {
-    background: var(--gradient-streak);
-  }
-  
-  .gradient-wisdom {
-    background: var(--gradient-wisdom);
-  }
-  
-  .gradient-hero {
-    background: var(--gradient-hero);
-  }
-  
   .shadow-card {
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--shadow-md);
   }
   
   .shadow-elevated {
     box-shadow: var(--shadow-lg);
-  }
-  
-  .shadow-primary {
-    box-shadow: var(--shadow-primary);
-  }
-  
-  .shadow-streak {
-    box-shadow: var(--shadow-streak);
-  }
-  
-  .text-gradient {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.5s ease-out forwards;
-    opacity: 0;
-  }
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes draw-line {
-    from {
-      stroke-dashoffset: 200;
-    }
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-
-  .animate-draw-line {
-    stroke-dasharray: 200;
-    stroke-dashoffset: 200;
-    animation: draw-line 1.5s ease-out 0.5s forwards;
-  }
-
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
   }
 
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0.5rem);
   }
   
-  /* Mobile-first touch targets */
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
   }
 }
 
 @layer components {
-  .gamification-card {
-    @apply bg-card rounded-2xl p-4 shadow-card border border-border/50;
+  /* Clean card component */
+  .card-clean {
+    @apply bg-card rounded-lg border border-border p-5 shadow-card;
   }
   
-  .stat-badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold;
+  /* Status badges */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium;
   }
   
-  .nav-item {
-    @apply flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200;
+  .status-not-started {
+    @apply bg-muted text-muted-foreground;
   }
   
-  .nav-item-active {
-    @apply text-primary bg-secondary;
+  .status-in-progress {
+    @apply bg-amber-50 text-amber-700 border border-amber-200;
   }
   
-  .chip {
-    @apply px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer;
+  .status-done {
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
   }
   
-  .duolingo-card {
-    @apply bg-card rounded-2xl border-2 border-border/60 shadow-card overflow-hidden;
+  /* Progress bar styling */
+  .progress-track {
+    @apply h-2 bg-muted rounded-full overflow-hidden;
   }
   
-  .quest-item {
-    @apply flex items-center gap-3 p-3.5 rounded-xl transition-all duration-200 cursor-pointer active:scale-[0.98];
+  .progress-fill {
+    @apply h-full bg-accent rounded-full transition-all duration-500 ease-out;
   }
   
-  .quest-item-completed {
-    @apply bg-primary/10 border border-primary/20;
+  /* Clean list items */
+  .list-item {
+    @apply flex items-start gap-3 py-4 border-b border-border last:border-0;
   }
   
-  .quest-item-pending {
-    @apply bg-muted/40 hover:bg-muted/60 border border-transparent;
+  /* Section spacing */
+  .section {
+    @apply py-12 md:py-16;
+  }
+  
+  .section-tight {
+    @apply py-8 md:py-12;
   }
 }
