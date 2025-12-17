@@ -1,28 +1,4 @@
 project_id = "rkggdunciqrvzepwhrzc"
 
-[functions.generate-roadmap]
-verify_jwt = false
-
-[functions.generate-opportunities]
-verify_jwt = false
-
-[functions.ai-counselor]
-verify_jwt = false
-
-[functions.send-auth-email]
-verify_jwt = false
-
-[functions.verify-email-code]
-verify_jwt = false
-
-[functions.generate-path]
-verify_jwt = false
-
-[functions.mentor-chat]
-verify_jwt = false
-
-[functions.analyze-essay]
-verify_jwt = false
-
-[functions.generate-notifications]
+[functions.generate-student-path]
 verify_jwt = false
