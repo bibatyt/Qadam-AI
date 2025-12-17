@@ -6,34 +6,34 @@
 
 @layer base {
   :root {
-    /* Calm, academic color palette */
-    --background: 40 20% 98%;
-    --foreground: 220 25% 18%;
+    /* Clean, calm color palette */
+    --background: 0 0% 98%;
+    --foreground: 220 15% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 18%;
+    --card-foreground: 220 15% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 18%;
+    --popover-foreground: 220 15% 20%;
 
-    /* Deep blue - trust and professionalism */
-    --primary: 220 60% 35%;
+    /* Duolingo green - bright and motivating */
+    --primary: 115 70% 45%;
     --primary-foreground: 0 0% 100%;
 
-    /* Soft blue-gray secondary */
-    --secondary: 220 20% 96%;
-    --secondary-foreground: 220 25% 35%;
+    /* Light green secondary */
+    --secondary: 115 40% 96%;
+    --secondary-foreground: 115 70% 35%;
 
     /* Neutral muted tones */
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 220 10% 94%;
+    --muted-foreground: 220 10% 45%;
 
-    /* Muted green - growth and progress */
-    --accent: 160 35% 45%;
+    /* Teal accent for variety */
+    --accent: 170 60% 40%;
     --accent-foreground: 0 0% 100%;
 
     /* Status colors */
-    --success: 160 40% 42%;
+    --success: 115 70% 45%;
     --success-foreground: 0 0% 100%;
     
     --warning: 38 70% 50%;
@@ -43,25 +43,25 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Borders and inputs */
-    --border: 220 13% 88%;
-    --input: 220 13% 88%;
-    --ring: 220 60% 35%;
+    --border: 220 10% 90%;
+    --input: 220 10% 90%;
+    --ring: 115 70% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     /* Shadows - subtle and professional */
     --shadow-sm: 0 1px 2px 0 hsl(220 25% 18% / 0.03);
     --shadow-md: 0 4px 6px -1px hsl(220 25% 18% / 0.05), 0 2px 4px -2px hsl(220 25% 18% / 0.03);
     --shadow-lg: 0 10px 15px -3px hsl(220 25% 18% / 0.05), 0 4px 6px -4px hsl(220 25% 18% / 0.03);
 
-    --sidebar-background: 40 20% 98%;
-    --sidebar-foreground: 220 25% 18%;
-    --sidebar-primary: 220 60% 35%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 15% 20%;
+    --sidebar-primary: 115 70% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 94%;
-    --sidebar-accent-foreground: 220 25% 35%;
-    --sidebar-border: 220 13% 88%;
-    --sidebar-ring: 220 60% 35%;
+    --sidebar-accent: 115 40% 96%;
+    --sidebar-accent-foreground: 115 70% 35%;
+    --sidebar-border: 220 10% 90%;
+    --sidebar-ring: 115 70% 45%;
   }
 }
 
