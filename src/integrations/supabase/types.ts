@@ -172,6 +172,33 @@ export type Database = {
         }
         Relationships: []
       }
+      parent_link_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          student_id: string
+          used: boolean
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          student_id: string
+          used?: boolean
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          student_id?: string
+          used?: boolean
+        }
+        Relationships: []
+      }
       path_milestones: {
         Row: {
           category: string
@@ -366,6 +393,48 @@ export type Database = {
         }
         Relationships: []
       }
+      student_paths: {
+        Row: {
+          created_at: string
+          current_stage: string | null
+          exams: string[]
+          goal: string
+          grade: string
+          id: string
+          milestones: Json
+          progress_percent: number
+          target_year: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_stage?: string | null
+          exams?: string[]
+          goal: string
+          grade: string
+          id?: string
+          milestones?: Json
+          progress_percent?: number
+          target_year: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_stage?: string | null
+          exams?: string[]
+          goal?: string
+          grade?: string
+          id?: string
+          milestones?: Json
+          progress_percent?: number
+          target_year?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       success_stories: {
         Row: {
           country: string
@@ -483,15 +552,49 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          linked_student_id: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          linked_student_id?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          linked_student_id?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "student" | "parent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -618,6 +721,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["student", "parent"],
+    },
   },
 } as const
