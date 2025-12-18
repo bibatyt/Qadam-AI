@@ -3,12 +3,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft, Loader2, GraduationCap, Users, Mail, Lock, User, 
-  Eye, EyeOff, ArrowRight, CheckCircle2 
+  Eye, EyeOff, CheckCircle2 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +16,7 @@ import { z } from "zod";
 type Language = "ru" | "en" | "kk";
 type UserType = "student" | "parent" | null;
 type AuthMode = "login" | "signup";
-type AuthStep = "role" | "form" | "verification" | "forgot" | "reset-sent";
+type AuthStep = "role" | "form" | "forgot" | "reset-sent";
 
 // Validation schemas
 const emailSchema = z.string().email("Invalid email address");
@@ -44,16 +43,7 @@ const translations = {
     invalidCredentials: "Неверный email или пароль",
     continueWithGoogle: "Продолжить с Google",
     orContinueWith: "или",
-    verifyEmail: "Подтвердите email",
-    codeSentTo: "Мы отправили 6-значный код на",
-    enterCode: "Введите код подтверждения",
-    verify: "Подтвердить",
-    resendCode: "Отправить код снова",
-    codeResent: "Код отправлен!",
-    invalidCode: "Неверный или истёкший код",
-    emailVerified: "Email подтверждён!",
-    sendingCode: "Отправка кода...",
-    verifying: "Проверка...",
+    success: "Добро пожаловать!",
     back: "Назад",
     forgotPassword: "Забыли пароль?",
     resetPassword: "Сбросить пароль",
@@ -84,16 +74,7 @@ const translations = {
     invalidCredentials: "Invalid email or password",
     continueWithGoogle: "Continue with Google",
     orContinueWith: "or",
-    verifyEmail: "Verify your email",
-    codeSentTo: "We sent a 6-digit code to",
-    enterCode: "Enter verification code",
-    verify: "Verify",
-    resendCode: "Resend code",
-    codeResent: "Code sent!",
-    invalidCode: "Invalid or expired code",
-    emailVerified: "Email verified!",
-    sendingCode: "Sending code...",
-    verifying: "Verifying...",
+    success: "Welcome!",
     back: "Back",
     forgotPassword: "Forgot password?",
     resetPassword: "Reset Password",
@@ -124,16 +105,7 @@ const translations = {
     invalidCredentials: "Қате email немесе құпия сөз",
     continueWithGoogle: "Google арқылы жалғастыру",
     orContinueWith: "немесе",
-    verifyEmail: "Email-ді растаңыз",
-    codeSentTo: "6 санды код жібердік:",
-    enterCode: "Растау кодын енгізіңіз",
-    verify: "Растау",
-    resendCode: "Кодты қайта жіберу",
-    codeResent: "Код жіберілді!",
-    invalidCode: "Код қате немесе мерзімі өткен",
-    emailVerified: "Email расталды!",
-    sendingCode: "Код жіберілуде...",
-    verifying: "Тексерілуде...",
+    success: "Қош келдіңіз!",
     back: "Артқа",
     forgotPassword: "Құпия сөзді ұмыттыңыз ба?",
     resetPassword: "Құпия сөзді қалпына келтіру",
@@ -157,13 +129,11 @@ export default function AuthPage() {
   const [mode, setMode] = useState<AuthMode>("signup");
   const [step, setStep] = useState<AuthStep>("role");
   const [loading, setLoading] = useState(false);
-  const [sendingCode, setSendingCode] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
 
   // Validation errors
   const [emailError, setEmailError] = useState("");
@@ -254,107 +224,6 @@ export default function AuthPage() {
     }
   };
 
-  const sendVerificationCode = async () => {
-    setSendingCode(true);
-    try {
-      const { error } = await supabase.functions.invoke('send-auth-email', {
-        body: {
-          to: email,
-          type: 'verification',
-          name: name,
-          language: language
-        }
-      });
-      
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error('Error sending verification code:', error);
-      toast.error(t.error);
-      return false;
-    } finally {
-      setSendingCode(false);
-    }
-  };
-
-  const verifyCodeAndSignUp = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('verify-email-code', {
-        body: { email, code: verificationCode }
-      });
-      
-      if (error || !data?.success) {
-        toast.error(t.invalidCode);
-        setLoading(false);
-        return;
-      }
-      
-      // Code verified, now create the account
-      const { error: signUpError } = await signUp(email, password, name);
-      if (signUpError) {
-        if (signUpError.message.includes("already registered")) {
-          toast.error(t.emailExists);
-        } else {
-          toast.error(signUpError.message);
-        }
-        setLoading(false);
-        return;
-      }
-
-      // Wait for auth to complete
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Get the user
-      const { data: { user: newUser } } = await supabase.auth.getUser();
-      
-      if (newUser && userType) {
-        // Create user role
-        await supabase.from('user_roles').insert({
-          user_id: newUser.id,
-          role: userType
-        });
-
-        // Create profile
-        await supabase.from('profiles').upsert({
-          user_id: newUser.id,
-          name: name || 'Студент'
-        });
-      }
-      
-      // Send welcome email
-      await supabase.functions.invoke('send-auth-email', {
-        body: {
-          to: email,
-          type: 'welcome',
-          name: name,
-          language: language
-        }
-      });
-      
-      toast.success(t.emailVerified);
-      
-      // Redirect based on user type
-      if (userType === "parent") {
-        navigate("/parent-dashboard", { replace: true });
-      } else {
-        navigate("/student-onboarding", { replace: true });
-      }
-    } catch (error) {
-      console.error('Error verifying code:', error);
-      toast.error(t.error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendCode = async () => {
-    const sent = await sendVerificationCode();
-    if (sent) {
-      toast.success(t.codeResent);
-    }
-  };
-
   const handleForgotPassword = async () => {
     if (!validateEmail(email)) return;
     
@@ -383,11 +252,45 @@ export default function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        // For signup, first send verification code
-        setLoading(false);
-        const sent = await sendVerificationCode();
-        if (sent) {
-          setStep("verification");
+        // Sign up the user directly (auto-confirm is enabled)
+        const { error: signUpError } = await signUp(email, password, name);
+        if (signUpError) {
+          if (signUpError.message.includes("already registered")) {
+            toast.error(t.emailExists);
+          } else {
+            toast.error(signUpError.message);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Wait for auth to complete
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Get the user
+        const { data: { user: newUser } } = await supabase.auth.getUser();
+        
+        if (newUser && userType) {
+          // Create user role
+          await supabase.from('user_roles').upsert({
+            user_id: newUser.id,
+            role: userType
+          });
+
+          // Create profile
+          await supabase.from('profiles').upsert({
+            user_id: newUser.id,
+            name: name || 'Студент'
+          });
+        }
+        
+        toast.success(t.success);
+        
+        // Redirect based on user type
+        if (userType === "parent") {
+          navigate("/parent-dashboard", { replace: true });
+        } else {
+          navigate("/student-onboarding", { replace: true });
         }
       } else {
         const { error } = await signIn(email, password);
@@ -396,6 +299,8 @@ export default function AuthPage() {
           setLoading(false);
           return;
         }
+        
+        toast.success(t.success);
         
         // Check user role and redirect
         const { data: { user: loggedInUser } } = await supabase.auth.getUser();
@@ -491,93 +396,6 @@ export default function AuthPage() {
                   <span className="text-sm text-muted-foreground">{t.parentDesc}</span>
                 </div>
               </motion.button>
-            </div>
-          </motion.div>
-        </main>
-      </div>
-    );
-  }
-
-  // Verification Step
-  if (step === "verification") {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <header className="h-14 flex items-center px-4 border-b border-border">
-          <button
-            onClick={() => {
-              setStep("form");
-              setVerificationCode("");
-            }}
-            className="p-2 -ml-2 rounded hover:bg-muted transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
-          </button>
-        </header>
-
-        <main className="flex-1 flex items-center justify-center p-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-sm w-full space-y-6"
-          >
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-8 h-8 text-primary" />
-              </div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">
-                {t.verifyEmail}
-              </h1>
-              <p className="text-muted-foreground">
-                {t.codeSentTo}
-              </p>
-              <p className="text-primary font-semibold mt-1">
-                {email}
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-center block">{t.enterCode}</Label>
-                <div className="flex justify-center">
-                  <InputOTP
-                    value={verificationCode}
-                    onChange={setVerificationCode}
-                    maxLength={6}
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} className="w-11 h-12 text-lg" />
-                      <InputOTPSlot index={1} className="w-11 h-12 text-lg" />
-                      <InputOTPSlot index={2} className="w-11 h-12 text-lg" />
-                      <InputOTPSlot index={3} className="w-11 h-12 text-lg" />
-                      <InputOTPSlot index={4} className="w-11 h-12 text-lg" />
-                      <InputOTPSlot index={5} className="w-11 h-12 text-lg" />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
-              </div>
-
-              <Button
-                className="w-full h-11"
-                disabled={loading || verificationCode.length !== 6}
-                onClick={verifyCodeAndSignUp}
-              >
-                {loading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    {t.verify}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-
-              <button
-                onClick={handleResendCode}
-                disabled={sendingCode}
-                className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-              >
-                {sendingCode ? t.sendingCode : t.resendCode}
-              </button>
             </div>
           </motion.div>
         </main>
@@ -855,8 +673,8 @@ export default function AuthPage() {
               )}
             </div>
 
-            <Button type="submit" className="w-full h-11" disabled={loading || sendingCode}>
-              {loading || sendingCode ? (
+            <Button type="submit" className="w-full h-11" disabled={loading}>
+              {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : mode === "login" ? (
                 t.loginButton
