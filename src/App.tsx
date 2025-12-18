@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 // MVP Pages
 import LandingPage from "./pages/mvp/LandingPage";
 import AuthPage from "./pages/mvp/AuthPage";
+import ResetPassword from "./pages/mvp/ResetPassword";
 import StudentOnboarding from "./pages/mvp/StudentOnboarding";
 import MyPath from "./pages/mvp/MyPath";
 import ParentDashboard from "./pages/mvp/ParentDashboard";
@@ -27,6 +28,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/student-onboarding" element={<StudentOnboarding />} />
               <Route path="/my-path" element={<MyPath />} />
