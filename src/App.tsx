@@ -14,6 +14,7 @@ import StudentOnboarding from "./pages/mvp/StudentOnboarding";
 import MyPath from "./pages/mvp/MyPath";
 import ParentDashboard from "./pages/mvp/ParentDashboard";
 import SettingsPage from "./pages/mvp/SettingsPage";
+import ReadinessPage from "./pages/mvp/ReadinessPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/readiness" element={<ReadinessPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/student-onboarding" element={<StudentOnboarding />} />
               <Route path="/my-path" element={<MyPath />} />
