@@ -604,6 +604,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      verify_and_use_parent_link_code: {
+        Args: { _code: string; _parent_user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "student" | "parent"
