@@ -8,36 +8,16 @@ interface QadamLogoProps {
 
 export function QadamLogo({ size = 36, className = "", animated = false }: QadamLogoProps) {
   const LogoContent = () => (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 40 40"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
+    <span
+      className={`text-primary font-bold ${className}`}
+      style={{
+        fontSize: `${size}px`,
+        fontFamily: 'system-ui, sans-serif',
+        lineHeight: 1
+      }}
     >
-      <rect 
-        x="4" 
-        y="4" 
-        width="32" 
-        height="32" 
-        rx="10" 
-        className="fill-primary"
-      />
-      <text
-        x="20"
-        y="28"
-        textAnchor="middle"
-        className="fill-primary-foreground"
-        style={{
-          fontSize: '24px',
-          fontWeight: 800,
-          fontFamily: 'system-ui, sans-serif'
-        }}
-      >
-        Q
-      </text>
-    </svg>
+      Q
+    </span>
   );
 
   if (animated) {
