@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Check, ChevronRight, Loader2, Share2, Settings, LogOut, 
   BookOpen, Trophy, Target, FileText, Users, Lightbulb,
-  Calendar, Star, X, GraduationCap, Brain, Award
+  Calendar, Star, X, GraduationCap, Brain, Award, AlertTriangle,
+  Sparkles, Clock, TrendingUp, RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -19,236 +20,130 @@ interface Milestone {
   title: string;
   description: string;
   status: "not_started" | "in_progress" | "done";
-  category: string;
-  order: number;
+  category?: string;
+  order?: number;
+  stageId?: string;
+}
+
+interface StageDetails {
+  subjects: string[];
+  exams: string[];
+  skills: string[];
+  projects: string[];
+  weeklyActions: string[];
 }
 
 interface Stage {
   id: string;
-  name: { ru: string; kk: string };
-  period: { ru: string; kk: string };
-  goal: { ru: string; kk: string };
+  name: string;
+  period: string;
+  goal: string;
   icon: React.ReactNode;
   milestones: Milestone[];
-  details: {
-    subjects: { ru: string[]; kk: string[] };
-    exams: { ru: string[]; kk: string[] };
-    skills: { ru: string[]; kk: string[] };
-    projects: { ru: string[]; kk: string[] };
-    weeklyActions: { ru: string[]; kk: string[] };
-  };
+  details: StageDetails;
+}
+
+interface PathData {
+  id: string;
+  grade: string;
+  goal: string;
+  specific_goal: string;
+  exams: string[];
+  target_year: number;
+  milestones: Milestone[];
+  progress_percent: number;
+  current_stage: string;
+  ai_recommendations: string[];
+  ai_warnings: string[];
+  stages?: Stage[];
+  urgentAction?: string;
 }
 
 const translations = {
   ru: {
     title: "Qadam жолы",
-    subtitle: "Твой путь к мечте",
+    subtitle: "Твой персональный путь",
     progress: "Прогресс",
     completed: "выполнено",
-    noPath: "Путь ещё не создан",
-    createPath: "Начать путь",
+    noPath: "План ещё не создан",
+    createPath: "Создать персональный план",
     loading: "Загрузка...",
-    nextStep: "Твой следующий шаг",
-    shareCode: "Поделиться с родителем",
+    generating: "AI создаёт персональный план...",
+    nextStep: "Следующий шаг",
+    shareCode: "Код для родителя",
     codeCopied: "Код скопирован!",
     codeExpires: "Действителен 7 дней",
     settings: "Настройки",
-    subjects: "Предметы",
-    exams: "Экзамены",
-    skills: "Навыки",
+    subjects: "Предметы для изучения",
+    exams: "Экзамены и тесты",
+    skills: "Навыки для развития",
     projects: "Проекты и олимпиады",
-    weeklyActions: "Действия на неделю",
+    weeklyActions: "Действия на эту неделю",
     close: "Закрыть",
     stageComplete: "Этап завершён!",
-    currentStage: "Текущий этап",
+    currentStage: "Сейчас",
     upcomingStage: "Впереди",
-    completedStage: "Завершено",
-    tapToOpen: "Нажми, чтобы открыть",
-    startJourney: "Начни свой путь к поступлению",
-    stepByStep: "Шаг за шагом к цели",
+    completedStage: "Готово",
+    tapToOpen: "Нажми для деталей",
+    startJourney: "Начни путь к мечте",
+    stepByStep: "AI создаст персональный план под твои цели",
+    urgentAction: "Важно сейчас",
+    recommendations: "Рекомендации для тебя",
+    warnings: "На что обратить внимание",
+    yourGoal: "Твоя цель",
+    targetYear: "Поступление",
+    regenerate: "Обновить план",
+    todayIs: "Сегодня",
+    monthsLeft: "мес. до цели",
+    stageGoal: "Цель этапа",
   },
   kk: {
     title: "Qadam жолы",
-    subtitle: "Армандағы жолың",
+    subtitle: "Сенің жеке жолың",
     progress: "Прогресс",
     completed: "орындалды",
-    noPath: "Жол әлі құрылмаған",
-    createPath: "Жолды бастау",
+    noPath: "Жоспар әлі құрылмаған",
+    createPath: "Жеке жоспар құру",
     loading: "Жүктелуде...",
-    nextStep: "Келесі қадамың",
-    shareCode: "Ата-анамен бөлісу",
+    generating: "AI жеке жоспар құруда...",
+    nextStep: "Келесі қадам",
+    shareCode: "Ата-анаға код",
     codeCopied: "Код көшірілді!",
     codeExpires: "7 күн жарамды",
     settings: "Баптаулар",
-    subjects: "Пәндер",
-    exams: "Емтихандар",
-    skills: "Дағдылар",
+    subjects: "Оқитын пәндер",
+    exams: "Емтихандар мен тесттер",
+    skills: "Дамытатын дағдылар",
     projects: "Жобалар мен олимпиадалар",
-    weeklyActions: "Апталық әрекеттер",
+    weeklyActions: "Осы аптаға әрекеттер",
     close: "Жабу",
     stageComplete: "Кезең аяқталды!",
-    currentStage: "Ағымдағы кезең",
+    currentStage: "Қазір",
     upcomingStage: "Алда",
-    completedStage: "Аяқталды",
-    tapToOpen: "Ашу үшін бас",
-    startJourney: "Түсу жолыңды баста",
-    stepByStep: "Мақсатқа қадам-қадам",
+    completedStage: "Дайын",
+    tapToOpen: "Толығырақ үшін бас",
+    startJourney: "Арманға жол баста",
+    stepByStep: "AI сенің мақсаттарыңа жеке жоспар құрады",
+    urgentAction: "Қазір маңызды",
+    recommendations: "Саған ұсыныстар",
+    warnings: "Неге назар аудару керек",
+    yourGoal: "Сенің мақсатың",
+    targetYear: "Түсу",
+    regenerate: "Жоспарды жаңарту",
+    todayIs: "Бүгін",
+    monthsLeft: "ай мақсатқа дейін",
+    stageGoal: "Кезең мақсаты",
   },
 };
 
-// Default stages template
-const defaultStages: Stage[] = [
-  {
-    id: "1",
-    name: { ru: "Подготовка", kk: "Дайындық" },
-    period: { ru: "Сентябрь — Ноябрь", kk: "Қыркүйек — Қараша" },
-    goal: { ru: "Определить цели и начать подготовку к экзаменам", kk: "Мақсаттарды анықтап, емтиханға дайындықты бастау" },
-    icon: <Target className="w-5 h-5" />,
-    milestones: [],
-    details: {
-      subjects: { 
-        ru: ["Английский язык", "Математика", "Профильные предметы"], 
-        kk: ["Ағылшын тілі", "Математика", "Бейіндік пәндер"] 
-      },
-      exams: { 
-        ru: ["IELTS (начать подготовку)", "SAT (изучить формат)"], 
-        kk: ["IELTS (дайындықты бастау)", "SAT (форматты үйрену)"] 
-      },
-      skills: { 
-        ru: ["Тайм-менеджмент", "Академическое письмо"], 
-        kk: ["Уақытты басқару", "Академиялық жазу"] 
-      },
-      projects: { 
-        ru: ["Выбрать олимпиаду по предмету", "Начать волонтёрство"], 
-        kk: ["Пән бойынша олимпиада таңдау", "Волонтерлікті бастау"] 
-      },
-      weeklyActions: { 
-        ru: ["30 мин английского ежедневно", "Решать 5 задач SAT/ACT", "Читать статьи по специальности"], 
-        kk: ["Күнде 30 мин ағылшын", "5 SAT/ACT есеп шығару", "Мамандық бойынша мақалалар оқу"] 
-      },
-    },
-  },
-  {
-    id: "2",
-    name: { ru: "Экзамены", kk: "Емтихандар" },
-    period: { ru: "Декабрь — Февраль", kk: "Желтоқсан — Ақпан" },
-    goal: { ru: "Сдать основные экзамены (IELTS, SAT)", kk: "Негізгі емтихандарды тапсыру (IELTS, SAT)" },
-    icon: <BookOpen className="w-5 h-5" />,
-    milestones: [],
-    details: {
-      subjects: { 
-        ru: ["Интенсивный английский", "Математика для SAT"], 
-        kk: ["Қарқынды ағылшын", "SAT математикасы"] 
-      },
-      exams: { 
-        ru: ["IELTS (цель: 7.0+)", "SAT (цель: 1400+)", "ЕНТ/ОГЭ"], 
-        kk: ["IELTS (мақсат: 7.0+)", "SAT (мақсат: 1400+)", "ҰБТ"] 
-      },
-      skills: { 
-        ru: ["Стресс-менеджмент", "Скорочтение"], 
-        kk: ["Стресс-менеджмент", "Жылдам оқу"] 
-      },
-      projects: { 
-        ru: ["Участие в Infomatrix", "Городская олимпиада"], 
-        kk: ["Infomatrix қатысу", "Қалалық олимпиада"] 
-      },
-      weeklyActions: { 
-        ru: ["Пробный тест раз в неделю", "Анализ ошибок", "Карточки со словами"], 
-        kk: ["Аптасына бір сынақ тест", "Қателерді талдау", "Сөз карточкалары"] 
-      },
-    },
-  },
-  {
-    id: "3",
-    name: { ru: "Эссе", kk: "Эссе" },
-    period: { ru: "Март — Май", kk: "Наурыз — Мамыр" },
-    goal: { ru: "Написать сильные эссе для поступления", kk: "Түсу үшін күшті эссе жазу" },
-    icon: <FileText className="w-5 h-5" />,
-    milestones: [],
-    details: {
-      subjects: { 
-        ru: ["Креативное письмо", "Литература"], 
-        kk: ["Креативті жазу", "Әдебиет"] 
-      },
-      exams: { 
-        ru: ["Пересдача экзаменов (если нужно)"], 
-        kk: ["Емтихандарды қайта тапсыру (қажет болса)"] 
-      },
-      skills: { 
-        ru: ["Сторителлинг", "Самоанализ", "Редактирование"], 
-        kk: ["Сторителлинг", "Өзін-өзі талдау", "Редакциялау"] 
-      },
-      projects: { 
-        ru: ["Республиканская олимпиада", "Личный проект"], 
-        kk: ["Республикалық олимпиада", "Жеке жоба"] 
-      },
-      weeklyActions: { 
-        ru: ["Писать черновики эссе", "Получать обратную связь", "Изучать примеры успешных эссе"], 
-        kk: ["Эссе жобаларын жазу", "Кері байланыс алу", "Табысты эссе үлгілерін оқу"] 
-      },
-    },
-  },
-  {
-    id: "4",
-    name: { ru: "Заявки", kk: "Өтінімдер" },
-    period: { ru: "Июнь — Сентябрь", kk: "Маусым — Қыркүйек" },
-    goal: { ru: "Подать заявки в университеты", kk: "Университеттерге өтінім беру" },
-    icon: <GraduationCap className="w-5 h-5" />,
-    milestones: [],
-    details: {
-      subjects: { 
-        ru: ["Финансовая грамотность"], 
-        kk: ["Қаржылық сауаттылық"] 
-      },
-      exams: { 
-        ru: ["Финальные результаты экзаменов"], 
-        kk: ["Емтихандардың соңғы нәтижелері"] 
-      },
-      skills: { 
-        ru: ["Организованность", "Внимание к деталям"], 
-        kk: ["Ұйымдастырушылық", "Бөлшектерге назар аудару"] 
-      },
-      projects: { 
-        ru: ["Международные олимпиады", "Научные публикации"], 
-        kk: ["Халықаралық олимпиадалар", "Ғылыми жарияланымдар"] 
-      },
-      weeklyActions: { 
-        ru: ["Заполнять формы заявок", "Собирать рекомендации", "Проверять дедлайны"], 
-        kk: ["Өтінім формаларын толтыру", "Ұсыныстар жинау", "Мерзімдерді тексеру"] 
-      },
-    },
-  },
-  {
-    id: "5",
-    name: { ru: "Финиш", kk: "Финиш" },
-    period: { ru: "Октябрь — Декабрь", kk: "Қазан — Желтоқсан" },
-    goal: { ru: "Получить решения и подготовиться к отъезду", kk: "Шешімдер алу және кетуге дайындалу" },
-    icon: <Trophy className="w-5 h-5" />,
-    milestones: [],
-    details: {
-      subjects: { 
-        ru: ["Язык страны обучения"], 
-        kk: ["Оқу елінің тілі"] 
-      },
-      exams: { 
-        ru: ["Завершение всех тестов"], 
-        kk: ["Барлық тесттерді аяқтау"] 
-      },
-      skills: { 
-        ru: ["Независимость", "Межкультурная коммуникация"], 
-        kk: ["Тәуелсіздік", "Мәдениетаралық қарым-қатынас"] 
-      },
-      projects: { 
-        ru: ["Завершить текущие проекты", "Подготовить портфолио"], 
-        kk: ["Ағымдағы жобаларды аяқтау", "Портфолио дайындау"] 
-      },
-      weeklyActions: { 
-        ru: ["Оформить визу", "Найти жильё", "Подготовить документы"], 
-        kk: ["Виза рәсімдеу", "Тұрғын үй табу", "Құжаттарды дайындау"] 
-      },
-    },
-  },
-];
+// Icon mapping for stages
+const stageIcons: Record<string, React.ReactNode> = {
+  "1": <Target className="w-5 h-5" />,
+  "2": <BookOpen className="w-5 h-5" />,
+  "3": <FileText className="w-5 h-5" />,
+  "4": <GraduationCap className="w-5 h-5" />,
+  "5": <Trophy className="w-5 h-5" />,
+};
 
 // Language Switcher Component
 function LanguageSwitcher({ 
@@ -305,11 +200,11 @@ function StageDetailPanel({
     : 0;
 
   const detailSections = [
-    { key: "subjects", icon: <BookOpen className="w-4 h-4" />, label: t.subjects, items: stage.details.subjects[language] },
-    { key: "exams", icon: <Award className="w-4 h-4" />, label: t.exams, items: stage.details.exams[language] },
-    { key: "skills", icon: <Brain className="w-4 h-4" />, label: t.skills, items: stage.details.skills[language] },
-    { key: "projects", icon: <Star className="w-4 h-4" />, label: t.projects, items: stage.details.projects[language] },
-    { key: "weeklyActions", icon: <Calendar className="w-4 h-4" />, label: t.weeklyActions, items: stage.details.weeklyActions[language] },
+    { key: "subjects", icon: <BookOpen className="w-4 h-4" />, label: t.subjects, items: stage.details?.subjects || [] },
+    { key: "exams", icon: <Award className="w-4 h-4" />, label: t.exams, items: stage.details?.exams || [] },
+    { key: "skills", icon: <Brain className="w-4 h-4" />, label: t.skills, items: stage.details?.skills || [] },
+    { key: "projects", icon: <Star className="w-4 h-4" />, label: t.projects, items: stage.details?.projects || [] },
+    { key: "weeklyActions", icon: <Calendar className="w-4 h-4" />, label: t.weeklyActions, items: stage.details?.weeklyActions || [] },
   ];
 
   return (
@@ -329,14 +224,14 @@ function StageDetailPanel({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Panel Header */}
-        <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
               {stage.icon}
             </div>
             <div>
-              <h3 className="font-bold text-foreground">{stage.name[language]}</h3>
-              <p className="text-xs text-muted-foreground">{stage.period[language]}</p>
+              <h3 className="font-bold text-foreground">{stage.name}</h3>
+              <p className="text-xs text-muted-foreground">{stage.period}</p>
             </div>
           </div>
           <button
@@ -354,13 +249,13 @@ function StageDetailPanel({
             <div className="flex items-center gap-2 mb-2">
               <Target className="w-4 h-4 text-primary" />
               <span className="text-xs font-bold text-primary uppercase tracking-wide">
-                {language === "ru" ? "Цель этапа" : "Кезең мақсаты"}
+                {t.stageGoal}
               </span>
             </div>
-            <p className="text-sm text-foreground">{stage.goal[language]}</p>
+            <p className="text-sm text-foreground">{stage.goal}</p>
           </div>
 
-          {/* Progress if has milestones */}
+          {/* Progress */}
           {stage.milestones.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
@@ -390,14 +285,14 @@ function StageDetailPanel({
                     "w-full flex items-start gap-3 p-3 rounded-xl transition-all text-left",
                     milestone.status === "done" 
                       ? "bg-primary/10 border border-primary/20" 
-                      : "bg-muted/50 hover:bg-muted"
+                      : "bg-muted/50 hover:bg-muted border border-transparent"
                   )}
                 >
                   <div className={cn(
-                    "shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5",
+                    "shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5 transition-all",
                     milestone.status === "done"
                       ? "bg-primary text-primary-foreground"
-                      : "border-2 border-border"
+                      : "border-2 border-border hover:border-primary/50"
                   )}>
                     {milestone.status === "done" && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
                   </div>
@@ -418,8 +313,8 @@ function StageDetailPanel({
           )}
 
           {/* Detail Sections */}
-          <div className="space-y-3">
-            {detailSections.map((section) => (
+          <div className="space-y-4">
+            {detailSections.filter(s => s.items.length > 0).map((section) => (
               <div key={section.key} className="space-y-2">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   {section.icon}
@@ -452,7 +347,6 @@ function RoadmapNode({
   status,
   language,
   onClick,
-  isCurrent,
 }: {
   stage: Stage;
   index: number;
@@ -460,7 +354,6 @@ function RoadmapNode({
   status: "completed" | "current" | "upcoming";
   language: Language;
   onClick: () => void;
-  isCurrent: boolean;
 }) {
   const t = translations[language];
   const isLast = index === totalStages - 1;
@@ -512,18 +405,18 @@ function RoadmapNode({
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: index * 0.1 }}
-        whileHover={{ scale: 1.02, x: 4 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: 1.01, x: 4 }}
+        whileTap={{ scale: 0.99 }}
         onClick={onClick}
         className={cn(
           "flex-1 text-left p-4 rounded-2xl border transition-all duration-200 mb-4",
           status === "completed" && "bg-primary/5 border-primary/20",
           status === "current" && "bg-card border-primary shadow-card",
-          status === "upcoming" && "bg-card/50 border-border opacity-70 hover:opacity-100"
+          status === "upcoming" && "bg-card/50 border-border opacity-60 hover:opacity-100"
         )}
       >
         {/* Status Badge */}
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center justify-between mb-2">
           <span className={cn(
             "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider",
             status === "completed" && "bg-primary/10 text-primary",
@@ -532,30 +425,36 @@ function RoadmapNode({
           )}>
             {status === "completed" ? t.completedStage : status === "current" ? t.currentStage : t.upcomingStage}
           </span>
+          
+          {/* Milestone counter */}
+          {stage.milestones.length > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {completedCount}/{stage.milestones.length}
+            </span>
+          )}
         </div>
 
         {/* Stage Info */}
         <h3 className={cn(
-          "font-bold text-lg mb-1",
+          "font-bold text-base mb-1",
           status === "upcoming" ? "text-muted-foreground" : "text-foreground"
         )}>
-          {stage.name[language]}
+          {stage.name}
         </h3>
-        <p className="text-xs text-muted-foreground mb-2">{stage.period[language]}</p>
+        <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+          <Clock className="w-3 h-3" />
+          {stage.period}
+        </p>
         <p className={cn(
-          "text-sm",
+          "text-sm line-clamp-2",
           status === "upcoming" ? "text-muted-foreground" : "text-foreground/80"
         )}>
-          {stage.goal[language]}
+          {stage.goal}
         </p>
 
-        {/* Progress Bar for current/completed */}
+        {/* Progress Bar */}
         {(status === "completed" || status === "current") && stage.milestones.length > 0 && (
           <div className="mt-3">
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-muted-foreground">{t.progress}</span>
-              <span className="font-bold text-primary">{progress}%</span>
-            </div>
             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
@@ -584,12 +483,16 @@ export default function MyPath() {
   const t = translations[language];
 
   const [loading, setLoading] = useState(true);
+  const [regenerating, setRegenerating] = useState(false);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
-  const [stages, setStages] = useState<Stage[]>(defaultStages);
-  const [path, setPath] = useState<{
-    id: string;
-    progress_percent: number;
-  } | null>(null);
+  const [pathData, setPathData] = useState<PathData | null>(null);
+  const [stages, setStages] = useState<Stage[]>([]);
+
+  // Calculate months until target
+  const now = new Date();
+  const monthsLeft = pathData?.target_year 
+    ? Math.max(0, (pathData.target_year - now.getFullYear()) * 12 - now.getMonth())
+    : 0;
 
   useEffect(() => {
     if (user) fetchPath();
@@ -608,22 +511,51 @@ export default function MyPath() {
       
       if (data) {
         const milestones = (data.milestones as unknown as Milestone[]) || [];
+        const aiStages = (data as any).stages as Stage[] | undefined;
         
-        // Distribute milestones to stages based on order
-        const milestonesPerStage = Math.ceil(milestones.length / defaultStages.length);
-        const updatedStages = defaultStages.map((stage, idx) => {
-          const stageStart = idx * milestonesPerStage;
-          const stageEnd = stageStart + milestonesPerStage;
-          return {
+        // If we have AI-generated stages, use them
+        if (aiStages && aiStages.length > 0) {
+          const stagesWithIcons = aiStages.map((stage, idx) => ({
             ...stage,
-            milestones: milestones.slice(stageStart, stageEnd),
-          };
-        });
+            icon: stageIcons[stage.id] || stageIcons[String(idx + 1)] || <Target className="w-5 h-5" />,
+            milestones: stage.milestones || milestones.filter(m => m.stageId === stage.id),
+          }));
+          setStages(stagesWithIcons);
+        } else {
+          // Fallback: distribute milestones across default stages
+          const stageCount = 5;
+          const milestonesPerStage = Math.ceil(milestones.length / stageCount);
+          
+          const defaultStages: Stage[] = [
+            { id: "1", name: language === "ru" ? "Подготовка" : "Дайындық", period: "", goal: "", icon: stageIcons["1"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
+            { id: "2", name: language === "ru" ? "Экзамены" : "Емтихандар", period: "", goal: "", icon: stageIcons["2"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
+            { id: "3", name: language === "ru" ? "Эссе" : "Эссе", period: "", goal: "", icon: stageIcons["3"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
+            { id: "4", name: language === "ru" ? "Заявки" : "Өтінімдер", period: "", goal: "", icon: stageIcons["4"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
+            { id: "5", name: language === "ru" ? "Финиш" : "Финиш", period: "", goal: "", icon: stageIcons["5"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
+          ];
+          
+          defaultStages.forEach((stage, idx) => {
+            const start = idx * milestonesPerStage;
+            const end = start + milestonesPerStage;
+            stage.milestones = milestones.slice(start, end);
+          });
+          
+          setStages(defaultStages);
+        }
         
-        setStages(updatedStages);
-        setPath({
+        setPathData({
           id: data.id,
+          grade: data.grade,
+          goal: data.goal,
+          specific_goal: data.specific_goal || "",
+          exams: data.exams || [],
+          target_year: data.target_year,
+          milestones,
           progress_percent: data.progress_percent,
+          current_stage: data.current_stage || "",
+          ai_recommendations: (data.ai_recommendations as string[]) || [],
+          ai_warnings: (data.ai_warnings as string[]) || [],
+          urgentAction: (data as any).urgentAction,
         });
       }
     } catch (error) {
@@ -634,7 +566,7 @@ export default function MyPath() {
   };
 
   const handleMilestoneToggle = async (milestoneId: string) => {
-    if (!path) return;
+    if (!pathData) return;
 
     // Find and update the milestone
     const updatedStages = stages.map(stage => ({
@@ -647,6 +579,12 @@ export default function MyPath() {
     }));
 
     setStages(updatedStages);
+    
+    // Update selected stage if open
+    if (selectedStage) {
+      const updatedSelected = updatedStages.find(s => s.id === selectedStage.id);
+      if (updatedSelected) setSelectedStage(updatedSelected);
+    }
 
     // Calculate new progress
     const allMilestones = updatedStages.flatMap(s => s.milestones);
@@ -663,9 +601,9 @@ export default function MyPath() {
           milestones: JSON.parse(JSON.stringify(allMilestones)),
           progress_percent: progressPercent,
         })
-        .eq("id", path.id);
+        .eq("id", pathData.id);
 
-      setPath({ ...path, progress_percent: progressPercent });
+      setPathData({ ...pathData, progress_percent: progressPercent, milestones: allMilestones });
     } catch (error) {
       console.error("Error updating milestone:", error);
     }
@@ -673,6 +611,8 @@ export default function MyPath() {
 
   const getStageStatus = (stageIndex: number): "completed" | "current" | "upcoming" => {
     const stage = stages[stageIndex];
+    if (!stage) return "upcoming";
+    
     const completedCount = stage.milestones.filter(m => m.status === "done").length;
     
     if (stage.milestones.length > 0 && completedCount === stage.milestones.length) {
@@ -718,48 +658,56 @@ export default function MyPath() {
   const completedMilestones = stages.flatMap(s => s.milestones).filter(m => m.status === "done").length;
   const overallProgress = totalMilestones > 0 
     ? Math.round((completedMilestones / totalMilestones) * 100) 
-    : 0;
-
-  // Find current stage index
-  const currentStageIndex = stages.findIndex((_, idx) => getStageStatus(idx) === "current");
+    : pathData?.progress_percent || 0;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">{t.loading}</p>
       </div>
     );
   }
 
-  if (!path) {
+  if (!pathData) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-6 max-w-md"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200 }}
-            className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto"
-          >
-            <GraduationCap className="w-12 h-12 text-primary" />
-          </motion.div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">{t.startJourney}</h1>
-            <p className="text-muted-foreground">{t.stepByStep}</p>
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Header */}
+        <header className="bg-card/95 backdrop-blur-sm border-b border-border">
+          <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+            <h1 className="text-xl font-bold text-foreground">{t.title}</h1>
+            <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
           </div>
-          <Button 
-            size="lg"
-            className="h-14 px-8 rounded-2xl font-bold text-lg"
-            onClick={() => navigate("/student-onboarding")}
+        </header>
+        
+        <div className="flex-1 flex flex-col items-center justify-center p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center space-y-6 max-w-md"
           >
-            {t.createPath}
-            <ChevronRight className="w-5 h-5 ml-2" />
-          </Button>
-        </motion.div>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200 }}
+              className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto"
+            >
+              <GraduationCap className="w-12 h-12 text-primary" />
+            </motion.div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground mb-2">{t.startJourney}</h1>
+              <p className="text-muted-foreground">{t.stepByStep}</p>
+            </div>
+            <Button 
+              size="lg"
+              className="h-14 px-8 rounded-2xl font-bold text-lg"
+              onClick={() => navigate("/student-onboarding")}
+            >
+              {t.createPath}
+              <ChevronRight className="w-5 h-5 ml-2" />
+            </Button>
+          </motion.div>
+        </div>
       </div>
     );
   }
@@ -777,13 +725,13 @@ export default function MyPath() {
             <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
             <button
               onClick={() => navigate("/settings")}
-              className="p-2.5 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
+              className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
             >
               <Settings className="w-5 h-5" />
             </button>
             <button
               onClick={handleLogout}
-              className="p-2.5 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
+              className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground"
             >
               <LogOut className="w-5 h-5" />
             </button>
@@ -791,39 +739,118 @@ export default function MyPath() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto p-4 pb-24">
-        {/* Progress Overview */}
+      <main className="max-w-2xl mx-auto p-4 pb-24 space-y-4">
+        {/* Goal & Timeline Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-primary to-accent rounded-3xl p-6 text-primary-foreground shadow-lg mb-6"
+          className="bg-gradient-to-br from-primary to-accent rounded-3xl p-5 text-primary-foreground shadow-lg"
         >
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <span className="text-sm opacity-80">{t.progress}</span>
-              <p className="text-4xl font-bold">{overallProgress}%</p>
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <span className="text-xs opacity-80 uppercase tracking-wide">{t.yourGoal}</span>
+              <p className="text-lg font-bold mt-1 line-clamp-2">
+                {pathData.specific_goal || pathData.goal}
+              </p>
             </div>
             <div className="text-right">
-              <p className="text-sm opacity-80">{t.completed}</p>
-              <p className="text-lg font-semibold">{completedMilestones}/{totalMilestones}</p>
+              <span className="text-xs opacity-80">{t.targetYear}</span>
+              <p className="text-2xl font-bold">{pathData.target_year}</p>
+              <p className="text-xs opacity-80">{monthsLeft} {t.monthsLeft}</p>
             </div>
           </div>
-          <div className="h-3 bg-primary-foreground/20 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${overallProgress}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="h-full bg-primary-foreground rounded-full"
-            />
+          
+          {/* Progress */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="opacity-80">{t.progress}</span>
+              <span className="font-bold">{overallProgress}% {t.completed}</span>
+            </div>
+            <div className="h-3 bg-primary-foreground/20 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${overallProgress}%` }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="h-full bg-primary-foreground rounded-full"
+              />
+            </div>
+            <p className="text-xs opacity-80 text-center">
+              {completedMilestones} / {totalMilestones}
+            </p>
           </div>
         </motion.div>
+
+        {/* Urgent Action */}
+        {pathData.urgentAction && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="bg-warning/10 border border-warning/30 rounded-2xl p-4"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-xl bg-warning/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-4 h-4 text-warning" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-warning uppercase tracking-wide">{t.urgentAction}</span>
+                <p className="text-sm text-foreground mt-1">{pathData.urgentAction}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* AI Recommendations */}
+        {pathData.ai_recommendations && pathData.ai_recommendations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-primary/5 border border-primary/20 rounded-2xl p-4"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Lightbulb className="w-4 h-4 text-primary" />
+              <span className="text-xs font-bold text-primary uppercase tracking-wide">{t.recommendations}</span>
+            </div>
+            <ul className="space-y-2">
+              {pathData.ai_recommendations.slice(0, 3).map((rec, idx) => (
+                <li key={idx} className="flex items-start gap-2 text-sm text-foreground">
+                  <TrendingUp className="w-3 h-3 text-primary mt-1 shrink-0" />
+                  <span>{rec}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+
+        {/* AI Warnings */}
+        {pathData.ai_warnings && pathData.ai_warnings.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="w-4 h-4 text-destructive" />
+              <span className="text-xs font-bold text-destructive uppercase tracking-wide">{t.warnings}</span>
+            </div>
+            <ul className="space-y-2">
+              {pathData.ai_warnings.slice(0, 2).map((warn, idx) => (
+                <li key={idx} className="flex items-start gap-2 text-sm text-foreground">
+                  <span className="text-destructive">•</span>
+                  <span>{warn}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
 
         {/* Share Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6"
+          transition={{ delay: 0.2 }}
         >
           <Button
             variant="outline"
@@ -839,17 +866,9 @@ export default function MyPath() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="relative"
+          transition={{ delay: 0.25 }}
+          className="relative pt-4"
         >
-          {/* Path Drawing Animation Background */}
-          <motion.div
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
-            className="absolute left-7 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/50 to-transparent opacity-20 rounded-full"
-          />
-
           {/* Roadmap Nodes */}
           <div className="space-y-0">
             {stages.map((stage, index) => (
@@ -861,7 +880,6 @@ export default function MyPath() {
                 status={getStageStatus(index)}
                 language={language}
                 onClick={() => setSelectedStage(stage)}
-                isCurrent={getStageStatus(index) === "current"}
               />
             ))}
           </div>
