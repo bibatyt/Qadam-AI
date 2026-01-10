@@ -419,132 +419,210 @@ function JourneyNode({
   
   const completedCount = stage.milestones.filter(m => m.status === "done").length;
   const totalMilestones = stage.milestones.length;
+  const progress = totalMilestones > 0 ? completedCount / totalMilestones : 0;
 
   return (
     <div className={cn(
-      "relative flex items-start",
+      "relative flex items-center",
       isEven ? "justify-start" : "justify-end",
-      !isLast && "pb-4"
+      !isLast && "pb-8"
     )}>
-      {/* Curved Path SVG */}
+      {/* Animated Curved Path SVG */}
       {!isLast && (
         <svg
-          className="absolute w-full h-full pointer-events-none"
-          style={{ top: 0, left: 0 }}
-          preserveAspectRatio="none"
+          className="absolute w-full pointer-events-none overflow-visible"
+          style={{ top: 50, left: 0, height: 120 }}
+          viewBox="0 0 360 120"
+          preserveAspectRatio="xMidYMid meet"
         >
+          {/* Shadow/glow layer */}
           <motion.path
             d={isEven 
-              ? `M ${80} ${60} Q ${200} ${100} ${window.innerWidth > 400 ? 280 : 240} ${160}`
-              : `M ${window.innerWidth > 400 ? 280 : 240} ${60} Q ${160} ${100} ${80} ${160}`
+              ? "M 80 20 Q 180 60 280 100"
+              : "M 280 20 Q 180 60 80 100"
+            }
+            fill="none"
+            stroke={status === "completed" ? "hsl(var(--primary))" : "transparent"}
+            strokeWidth="12"
+            strokeLinecap="round"
+            opacity={0.2}
+            filter="blur(8px)"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 1.2, delay: index * 0.2, ease: "easeOut" }}
+          />
+          {/* Main path */}
+          <motion.path
+            d={isEven 
+              ? "M 80 20 Q 180 60 280 100"
+              : "M 280 20 Q 180 60 80 100"
             }
             fill="none"
             stroke={status === "completed" ? "hsl(var(--primary))" : "hsl(var(--muted))"}
             strokeWidth="6"
             strokeLinecap="round"
             strokeDasharray={status === "completed" ? "0" : "12 8"}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.8, delay: index * 0.15 }}
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 1, delay: index * 0.2, ease: "easeOut" }}
           />
+          {/* Animated dot along path for current stage */}
+          {status === "current" && (
+            <motion.circle
+              r="4"
+              fill="hsl(var(--primary))"
+              initial={{ offsetDistance: "0%" }}
+              animate={{ offsetDistance: "100%" }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              style={{
+                offsetPath: `path("${isEven ? "M 80 20 Q 180 60 280 100" : "M 280 20 Q 180 60 80 100"}")`,
+              }}
+            />
+          )}
         </svg>
       )}
 
       {/* Node Container */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.5, y: 20 }}
+        initial={{ opacity: 0, scale: 0.3, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ 
           type: "spring",
-          stiffness: 300,
+          stiffness: 260,
           damping: 20,
-          delay: index * 0.1 
+          delay: index * 0.15 
         }}
         className={cn(
           "relative z-10 flex flex-col items-center",
           isEven ? "ml-8" : "mr-8"
         )}
       >
-        {/* Current Stage Indicator */}
+        {/* Current Stage Floating Badge */}
         {status === "current" && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold whitespace-nowrap shadow-lg"
+            initial={{ opacity: 0, y: -15, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: "spring", delay: index * 0.15 + 0.3 }}
+            className="absolute -top-12 left-1/2 -translate-x-1/2"
           >
-            <MapPin className="w-3 h-3" />
-            {t.currentStage}
+            <motion.div
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground text-xs font-bold whitespace-nowrap shadow-lg"
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              {t.currentStage}
+            </motion.div>
+            {/* Arrow pointer */}
+            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rotate-45" />
           </motion.div>
+        )}
+
+        {/* Outer glow ring for current */}
+        {status === "current" && (
+          <>
+            <motion.div
+              className="absolute inset-0 w-24 h-24 -m-2 rounded-full"
+              style={{
+                background: "radial-gradient(circle, hsl(var(--primary) / 0.3) 0%, transparent 70%)",
+              }}
+              animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute inset-0 w-24 h-24 -m-2 rounded-full border-2 border-primary/40"
+              animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0, 0.6] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </>
         )}
 
         {/* Main Node Button */}
         <motion.button
-          whileHover={{ scale: status !== "locked" ? 1.08 : 1 }}
-          whileTap={{ scale: status !== "locked" ? 0.95 : 1 }}
+          whileHover={{ scale: status !== "locked" ? 1.1 : 1 }}
+          whileTap={{ scale: status !== "locked" ? 0.92 : 1 }}
           onClick={onClick}
           className={cn(
-            "relative w-20 h-20 rounded-full flex items-center justify-center shadow-xl transition-all duration-300",
-            status === "completed" && "bg-gradient-to-br from-green-400 to-green-600 text-white",
-            status === "current" && "bg-gradient-to-br from-primary to-accent text-white ring-4 ring-primary/30",
-            status === "locked" && "bg-gradient-to-br from-gray-300 to-gray-400 text-gray-500 dark:from-gray-600 dark:to-gray-700"
+            "relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300",
+            status === "completed" && "bg-gradient-to-br from-green-400 to-emerald-600 text-white shadow-lg shadow-green-500/30",
+            status === "current" && "bg-gradient-to-br from-primary via-primary to-accent text-white shadow-xl shadow-primary/40",
+            status === "locked" && "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-400 dark:from-gray-700 dark:to-gray-800 dark:text-gray-500"
           )}
         >
-          {/* Pulse animation for current */}
+          {/* Spinning gradient border for current */}
           {status === "current" && (
             <motion.div
-              className="absolute inset-0 rounded-full bg-primary/30"
-              animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute -inset-1 rounded-full opacity-75"
+              style={{
+                background: "conic-gradient(from 0deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)))",
+              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
             />
           )}
           
-          {/* Icon */}
-          {status === "completed" ? (
-            <Check className="w-10 h-10" strokeWidth={3} />
-          ) : status === "locked" ? (
-            <Lock className="w-8 h-8" />
-          ) : (
-            <div className="relative">
-              {stage.icon}
-              {/* Progress ring for current */}
-              <svg className="absolute -inset-5 w-[70px] h-[70px]">
-                <circle
-                  cx="35"
-                  cy="35"
-                  r="32"
-                  fill="none"
-                  stroke="rgba(255,255,255,0.2)"
-                  strokeWidth="4"
-                />
-                <motion.circle
-                  cx="35"
-                  cy="35"
-                  r="32"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeDasharray={201}
-                  strokeDashoffset={201 - (201 * (completedCount / Math.max(totalMilestones, 1)))}
-                  initial={{ strokeDashoffset: 201 }}
-                  animate={{ strokeDashoffset: 201 - (201 * (completedCount / Math.max(totalMilestones, 1))) }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                  style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
-                />
-              </svg>
-            </div>
+          {/* Inner circle */}
+          <div className={cn(
+            "absolute inset-1 rounded-full",
+            status === "completed" && "bg-gradient-to-br from-green-400 to-emerald-600",
+            status === "current" && "bg-gradient-to-br from-primary to-accent",
+            status === "locked" && "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800"
+          )} />
+          
+          {/* Icon content */}
+          <div className="relative z-10">
+            {status === "completed" ? (
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", delay: 0.2 }}
+              >
+                <Check className="w-10 h-10" strokeWidth={3} />
+              </motion.div>
+            ) : status === "locked" ? (
+              <Lock className="w-7 h-7" />
+            ) : (
+              <div className="relative">
+                {stage.icon}
+              </div>
+            )}
+          </div>
+
+          {/* Progress ring for current stage */}
+          {status === "current" && totalMilestones > 0 && (
+            <svg className="absolute -inset-2 w-24 h-24">
+              <circle
+                cx="48"
+                cy="48"
+                r="44"
+                fill="none"
+                stroke="rgba(255,255,255,0.15)"
+                strokeWidth="4"
+              />
+              <motion.circle
+                cx="48"
+                cy="48"
+                r="44"
+                fill="none"
+                stroke="white"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray={276}
+                initial={{ strokeDashoffset: 276 }}
+                animate={{ strokeDashoffset: 276 - (276 * progress) }}
+                transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+                style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
+              />
+            </svg>
           )}
         </motion.button>
 
         {/* Stage Name & Info */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 + 0.2 }}
-          className={cn(
-            "mt-3 text-center max-w-[140px]",
-            isEven ? "items-start" : "items-end"
-          )}
+          transition={{ delay: index * 0.15 + 0.25 }}
+          className="mt-3 text-center max-w-[140px]"
         >
           <h3 className={cn(
             "font-bold text-sm leading-tight",
@@ -554,17 +632,22 @@ function JourneyNode({
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">{stage.period}</p>
           
-          {/* Milestone counter */}
+          {/* Milestone counter badge */}
           {totalMilestones > 0 && status !== "locked" && (
-            <div className={cn(
-              "inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
-              status === "completed" 
-                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
-                : "bg-primary/10 text-primary"
-            )}>
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", delay: index * 0.15 + 0.4 }}
+              className={cn(
+                "inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm",
+                status === "completed" 
+                  ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" 
+                  : "bg-primary/15 text-primary"
+              )}
+            >
               <Check className="w-3 h-3" />
               {completedCount}/{totalMilestones}
-            </div>
+            </motion.div>
           )}
         </motion.div>
       </motion.div>
@@ -967,6 +1050,16 @@ export default function MyPath() {
 
         {/* Duolingo-style Journey Path */}
         <div className="relative">
+          {/* Animated background path glow */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 pointer-events-none"
+          >
+            <div className="absolute left-1/2 top-0 bottom-0 w-1 -translate-x-1/2 bg-gradient-to-b from-primary/20 via-primary/10 to-transparent blur-xl" />
+          </motion.div>
+
           {stages.map((stage, index) => (
             <JourneyNode
               key={stage.id}
@@ -983,11 +1076,101 @@ export default function MyPath() {
           ))}
         </div>
 
+        {/* AI Recommendations Section */}
+        {pathData.ai_recommendations && pathData.ai_recommendations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-8 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl p-5 shadow-sm"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.5 }}
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg"
+              >
+                <Lightbulb className="w-5 h-5 text-white" />
+              </motion.div>
+              <h3 className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
+                {t.recommendations}
+              </h3>
+            </div>
+            <ul className="space-y-3">
+              {pathData.ai_recommendations.map((rec, idx) => (
+                <motion.li 
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + idx * 0.1 }}
+                  className="flex items-start gap-3 text-sm"
+                >
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", delay: 0.6 + idx * 0.1 }}
+                    className="shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center mt-0.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  </motion.div>
+                  <span className="text-foreground/90 leading-relaxed">{rec}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+
+        {/* AI Warnings Section */}
+        {pathData.ai_warnings && pathData.ai_warnings.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 shadow-sm"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.6 }}
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg"
+              >
+                <AlertTriangle className="w-5 h-5 text-white" />
+              </motion.div>
+              <h3 className="text-lg font-bold text-amber-700 dark:text-amber-300">
+                {t.warnings}
+              </h3>
+            </div>
+            <ul className="space-y-3">
+              {pathData.ai_warnings.map((warning, idx) => (
+                <motion.li 
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 + idx * 0.1 }}
+                  className="flex items-start gap-3 text-sm"
+                >
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", delay: 0.7 + idx * 0.1 }}
+                    className="shrink-0 w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center mt-0.5"
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  </motion.div>
+                  <span className="text-foreground/90 leading-relaxed">{warning}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+
         {/* Bottom Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.6 }}
           className="mt-10 space-y-3"
         >
           <Button
