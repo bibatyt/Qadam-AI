@@ -266,28 +266,38 @@ export default function StudentOnboarding() {
             specialty,
             needScholarship,
             specificGoal,
+            targetUniversity: specificGoal, // Use specificGoal as target university
           } 
         }
       );
 
       if (pathError) throw pathError;
 
-      // Calculate expected progress based on AI response
-      const expectedProgress = pathData.expectedProgressByMonth?.["1"] || 5;
-
+      // Check if we got Qadam AI format (new) or old format
+      const isQadamFormat = pathData?.goalDefinition !== undefined;
+      
+      // Save the entire Qadam AI response in milestones field (as JSON)
+      // This preserves all 7 steps of the Qadam methodology
       const { error: saveError } = await supabase.from("student_paths").insert({
         user_id: user.id,
         grade,
         goal,
         exams,
         target_year: targetYear,
-        milestones: pathData.milestones || [],
-        current_stage: pathData.currentStage || "",
-        progress_percent: 0,
+        // Store entire Qadam AI response for the new UI
+        milestones: isQadamFormat ? pathData : (pathData.milestones || []),
+        current_stage: isQadamFormat 
+          ? pathData.currentPhase?.phaseName || ""
+          : (pathData.currentStage || ""),
+        progress_percent: pathData.progressPercent || 0,
         specific_goal: specificGoal,
-        ai_recommendations: pathData.recommendations || [],
-        ai_warnings: pathData.warnings || [],
-        expected_progress_percent: expectedProgress,
+        ai_recommendations: isQadamFormat 
+          ? [] // Recommendations are now embedded in Qadam format
+          : (pathData.recommendations || []),
+        ai_warnings: isQadamFormat 
+          ? [] 
+          : (pathData.warnings || []),
+        expected_progress_percent: pathData.progressPercent || 5,
       });
 
       if (saveError) throw saveError;
