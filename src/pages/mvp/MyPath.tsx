@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
-  Check, ChevronRight, Loader2, Share2, Settings, LogOut, 
+  Check, ChevronRight, Loader2, Share2, Settings, 
   BookOpen, Trophy, Target, FileText, Users, Lightbulb,
-  Calendar, Star, X, GraduationCap, Brain, Award, AlertTriangle,
-  Sparkles, Clock, TrendingUp, RefreshCw, Lock, Zap, MapPin
+  Calendar, Star, GraduationCap, Brain, Award, 
+  Sparkles, Clock, TrendingUp, RefreshCw, Zap, 
+  Rocket, Flame, Lock, Unlock, ArrowRight, CheckCircle2,
+  AlertCircle, Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -15,144 +17,209 @@ import { cn } from "@/lib/utils";
 
 type Language = "ru" | "kk";
 
-interface Milestone {
-  id: string;
-  title: string;
-  description: string;
-  status: "not_started" | "in_progress" | "done";
-  category?: string;
-  order?: number;
-  stageId?: string;
+interface AcademicSnapshot {
+  gpa: string;
+  ielts: string;
+  sat: string;
+  ent: string;
 }
 
-interface StageDetails {
-  subjects: string[];
-  exams: string[];
-  skills: string[];
-  projects: string[];
-  weeklyActions: string[];
+interface GoalDefinition {
+  targetUniversity: string;
+  goal: string;
+  intendedMajor: string;
+  applicationCycle: string;
+  scholarshipGoal: string;
+  academicSnapshot: AcademicSnapshot;
 }
 
-interface Stage {
+interface StrategyPillar {
   id: string;
   name: string;
-  period: string;
-  goal: string;
-  icon: React.ReactNode;
-  milestones: Milestone[];
-  details: StageDetails;
+  description: string;
+  icon: string;
 }
 
-interface PathData {
+interface CurrentPhase {
+  phase: "foundation" | "differentiation" | "application";
+  phaseName: string;
+  explanation: string;
+}
+
+interface MonthFocus {
+  objective: string;
+  month: string;
+  whyItMatters: string;
+}
+
+interface HighImpactAction {
   id: string;
-  grade: string;
-  goal: string;
-  specific_goal: string;
-  exams: string[];
-  target_year: number;
-  milestones: Milestone[];
-  progress_percent: number;
-  current_stage: string;
-  ai_recommendations: string[];
-  ai_warnings: string[];
-  stages?: Stage[];
-  urgentAction?: string;
+  description: string;
+  impact: "high" | "medium" | "low";
+  impactLabel: string;
+  whyNow: string;
+  deadline: string;
+  completed?: boolean;
+}
+
+interface SuccessMetric {
+  condition: string;
+  examples: string[];
+}
+
+interface NextTrigger {
+  trigger: string;
+  unlocksPhase: string;
+}
+
+interface QadamPathData {
+  id?: string;
+  goalDefinition: GoalDefinition;
+  strategy: { pillars: StrategyPillar[] };
+  currentPhase: CurrentPhase;
+  thisMonthFocus: MonthFocus;
+  highImpactActions: HighImpactAction[];
+  successMetric: SuccessMetric;
+  nextTrigger: NextTrigger;
+  progressPercent: number;
 }
 
 const translations = {
   ru: {
-    title: "Qadam жолы",
-    subtitle: "Твой путь к мечте",
-    progress: "Прогресс",
-    completed: "выполнено",
-    noPath: "План ещё не создан",
-    createPath: "Начать путешествие",
+    title: "Qadam AI",
+    subtitle: "Твой стратег поступления",
     loading: "Загрузка...",
-    generating: "AI создаёт персональный план...",
-    nextStep: "Следующий шаг",
+    generating: "AI создаёт стратегию...",
+    noPath: "Стратегия ещё не создана",
+    createPath: "Начать с AI",
+    startJourney: "Создай свою стратегию",
+    stepByStep: "Qadam AI построит персональный план поступления",
+    
+    // Step 1
+    goalTitle: "Цель",
+    targetUni: "Целевой университет",
+    major: "Специальность",
+    cycle: "Цикл подачи",
+    scholarship: "Стипендия",
+    
+    // Step 2
+    strategyTitle: "Стратегия",
+    pillars: "Ключевые направления",
+    
+    // Step 3
+    phaseTitle: "Текущая фаза",
+    foundation: "Фаза 1: Фундамент",
+    differentiation: "Фаза 2: Дифференциация",
+    application: "Фаза 3: Подача",
+    
+    // Step 4
+    focusTitle: "Фокус месяца",
+    whyMatters: "Почему это важно",
+    
+    // Step 5
+    actionsTitle: "Ключевые действия",
+    highImpact: "Обязательно для поступления",
+    mediumImpact: "Усиливает профиль",
+    lowImpact: "Опционально",
+    whyNow: "Почему сейчас",
+    deadline: "Дедлайн",
+    markDone: "Выполнено",
+    
+    // Step 6
+    metricTitle: "Метрика успеха",
+    examples: "Примеры",
+    
+    // Step 7
+    triggerTitle: "Следующий этап",
+    unlocks: "Разблокирует",
+    
+    // Actions
+    regenerate: "Обновить с AI",
     shareCode: "Код для родителя",
     codeCopied: "Код скопирован!",
     codeExpires: "Действителен 7 дней",
+    progress: "Прогресс",
     settings: "Настройки",
-    subjects: "Предметы",
-    exams: "Экзамены",
-    skills: "Навыки",
-    projects: "Проекты",
-    weeklyActions: "На этой неделе",
-    close: "Закрыть",
-    stageComplete: "Этап завершён!",
-    currentStage: "Ты здесь",
-    upcomingStage: "Впереди",
-    completedStage: "Пройдено",
-    lockedStage: "Закрыто",
-    tapToOpen: "Нажми для деталей",
-    startJourney: "Начни свой путь",
-    stepByStep: "AI создаст персональный план под твои цели",
-    urgentAction: "Важно сейчас",
-    recommendations: "Рекомендации",
-    warnings: "Обрати внимание",
-    yourGoal: "Цель",
-    targetYear: "Поступление",
-    regenerate: "Обновить с AI",
-    todaysFocus: "Фокус сегодня",
-    stageGoal: "Цель этапа",
-    journeyProgress: "Твоё путешествие",
-    stagesCompleted: "этапов пройдено",
-    keepGoing: "Продолжай!",
-    almostThere: "Почти у цели!",
-    greatStart: "Отличное начало!",
   },
   kk: {
-    title: "Qadam жолы",
-    subtitle: "Арманға жолың",
-    progress: "Прогресс",
-    completed: "орындалды",
-    noPath: "Жоспар әлі құрылмаған",
-    createPath: "Саяхатты бастау",
+    title: "Qadam AI",
+    subtitle: "Түсу стратегиясы",
     loading: "Жүктелуде...",
-    generating: "AI жеке жоспар құруда...",
-    nextStep: "Келесі қадам",
+    generating: "AI стратегия құруда...",
+    noPath: "Стратегия әлі құрылмаған",
+    createPath: "AI-мен бастау",
+    startJourney: "Стратегияңды құр",
+    stepByStep: "Qadam AI жеке түсу жоспарын құрады",
+    
+    // Step 1
+    goalTitle: "Мақсат",
+    targetUni: "Мақсатты университет",
+    major: "Мамандық",
+    cycle: "Өтініш циклі",
+    scholarship: "Стипендия",
+    
+    // Step 2
+    strategyTitle: "Стратегия",
+    pillars: "Негізгі бағыттар",
+    
+    // Step 3
+    phaseTitle: "Ағымдағы фаза",
+    foundation: "Фаза 1: Негіз",
+    differentiation: "Фаза 2: Дифференциация",
+    application: "Фаза 3: Өтініш",
+    
+    // Step 4
+    focusTitle: "Ай фокусы",
+    whyMatters: "Неге маңызды",
+    
+    // Step 5
+    actionsTitle: "Негізгі әрекеттер",
+    highImpact: "Түсу үшін міндетті",
+    mediumImpact: "Профильді күшейтеді",
+    lowImpact: "Қосымша",
+    whyNow: "Неге қазір",
+    deadline: "Дедлайн",
+    markDone: "Орындалды",
+    
+    // Step 6
+    metricTitle: "Табыс метрикасы",
+    examples: "Мысалдар",
+    
+    // Step 7
+    triggerTitle: "Келесі кезең",
+    unlocks: "Ашады",
+    
+    // Actions
+    regenerate: "AI-мен жаңарту",
     shareCode: "Ата-анаға код",
     codeCopied: "Код көшірілді!",
     codeExpires: "7 күн жарамды",
+    progress: "Прогресс",
     settings: "Баптаулар",
-    subjects: "Пәндер",
-    exams: "Емтихандар",
-    skills: "Дағдылар",
-    projects: "Жобалар",
-    weeklyActions: "Осы аптада",
-    close: "Жабу",
-    stageComplete: "Кезең аяқталды!",
-    currentStage: "Сен мұндасың",
-    upcomingStage: "Алда",
-    completedStage: "Өтті",
-    lockedStage: "Жабық",
-    tapToOpen: "Толығырақ үшін бас",
-    startJourney: "Жолыңды баста",
-    stepByStep: "AI сенің мақсаттарыңа жеке жоспар құрады",
-    urgentAction: "Қазір маңызды",
-    recommendations: "Ұсыныстар",
-    warnings: "Назар аудар",
-    yourGoal: "Мақсат",
-    targetYear: "Түсу",
-    regenerate: "AI-мен жаңарту",
-    todaysFocus: "Бүгінгі фокус",
-    stageGoal: "Кезең мақсаты",
-    journeyProgress: "Сенің саяхатың",
-    stagesCompleted: "кезең өтті",
-    keepGoing: "Жалғастыр!",
-    almostThere: "Мақсат жақын!",
-    greatStart: "Керемет бастама!",
   },
 };
 
-// Icon mapping for stages
-const stageIcons: Record<string, React.ReactNode> = {
-  "1": <Target className="w-6 h-6" />,
-  "2": <BookOpen className="w-6 h-6" />,
-  "3": <FileText className="w-6 h-6" />,
-  "4": <GraduationCap className="w-6 h-6" />,
-  "5": <Trophy className="w-6 h-6" />,
+// Icon mapping for pillars
+const pillarIcons: Record<string, React.ReactNode> = {
+  academics: <BookOpen className="w-5 h-5" />,
+  english: <FileText className="w-5 h-5" />,
+  spike: <Rocket className="w-5 h-5" />,
+  research: <Brain className="w-5 h-5" />,
+  narrative: <Sparkles className="w-5 h-5" />,
+  leadership: <Users className="w-5 h-5" />,
+};
+
+// Phase colors
+const phaseColors = {
+  foundation: "from-blue-500 to-indigo-600",
+  differentiation: "from-purple-500 to-pink-600",
+  application: "from-emerald-500 to-teal-600",
+};
+
+const phaseIcons = {
+  foundation: <Target className="w-6 h-6" />,
+  differentiation: <Flame className="w-6 h-6" />,
+  application: <GraduationCap className="w-6 h-6" />,
 };
 
 // Language Switcher Component
@@ -191,498 +258,328 @@ function LanguageSwitcher({
   );
 }
 
-// Stage Detail Bottom Sheet
-function StageDetailSheet({
-  stage,
-  language,
-  onClose,
-  onMilestoneToggle,
-  status,
-}: {
-  stage: Stage;
-  language: Language;
-  onClose: () => void;
-  onMilestoneToggle: (milestoneId: string) => void;
-  status: "completed" | "current" | "locked";
-}) {
-  const t = translations[language];
-  const completedCount = stage.milestones.filter(m => m.status === "done").length;
-  const progress = stage.milestones.length > 0 
-    ? Math.round((completedCount / stage.milestones.length) * 100) 
-    : 0;
-
-  const detailSections = [
-    { key: "subjects", icon: <BookOpen className="w-4 h-4" />, label: t.subjects, items: stage.details?.subjects || [], color: "bg-blue-500" },
-    { key: "exams", icon: <Award className="w-4 h-4" />, label: t.exams, items: stage.details?.exams || [], color: "bg-orange-500" },
-    { key: "skills", icon: <Brain className="w-4 h-4" />, label: t.skills, items: stage.details?.skills || [], color: "bg-purple-500" },
-    { key: "projects", icon: <Star className="w-4 h-4" />, label: t.projects, items: stage.details?.projects || [], color: "bg-yellow-500" },
-    { key: "weeklyActions", icon: <Zap className="w-4 h-4" />, label: t.weeklyActions, items: stage.details?.weeklyActions || [], color: "bg-green-500" },
-  ];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={{ type: "spring", damping: 28, stiffness: 350 }}
-        className="bg-background w-full max-w-lg max-h-[85vh] rounded-t-[32px] overflow-hidden shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Handle */}
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-12 h-1.5 rounded-full bg-muted-foreground/30" />
-        </div>
-
-        {/* Header */}
-        <div className="px-6 pb-4 border-b border-border">
-          <div className="flex items-center gap-4">
-            <motion.div 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", delay: 0.1 }}
-              className={cn(
-                "w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-lg",
-                status === "completed" ? "bg-gradient-to-br from-green-400 to-green-600" :
-                status === "current" ? "bg-gradient-to-br from-primary to-accent" :
-                "bg-gradient-to-br from-gray-400 to-gray-500"
-              )}
-            >
-              {status === "completed" ? <Check className="w-8 h-8" strokeWidth={3} /> : stage.icon}
-            </motion.div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-foreground">{stage.name}</h3>
-              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                <Clock className="w-3.5 h-3.5" />
-                {stage.period}
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
-            >
-              <X className="w-5 h-5 text-muted-foreground" />
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(85vh-140px)] p-6 space-y-5">
-          {/* Goal Card */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-4"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="w-4 h-4 text-primary" />
-              <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                {t.stageGoal}
-              </span>
-            </div>
-            <p className="text-foreground font-medium">{stage.goal}</p>
-          </motion.div>
-
-          {/* Progress */}
-          {stage.milestones.length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="space-y-2"
-            >
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground font-medium">{t.progress}</span>
-                <span className="font-bold text-primary">{progress}%</span>
-              </div>
-              <div className="h-3 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-                />
-              </div>
-            </motion.div>
-          )}
-
-          {/* Milestones as Checklist */}
-          {stage.milestones.length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-2"
-            >
-              {stage.milestones.map((milestone, idx) => (
-                <motion.button
-                  key={milestone.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.25 + idx * 0.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => status !== "locked" && onMilestoneToggle(milestone.id)}
-                  disabled={status === "locked"}
-                  className={cn(
-                    "w-full flex items-center gap-3 p-4 rounded-xl transition-all text-left",
-                    milestone.status === "done" 
-                      ? "bg-green-500/10 border-2 border-green-500/30" 
-                      : "bg-muted/50 hover:bg-muted border-2 border-transparent",
-                    status === "locked" && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  <div className={cn(
-                    "shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all",
-                    milestone.status === "done"
-                      ? "bg-green-500 text-white"
-                      : "border-2 border-muted-foreground/30"
-                  )}>
-                    {milestone.status === "done" && <Check className="w-4 h-4" strokeWidth={3} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={cn(
-                      "font-medium",
-                      milestone.status === "done" ? "text-muted-foreground line-through" : "text-foreground"
-                    )}>
-                      {milestone.title}
-                    </p>
-                    {milestone.description && (
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{milestone.description}</p>
-                    )}
-                  </div>
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
-
-          {/* Detail Sections */}
-          <div className="space-y-4 pt-2">
-            {detailSections.filter(s => s.items.length > 0).map((section, idx) => (
-              <motion.div 
-                key={section.key}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + idx * 0.05 }}
-                className="space-y-3"
-              >
-                <div className="flex items-center gap-2">
-                  <div className={cn("w-6 h-6 rounded-lg flex items-center justify-center text-white", section.color)}>
-                    {section.icon}
-                  </div>
-                  <span className="text-sm font-bold text-foreground">{section.label}</span>
-                </div>
-                <div className="flex flex-wrap gap-2 pl-8">
-                  {section.items.map((item, i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1.5 bg-muted text-foreground text-sm font-medium rounded-full"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// Duolingo-style Journey Node
-function JourneyNode({
-  stage,
-  index,
-  totalStages,
-  status,
-  language,
-  onClick,
-}: {
-  stage: Stage;
-  index: number;
-  totalStages: number;
-  status: "completed" | "current" | "locked";
-  language: Language;
-  onClick: () => void;
-}) {
-  const t = translations[language];
-  const isLast = index === totalStages - 1;
-  const isEven = index % 2 === 0;
-  
-  const completedCount = stage.milestones.filter(m => m.status === "done").length;
-  const totalMilestones = stage.milestones.length;
-  const progress = totalMilestones > 0 ? completedCount / totalMilestones : 0;
-
-  return (
-    <div className={cn(
-      "relative flex items-center",
-      isEven ? "justify-start" : "justify-end",
-      !isLast && "pb-8"
-    )}>
-      {/* Animated Curved Path SVG */}
-      {!isLast && (
-        <svg
-          className="absolute w-full pointer-events-none overflow-visible"
-          style={{ top: 50, left: 0, height: 120 }}
-          viewBox="0 0 360 120"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          {/* Shadow/glow layer */}
-          <motion.path
-            d={isEven 
-              ? "M 80 20 Q 180 60 280 100"
-              : "M 280 20 Q 180 60 80 100"
-            }
-            fill="none"
-            stroke={status === "completed" ? "hsl(var(--primary))" : "transparent"}
-            strokeWidth="12"
-            strokeLinecap="round"
-            opacity={0.2}
-            filter="blur(8px)"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1.2, delay: index * 0.2, ease: "easeOut" }}
-          />
-          {/* Main path */}
-          <motion.path
-            d={isEven 
-              ? "M 80 20 Q 180 60 280 100"
-              : "M 280 20 Q 180 60 80 100"
-            }
-            fill="none"
-            stroke={status === "completed" ? "hsl(var(--primary))" : "hsl(var(--muted))"}
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeDasharray={status === "completed" ? "0" : "12 8"}
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 1, delay: index * 0.2, ease: "easeOut" }}
-          />
-          {/* Animated dot along path for current stage */}
-          {status === "current" && (
-            <motion.circle
-              r="4"
-              fill="hsl(var(--primary))"
-              initial={{ offsetDistance: "0%" }}
-              animate={{ offsetDistance: "100%" }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              style={{
-                offsetPath: `path("${isEven ? "M 80 20 Q 180 60 280 100" : "M 280 20 Q 180 60 80 100"}")`,
-              }}
-            />
-          )}
-        </svg>
-      )}
-
-      {/* Node Container */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.3, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ 
-          type: "spring",
-          stiffness: 260,
-          damping: 20,
-          delay: index * 0.15 
-        }}
-        className={cn(
-          "relative z-10 flex flex-col items-center",
-          isEven ? "ml-8" : "mr-8"
-        )}
-      >
-        {/* Current Stage Floating Badge */}
-        {status === "current" && (
-          <motion.div
-            initial={{ opacity: 0, y: -15, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: "spring", delay: index * 0.15 + 0.3 }}
-            className="absolute -top-12 left-1/2 -translate-x-1/2"
-          >
-            <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground text-xs font-bold whitespace-nowrap shadow-lg"
-            >
-              <MapPin className="w-3.5 h-3.5" />
-              {t.currentStage}
-            </motion.div>
-            {/* Arrow pointer */}
-            <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rotate-45" />
-          </motion.div>
-        )}
-
-        {/* Outer glow ring for current */}
-        {status === "current" && (
-          <>
-            <motion.div
-              className="absolute inset-0 w-24 h-24 -m-2 rounded-full"
-              style={{
-                background: "radial-gradient(circle, hsl(var(--primary) / 0.3) 0%, transparent 70%)",
-              }}
-              animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute inset-0 w-24 h-24 -m-2 rounded-full border-2 border-primary/40"
-              animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0, 0.6] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </>
-        )}
-
-        {/* Main Node Button */}
-        <motion.button
-          whileHover={{ scale: status !== "locked" ? 1.1 : 1 }}
-          whileTap={{ scale: status !== "locked" ? 0.92 : 1 }}
-          onClick={onClick}
-          className={cn(
-            "relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300",
-            status === "completed" && "bg-gradient-to-br from-green-400 to-emerald-600 text-white shadow-lg shadow-green-500/30",
-            status === "current" && "bg-gradient-to-br from-primary via-primary to-accent text-white shadow-xl shadow-primary/40",
-            status === "locked" && "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-400 dark:from-gray-700 dark:to-gray-800 dark:text-gray-500"
-          )}
-        >
-          {/* Spinning gradient border for current */}
-          {status === "current" && (
-            <motion.div
-              className="absolute -inset-1 rounded-full opacity-75"
-              style={{
-                background: "conic-gradient(from 0deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)))",
-              }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            />
-          )}
-          
-          {/* Inner circle */}
-          <div className={cn(
-            "absolute inset-1 rounded-full",
-            status === "completed" && "bg-gradient-to-br from-green-400 to-emerald-600",
-            status === "current" && "bg-gradient-to-br from-primary to-accent",
-            status === "locked" && "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800"
-          )} />
-          
-          {/* Icon content */}
-          <div className="relative z-10">
-            {status === "completed" ? (
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", delay: 0.2 }}
-              >
-                <Check className="w-10 h-10" strokeWidth={3} />
-              </motion.div>
-            ) : status === "locked" ? (
-              <Lock className="w-7 h-7" />
-            ) : (
-              <div className="relative">
-                {stage.icon}
-              </div>
-            )}
-          </div>
-
-          {/* Progress ring for current stage */}
-          {status === "current" && totalMilestones > 0 && (
-            <svg className="absolute -inset-2 w-24 h-24">
-              <circle
-                cx="48"
-                cy="48"
-                r="44"
-                fill="none"
-                stroke="rgba(255,255,255,0.15)"
-                strokeWidth="4"
-              />
-              <motion.circle
-                cx="48"
-                cy="48"
-                r="44"
-                fill="none"
-                stroke="white"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeDasharray={276}
-                initial={{ strokeDashoffset: 276 }}
-                animate={{ strokeDashoffset: 276 - (276 * progress) }}
-                transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-                style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
-              />
-            </svg>
-          )}
-        </motion.button>
-
-        {/* Stage Name & Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.15 + 0.25 }}
-          className="mt-3 text-center max-w-[140px]"
-        >
-          <h3 className={cn(
-            "font-bold text-sm leading-tight",
-            status === "locked" ? "text-muted-foreground" : "text-foreground"
-          )}>
-            {stage.name}
-          </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{stage.period}</p>
-          
-          {/* Milestone counter badge */}
-          {totalMilestones > 0 && status !== "locked" && (
-            <motion.div 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", delay: index * 0.15 + 0.4 }}
-              className={cn(
-                "inline-flex items-center gap-1 mt-2 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm",
-                status === "completed" 
-                  ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" 
-                  : "bg-primary/15 text-primary"
-              )}
-            >
-              <Check className="w-3 h-3" />
-              {completedCount}/{totalMilestones}
-            </motion.div>
-          )}
-        </motion.div>
-      </motion.div>
-    </div>
-  );
-}
-
-// Today's Focus Card
-function TodaysFocusCard({ 
-  text, 
-  language 
+// Step Card Component
+function StepCard({ 
+  stepNumber, 
+  title, 
+  children, 
+  delay = 0,
+  accentColor = "primary"
 }: { 
-  text: string;
-  language: Language;
+  stepNumber: number; 
+  title: string; 
+  children: React.ReactNode;
+  delay?: number;
+  accentColor?: string;
 }) {
-  const t = translations[language];
-  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mx-4 mb-4 bg-gradient-to-r from-amber-400 to-orange-500 rounded-2xl p-4 shadow-lg"
+      transition={{ delay, duration: 0.4 }}
+      className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm"
     >
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-          <Zap className="w-5 h-5 text-white" />
+      <div className={cn(
+        "px-4 py-3 flex items-center gap-3 border-b border-border",
+        "bg-gradient-to-r from-muted/50 to-transparent"
+      )}>
+        <div className={cn(
+          "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
+          "bg-primary text-primary-foreground"
+        )}>
+          {stepNumber}
         </div>
-        <div className="flex-1">
-          <span className="text-xs font-bold text-white/80 uppercase tracking-wider">
-            {t.todaysFocus}
-          </span>
-          <p className="text-white font-semibold mt-0.5">{text}</p>
-        </div>
+        <h3 className="font-bold text-foreground">{title}</h3>
+      </div>
+      <div className="p-4">
+        {children}
       </div>
     </motion.div>
+  );
+}
+
+// Goal Definition Card (Step 1)
+function GoalCard({ goal, language }: { goal: GoalDefinition; language: Language }) {
+  const t = translations[language];
+  
+  return (
+    <div className="space-y-4">
+      {/* Target University */}
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0">
+          <GraduationCap className="w-5 h-5 text-white" />
+        </div>
+        <div className="flex-1">
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">{t.targetUni}</span>
+          <p className="font-bold text-foreground text-lg">{goal.targetUniversity}</p>
+        </div>
+      </div>
+      
+      {/* Goal Statement */}
+      <p className="text-foreground/80 bg-muted/50 rounded-xl p-3 text-sm leading-relaxed">
+        {goal.goal}
+      </p>
+      
+      {/* Details Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-muted/30 rounded-xl p-3">
+          <span className="text-xs text-muted-foreground">{t.major}</span>
+          <p className="font-semibold text-foreground text-sm mt-0.5">{goal.intendedMajor}</p>
+        </div>
+        <div className="bg-muted/30 rounded-xl p-3">
+          <span className="text-xs text-muted-foreground">{t.cycle}</span>
+          <p className="font-semibold text-foreground text-sm mt-0.5">{goal.applicationCycle}</p>
+        </div>
+        <div className="bg-muted/30 rounded-xl p-3 col-span-2">
+          <span className="text-xs text-muted-foreground">{t.scholarship}</span>
+          <p className="font-semibold text-foreground text-sm mt-0.5">{goal.scholarshipGoal}</p>
+        </div>
+      </div>
+      
+      {/* Academic Snapshot */}
+      <div className="flex flex-wrap gap-2">
+        {goal.academicSnapshot.gpa && goal.academicSnapshot.gpa !== "Unknown/5" && (
+          <span className="px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs font-semibold">
+            GPA: {goal.academicSnapshot.gpa}
+          </span>
+        )}
+        {goal.academicSnapshot.ielts && goal.academicSnapshot.ielts !== "Not taken" && (
+          <span className="px-3 py-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-semibold">
+            IELTS: {goal.academicSnapshot.ielts}
+          </span>
+        )}
+        {goal.academicSnapshot.sat && goal.academicSnapshot.sat !== "Not taken" && (
+          <span className="px-3 py-1.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-full text-xs font-semibold">
+            SAT: {goal.academicSnapshot.sat}
+          </span>
+        )}
+        {goal.academicSnapshot.ent && goal.academicSnapshot.ent !== "Not taken" && (
+          <span className="px-3 py-1.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-full text-xs font-semibold">
+            ЕНТ: {goal.academicSnapshot.ent}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Strategy Pillars Card (Step 2)
+function StrategyCard({ pillars, language }: { pillars: StrategyPillar[]; language: Language }) {
+  const t = translations[language];
+  
+  return (
+    <div className="space-y-3">
+      {pillars.map((pillar, idx) => (
+        <motion.div
+          key={pillar.id}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: idx * 0.1 }}
+          className="flex items-start gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shrink-0 text-primary">
+            {pillarIcons[pillar.icon] || <Target className="w-5 h-5" />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-foreground">{pillar.name}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{pillar.description}</p>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+// Phase Card (Step 3)
+function PhaseCard({ phase, language }: { phase: CurrentPhase; language: Language }) {
+  const t = translations[language];
+  
+  return (
+    <div className="space-y-3">
+      <div className={cn(
+        "p-4 rounded-xl bg-gradient-to-r text-white",
+        phaseColors[phase.phase]
+      )}>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+            {phaseIcons[phase.phase]}
+          </div>
+          <div>
+            <p className="font-bold text-lg">{phase.phaseName}</p>
+            <p className="text-sm text-white/80">
+              {phase.phase === "foundation" && (language === "ru" ? "Строим базу" : "Негіз құру")}
+              {phase.phase === "differentiation" && (language === "ru" ? "Выделяемся" : "Ерекшелену")}
+              {phase.phase === "application" && (language === "ru" ? "Подаёмся" : "Өтініш беру")}
+            </p>
+          </div>
+        </div>
+      </div>
+      <p className="text-sm text-muted-foreground bg-muted/30 rounded-xl p-3">
+        {phase.explanation}
+      </p>
+    </div>
+  );
+}
+
+// Month Focus Card (Step 4)
+function FocusCard({ focus, language }: { focus: MonthFocus; language: Language }) {
+  const t = translations[language];
+  
+  return (
+    <div className="space-y-3">
+      <div className="bg-gradient-to-r from-amber-400 to-orange-500 rounded-xl p-4 text-white">
+        <div className="flex items-center gap-2 mb-2">
+          <Target className="w-5 h-5" />
+          <span className="text-sm font-medium text-white/80">{focus.month}</span>
+        </div>
+        <p className="font-bold text-lg">{focus.objective}</p>
+      </div>
+      <div className="flex items-start gap-2 p-3 bg-amber-500/10 rounded-xl">
+        <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+        <div>
+          <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase">{t.whyMatters}</span>
+          <p className="text-sm text-foreground/80 mt-0.5">{focus.whyItMatters}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Actions Card (Step 5)
+function ActionsCard({ 
+  actions, 
+  language, 
+  onToggleAction 
+}: { 
+  actions: HighImpactAction[]; 
+  language: Language;
+  onToggleAction: (id: string) => void;
+}) {
+  const t = translations[language];
+  
+  const impactColors = {
+    high: "border-emerald-500 bg-emerald-500/5",
+    medium: "border-amber-500 bg-amber-500/5",
+    low: "border-gray-400 bg-gray-400/5",
+  };
+  
+  const impactDotColors = {
+    high: "bg-emerald-500",
+    medium: "bg-amber-500",
+    low: "bg-gray-400",
+  };
+
+  return (
+    <div className="space-y-3">
+      {actions.map((action, idx) => (
+        <motion.div
+          key={action.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: idx * 0.1 }}
+          className={cn(
+            "p-4 rounded-xl border-2 transition-all",
+            action.completed ? "border-emerald-500 bg-emerald-500/10" : impactColors[action.impact]
+          )}
+        >
+          <div className="flex items-start gap-3">
+            {/* Toggle Button */}
+            <button
+              onClick={() => onToggleAction(action.id)}
+              className={cn(
+                "shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all mt-0.5",
+                action.completed 
+                  ? "bg-emerald-500 text-white" 
+                  : "border-2 border-muted-foreground/30 hover:border-primary"
+              )}
+            >
+              {action.completed && <Check className="w-4 h-4" strokeWidth={3} />}
+            </button>
+            
+            <div className="flex-1 min-w-0">
+              {/* Impact Badge */}
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className={cn("w-2 h-2 rounded-full", impactDotColors[action.impact])} />
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {action.impact === "high" && t.highImpact}
+                  {action.impact === "medium" && t.mediumImpact}
+                  {action.impact === "low" && t.lowImpact}
+                </span>
+              </div>
+              
+              {/* Description */}
+              <p className={cn(
+                "font-semibold text-foreground",
+                action.completed && "line-through text-muted-foreground"
+              )}>
+                {action.description}
+              </p>
+              
+              {/* Why Now */}
+              {!action.completed && (
+                <div className="mt-2 space-y-1.5">
+                  <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                    <Sparkles className="w-3 h-3 mt-0.5 shrink-0 text-primary" />
+                    <span><strong>{t.whyNow}:</strong> {action.whyNow}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="w-3 h-3 shrink-0" />
+                    <span><strong>{t.deadline}:</strong> {action.deadline}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+// Metric Card (Step 6)
+function MetricCard({ metric, language }: { metric: SuccessMetric; language: Language }) {
+  const t = translations[language];
+  
+  return (
+    <div className="space-y-3">
+      <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800/50">
+        <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
+        <p className="font-semibold text-foreground">{metric.condition}</p>
+      </div>
+      {metric.examples && metric.examples.length > 0 && (
+        <div className="space-y-1.5">
+          <span className="text-xs font-semibold text-muted-foreground uppercase">{t.examples}:</span>
+          <ul className="space-y-1">
+            {metric.examples.map((example, idx) => (
+              <li key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Check className="w-3 h-3 text-emerald-500" />
+                {example}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Trigger Card (Step 7)
+function TriggerCard({ trigger, language }: { trigger: NextTrigger; language: Language }) {
+  const t = translations[language];
+  
+  return (
+    <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-xl border border-purple-200 dark:border-purple-800/50">
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shrink-0">
+        <Unlock className="w-6 h-6 text-white" />
+      </div>
+      <div className="flex-1">
+        <p className="font-bold text-foreground">{trigger.trigger}</p>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          <span className="text-purple-600 dark:text-purple-400 font-semibold">{t.unlocks}:</span> {trigger.unlocksPhase}
+        </p>
+      </div>
+      <ArrowRight className="w-5 h-5 text-purple-500" />
+    </div>
   );
 }
 
@@ -694,16 +591,7 @@ export default function MyPath() {
 
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
-  const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<"completed" | "current" | "locked">("current");
-  const [pathData, setPathData] = useState<PathData | null>(null);
-  const [stages, setStages] = useState<Stage[]>([]);
-
-  // Calculate months until target
-  const now = new Date();
-  const monthsLeft = pathData?.target_year 
-    ? Math.max(0, (pathData.target_year - now.getFullYear()) * 12 - now.getMonth())
-    : 0;
+  const [pathData, setPathData] = useState<QadamPathData | null>(null);
 
   useEffect(() => {
     if (user) fetchPath();
@@ -721,51 +609,20 @@ export default function MyPath() {
       if (error) throw error;
       
       if (data) {
-        const milestones = (data.milestones as unknown as Milestone[]) || [];
-        const aiStages = (data as any).stages as Stage[] | undefined;
+        // Parse stored Qadam AI data
+        const milestones = data.milestones as any;
         
-        if (aiStages && aiStages.length > 0) {
-          const stagesWithIcons = aiStages.map((stage, idx) => ({
-            ...stage,
-            icon: stageIcons[stage.id] || stageIcons[String(idx + 1)] || <Target className="w-6 h-6" />,
-            milestones: stage.milestones || milestones.filter(m => m.stageId === stage.id),
-          }));
-          setStages(stagesWithIcons);
-        } else {
-          const stageCount = 5;
-          const milestonesPerStage = Math.ceil(milestones.length / stageCount);
-          
-          const defaultStages: Stage[] = [
-            { id: "1", name: language === "ru" ? "Подготовка" : "Дайындық", period: "", goal: "", icon: stageIcons["1"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
-            { id: "2", name: language === "ru" ? "Экзамены" : "Емтихандар", period: "", goal: "", icon: stageIcons["2"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
-            { id: "3", name: language === "ru" ? "Эссе" : "Эссе", period: "", goal: "", icon: stageIcons["3"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
-            { id: "4", name: language === "ru" ? "Заявки" : "Өтінімдер", period: "", goal: "", icon: stageIcons["4"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
-            { id: "5", name: language === "ru" ? "Финиш" : "Финиш", period: "", goal: "", icon: stageIcons["5"], milestones: [], details: { subjects: [], exams: [], skills: [], projects: [], weeklyActions: [] } },
-          ];
-          
-          defaultStages.forEach((stage, idx) => {
-            const start = idx * milestonesPerStage;
-            const end = start + milestonesPerStage;
-            stage.milestones = milestones.slice(start, end);
+        // Check if it's new Qadam format or old format
+        if (milestones?.goalDefinition) {
+          setPathData({
+            id: data.id,
+            ...milestones,
+            progressPercent: data.progress_percent || milestones.progressPercent || 0,
           });
-          
-          setStages(defaultStages);
+        } else {
+          // Old format - need to regenerate
+          setPathData(null);
         }
-        
-        setPathData({
-          id: data.id,
-          grade: data.grade,
-          goal: data.goal,
-          specific_goal: data.specific_goal || "",
-          exams: data.exams || [],
-          target_year: data.target_year,
-          milestones,
-          progress_percent: data.progress_percent,
-          current_stage: data.current_stage || "",
-          ai_recommendations: (data.ai_recommendations as string[]) || [],
-          ai_warnings: (data.ai_warnings as string[]) || [],
-          urgentAction: (data as any).urgentAction,
-        });
       }
     } catch (error) {
       console.error("Error fetching path:", error);
@@ -774,65 +631,42 @@ export default function MyPath() {
     }
   };
 
-  const handleMilestoneToggle = async (milestoneId: string) => {
+  const handleToggleAction = async (actionId: string) => {
     if (!pathData) return;
 
-    const updatedStages = stages.map(stage => ({
-      ...stage,
-      milestones: stage.milestones.map(m => 
-        m.id === milestoneId 
-          ? { ...m, status: m.status === "done" ? "not_started" as const : "done" as const }
-          : m
-      ),
-    }));
+    const updatedActions = pathData.highImpactActions.map(action => 
+      action.id === actionId 
+        ? { ...action, completed: !action.completed }
+        : action
+    );
 
-    setStages(updatedStages);
+    const completedCount = updatedActions.filter(a => a.completed).length;
+    const baseProgress = 
+      pathData.currentPhase?.phase === "foundation" ? 5 :
+      pathData.currentPhase?.phase === "differentiation" ? 35 : 65;
     
-    if (selectedStage) {
-      const updatedSelected = updatedStages.find(s => s.id === selectedStage.id);
-      if (updatedSelected) setSelectedStage(updatedSelected);
-    }
+    const actionProgress = (completedCount / updatedActions.length) * 25;
+    const newProgress = Math.round(baseProgress + actionProgress);
 
-    const allMilestones = updatedStages.flatMap(s => s.milestones);
-    const doneCount = allMilestones.filter(m => m.status === "done").length;
-    const progressPercent = allMilestones.length > 0 
-      ? Math.round((doneCount / allMilestones.length) * 100)
-      : 0;
+    const updatedPathData = {
+      ...pathData,
+      highImpactActions: updatedActions,
+      progressPercent: newProgress,
+    };
+
+    setPathData(updatedPathData);
 
     try {
       await supabase
         .from("student_paths")
         .update({
-          milestones: JSON.parse(JSON.stringify(allMilestones)),
-          progress_percent: progressPercent,
+          milestones: JSON.parse(JSON.stringify(updatedPathData)),
+          progress_percent: newProgress,
         })
         .eq("id", pathData.id);
-
-      setPathData({ ...pathData, progress_percent: progressPercent, milestones: allMilestones });
     } catch (error) {
-      console.error("Error updating milestone:", error);
+      console.error("Error updating action:", error);
     }
-  };
-
-  const getStageStatus = (stageIndex: number): "completed" | "current" | "locked" => {
-    const stage = stages[stageIndex];
-    if (!stage) return "locked";
-    
-    const completedCount = stage.milestones.filter(m => m.status === "done").length;
-    
-    if (stage.milestones.length > 0 && completedCount === stage.milestones.length) {
-      return "completed";
-    }
-    
-    for (let i = 0; i < stages.length; i++) {
-      const s = stages[i];
-      const done = s.milestones.filter(m => m.status === "done").length;
-      if (s.milestones.length === 0 || done < s.milestones.length) {
-        return i === stageIndex ? "current" : i < stageIndex ? "completed" : "locked";
-      }
-    }
-    
-    return stageIndex === 0 ? "current" : "locked";
   };
 
   const generateParentCode = async () => {
@@ -867,7 +701,7 @@ export default function MyPath() {
 
       if (error) throw error;
       
-      toast.success(language === "ru" ? "План обновлён!" : "Жоспар жаңартылды!");
+      toast.success(language === "ru" ? "Стратегия обновлена!" : "Стратегия жаңартылды!");
       fetchPath();
     } catch (error) {
       console.error("Error regenerating path:", error);
@@ -875,26 +709,6 @@ export default function MyPath() {
     } finally {
       setRegenerating(false);
     }
-  };
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/", { replace: true });
-  };
-
-  // Calculate overall progress
-  const completedStagesCount = stages.filter((_, i) => getStageStatus(i) === "completed").length;
-  const totalMilestones = stages.flatMap(s => s.milestones).length;
-  const completedMilestones = stages.flatMap(s => s.milestones).filter(m => m.status === "done").length;
-  const overallProgress = totalMilestones > 0 
-    ? Math.round((completedMilestones / totalMilestones) * 100) 
-    : pathData?.progress_percent || 0;
-
-  // Get motivational message
-  const getMotivation = () => {
-    if (overallProgress >= 75) return t.almostThere;
-    if (overallProgress >= 25) return t.keepGoing;
-    return t.greatStart;
   };
 
   if (loading) {
@@ -928,7 +742,7 @@ export default function MyPath() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-8 max-w-sm"
           >
-            {/* Animated Journey Illustration */}
+            {/* Animated Illustration */}
             <div className="relative">
               <motion.div
                 initial={{ scale: 0 }}
@@ -936,25 +750,25 @@ export default function MyPath() {
                 transition={{ type: "spring", stiffness: 200 }}
                 className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto shadow-2xl"
               >
-                <GraduationCap className="w-16 h-16 text-white" />
+                <Brain className="w-16 h-16 text-white" />
               </motion.div>
               
-              {/* Decorative nodes */}
+              {/* Decorative elements */}
               <motion.div 
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 }}
-                className="absolute top-0 left-4 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center"
+                className="absolute top-0 right-8 w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center"
               >
-                <Check className="w-4 h-4 text-white" />
+                <Zap className="w-5 h-5 text-white" />
               </motion.div>
               <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4 }}
-                className="absolute bottom-0 right-4 w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center"
+                className="absolute bottom-0 left-8 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center"
               >
-                <Star className="w-4 h-4 text-white" />
+                <Target className="w-5 h-5 text-white" />
               </motion.div>
             </div>
 
@@ -977,8 +791,11 @@ export default function MyPath() {
     );
   }
 
+  const completedActions = pathData.highImpactActions?.filter(a => a.completed).length || 0;
+  const totalActions = pathData.highImpactActions?.length || 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background">
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background pb-24">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-gradient-to-r from-primary to-accent text-white shadow-lg">
         <div className="max-w-lg mx-auto px-4 py-4">
@@ -1001,177 +818,88 @@ export default function MyPath() {
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-white/80">{t.journeyProgress}</span>
-              <span className="font-bold">{overallProgress}%</span>
+              <span className="text-white/80">{t.progress}</span>
+              <span className="font-bold">{pathData.progressPercent}%</span>
             </div>
             <div className="h-2.5 bg-white/20 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${overallProgress}%` }}
+                animate={{ width: `${pathData.progressPercent}%` }}
                 transition={{ duration: 1, ease: "easeOut" }}
                 className="h-full bg-white rounded-full"
               />
             </div>
             <div className="flex items-center justify-between text-xs text-white/70">
-              <span>{completedStagesCount}/{stages.length} {t.stagesCompleted}</span>
-              <span className="font-medium">{getMotivation()}</span>
+              <span>{completedActions}/{totalActions} {language === "ru" ? "действий" : "әрекет"}</span>
+              <span className="font-medium">
+                {pathData.currentPhase?.phaseName}
+              </span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Today's Focus */}
-      {pathData.urgentAction && (
-        <TodaysFocusCard text={pathData.urgentAction} language={language} />
-      )}
-
-      {/* Journey Map */}
-      <main className="max-w-lg mx-auto px-4 py-6 pb-32">
-        {/* Goal Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-card border border-border rounded-2xl p-4 mb-8 shadow-sm"
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">{t.yourGoal}</span>
-              <p className="text-foreground font-bold mt-1 line-clamp-2">
-                {pathData.specific_goal || pathData.goal}
-              </p>
-            </div>
-            <div className="text-right ml-4">
-              <span className="text-xs text-muted-foreground">{t.targetYear}</span>
-              <p className="text-2xl font-bold text-primary">{pathData.target_year}</p>
-              <p className="text-xs text-muted-foreground">{monthsLeft} {language === "ru" ? "мес." : "ай"}</p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Duolingo-style Journey Path */}
-        <div className="relative">
-          {/* Animated background path glow */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            className="absolute inset-0 pointer-events-none"
-          >
-            <div className="absolute left-1/2 top-0 bottom-0 w-1 -translate-x-1/2 bg-gradient-to-b from-primary/20 via-primary/10 to-transparent blur-xl" />
-          </motion.div>
-
-          {stages.map((stage, index) => (
-            <JourneyNode
-              key={stage.id}
-              stage={stage}
-              index={index}
-              totalStages={stages.length}
-              status={getStageStatus(index)}
-              language={language}
-              onClick={() => {
-                setSelectedStage(stage);
-                setSelectedStatus(getStageStatus(index));
-              }}
-            />
-          ))}
-        </div>
-
-        {/* AI Recommendations Section */}
-        {pathData.ai_recommendations && pathData.ai_recommendations.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mt-8 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl p-5 shadow-sm"
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.5 }}
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg"
-              >
-                <Lightbulb className="w-5 h-5 text-white" />
-              </motion.div>
-              <h3 className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
-                {t.recommendations}
-              </h3>
-            </div>
-            <ul className="space-y-3">
-              {pathData.ai_recommendations.map((rec, idx) => (
-                <motion.li 
-                  key={idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + idx * 0.1 }}
-                  className="flex items-start gap-3 text-sm"
-                >
-                  <motion.div 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", delay: 0.6 + idx * 0.1 }}
-                    className="shrink-0 w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center mt-0.5"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  </motion.div>
-                  <span className="text-foreground/90 leading-relaxed">{rec}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
+      {/* Content */}
+      <main className="max-w-lg mx-auto px-4 py-6 space-y-4">
+        {/* Step 1: Goal Definition */}
+        {pathData.goalDefinition && (
+          <StepCard stepNumber={1} title={t.goalTitle} delay={0.1}>
+            <GoalCard goal={pathData.goalDefinition} language={language} />
+          </StepCard>
         )}
 
-        {/* AI Warnings Section */}
-        {pathData.ai_warnings && pathData.ai_warnings.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mt-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5 shadow-sm"
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.6 }}
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg"
-              >
-                <AlertTriangle className="w-5 h-5 text-white" />
-              </motion.div>
-              <h3 className="text-lg font-bold text-amber-700 dark:text-amber-300">
-                {t.warnings}
-              </h3>
-            </div>
-            <ul className="space-y-3">
-              {pathData.ai_warnings.map((warning, idx) => (
-                <motion.li 
-                  key={idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + idx * 0.1 }}
-                  className="flex items-start gap-3 text-sm"
-                >
-                  <motion.div 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", delay: 0.7 + idx * 0.1 }}
-                    className="shrink-0 w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center mt-0.5"
-                  >
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                  </motion.div>
-                  <span className="text-foreground/90 leading-relaxed">{warning}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
+        {/* Step 2: Strategy Pillars */}
+        {pathData.strategy?.pillars && pathData.strategy.pillars.length > 0 && (
+          <StepCard stepNumber={2} title={t.strategyTitle} delay={0.2}>
+            <StrategyCard pillars={pathData.strategy.pillars} language={language} />
+          </StepCard>
+        )}
+
+        {/* Step 3: Current Phase */}
+        {pathData.currentPhase && (
+          <StepCard stepNumber={3} title={t.phaseTitle} delay={0.3}>
+            <PhaseCard phase={pathData.currentPhase} language={language} />
+          </StepCard>
+        )}
+
+        {/* Step 4: This Month Focus */}
+        {pathData.thisMonthFocus && (
+          <StepCard stepNumber={4} title={t.focusTitle} delay={0.4}>
+            <FocusCard focus={pathData.thisMonthFocus} language={language} />
+          </StepCard>
+        )}
+
+        {/* Step 5: High-Impact Actions */}
+        {pathData.highImpactActions && pathData.highImpactActions.length > 0 && (
+          <StepCard stepNumber={5} title={t.actionsTitle} delay={0.5}>
+            <ActionsCard 
+              actions={pathData.highImpactActions} 
+              language={language} 
+              onToggleAction={handleToggleAction}
+            />
+          </StepCard>
+        )}
+
+        {/* Step 6: Success Metric */}
+        {pathData.successMetric && (
+          <StepCard stepNumber={6} title={t.metricTitle} delay={0.6}>
+            <MetricCard metric={pathData.successMetric} language={language} />
+          </StepCard>
+        )}
+
+        {/* Step 7: Next Trigger */}
+        {pathData.nextTrigger && (
+          <StepCard stepNumber={7} title={t.triggerTitle} delay={0.7}>
+            <TriggerCard trigger={pathData.nextTrigger} language={language} />
+          </StepCard>
         )}
 
         {/* Bottom Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="mt-10 space-y-3"
+          transition={{ delay: 0.8 }}
+          className="pt-6 space-y-3"
         >
           <Button
             variant="outline"
@@ -1197,19 +925,6 @@ export default function MyPath() {
           </Button>
         </motion.div>
       </main>
-
-      {/* Stage Detail Sheet */}
-      <AnimatePresence>
-        {selectedStage && (
-          <StageDetailSheet
-            stage={selectedStage}
-            language={language}
-            onClose={() => setSelectedStage(null)}
-            onMilestoneToggle={handleMilestoneToggle}
-            status={selectedStatus}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
