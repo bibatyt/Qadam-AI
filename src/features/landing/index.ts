@@ -6,4 +6,5 @@ export * from './components/AdvantagesSection';
 export * from './components/ProcessSection';
 export * from './components/EFCSection';
 export * from './components/SuccessStoriesSection';
+export * from './components/FeedbackFormSection';
 export * from './components/FooterSection';
