@@ -201,52 +201,11 @@ const stagger = {
   },
 };
 
-// Feedback Section Component
+// Feedback Section Component - Embedded Google Form
 function FeedbackSection({ language, t }: { language: Language; t: typeof translations.ru }) {
-  const [grade, setGrade] = useState<string>("");
-  const [country, setCountry] = useState("");
-  const [goal, setGoal] = useState<string>("");
-  const [tookAction, setTookAction] = useState<boolean | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!grade || !country || !goal || tookAction === null) {
-      toast.error(language === "ru" ? "Заполните все поля" : language === "kk" ? "Барлық өрістерді толтырыңыз" : "Please fill all fields");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Submit to Google Form
-      const formData = new FormData();
-      formData.append("entry.1234567890", grade); // Replace with actual entry IDs from Google Form
-      formData.append("entry.1234567891", country);
-      formData.append("entry.1234567892", goal);
-      formData.append("entry.1234567893", tookAction ? "Да" : "Нет");
-
-      // For now, just simulate success since we need the actual Google Form entry IDs
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success(t.feedbackSuccess);
-      setGrade("");
-      setCountry("");
-      setGoal("");
-      setTookAction(null);
-    } catch (error) {
-      toast.error(t.feedbackError);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const gradeOptions = ["8", "9", "10", "11", "12"];
-
   return (
     <section className="section bg-gradient-to-b from-muted/50 to-background">
-      <div className="max-w-2xl mx-auto px-4">
+      <div className="max-w-3xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -278,114 +237,21 @@ function FeedbackSection({ language, t }: { language: Language; t: typeof transl
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Grade */}
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-foreground">
-                {t.feedbackGrade} <span className="text-destructive">*</span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {gradeOptions.map((g) => (
-                  <button
-                    key={g}
-                    type="button"
-                    onClick={() => setGrade(g)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                      grade === g
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "bg-muted hover:bg-muted/80 text-foreground"
-                    }`}
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Country */}
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-foreground">
-                {t.feedbackCountry} <span className="text-destructive">*</span>
-              </label>
-              <input
-                type="text"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                placeholder={t.feedbackCountryPlaceholder}
-                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-              />
-            </div>
-
-            {/* Goal */}
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-foreground">
-                {t.feedbackGoal} <span className="text-destructive">*</span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {t.feedbackGoalOptions.map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setGoal(option)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                      goal === option
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "bg-muted hover:bg-muted/80 text-foreground"
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Took Action */}
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-foreground">
-                {t.feedbackAction} <span className="text-destructive">*</span>
-              </label>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setTookAction(true)}
-                  className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                    tookAction === true
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "bg-muted hover:bg-muted/80 text-foreground"
-                  }`}
-                >
-                  {language === "ru" ? "Да" : language === "kk" ? "Иә" : "Yes"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTookAction(false)}
-                  className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                    tookAction === false
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "bg-muted hover:bg-muted/80 text-foreground"
-                  }`}
-                >
-                  {language === "ru" ? "Нет" : language === "kk" ? "Жоқ" : "No"}
-                </button>
-              </div>
-            </div>
-
-            {/* Submit */}
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full h-12 text-base font-semibold rounded-xl"
+          <div className="w-full">
+            <iframe
+              src="https://docs.google.com/forms/d/e/1FAIpQLSfo3ODRBWFbSL-cqEBuPfm_OI3Uh3nLLKvQehmpHtPQDymN1Q/viewform?embedded=true"
+              width="100%"
+              height="1936"
+              frameBorder="0"
+              marginHeight={0}
+              marginWidth={0}
+              className="w-full border-0"
+              style={{ minHeight: "1936px" }}
+              title="Feedback Form"
             >
-              {isSubmitting ? (
-                t.feedbackSending
-              ) : (
-                <>
-                  {t.feedbackSubmit}
-                  <Send className="w-4 h-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </form>
+              {language === "ru" ? "Загрузка…" : language === "kk" ? "Жүктелуде…" : "Loading…"}
+            </iframe>
+          </div>
         </motion.div>
       </div>
     </section>
