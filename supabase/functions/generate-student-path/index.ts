@@ -14,7 +14,7 @@ serve(async (req) => {
     const { 
       grade, 
       goal, 
-      exams, 
+      exams = [], 
       targetYear, 
       language = "ru",
       englishLevel,
