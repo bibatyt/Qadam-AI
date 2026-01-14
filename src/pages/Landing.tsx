@@ -7,6 +7,7 @@ import {
   ProcessSection,
   EFCSection,
   SuccessStoriesSection,
+  FeedbackFormSection,
   FooterSection,
 } from "@/features/landing";
 import { WelcomeOnboarding } from "@/features/welcome";
@@ -51,6 +52,7 @@ const Landing = () => {
         <ProcessSection />
         <EFCSection />
         <SuccessStoriesSection />
+        <FeedbackFormSection />
         <FooterSection />
       </main>
     </div>
