@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, CheckCircle, Users, GraduationCap, ClipboardList, BarChart3, Quote, Star } from "lucide-react";
+import { ArrowRight, CheckCircle, Users, GraduationCap, ClipboardList, BarChart3, Quote, Star, Send, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 type Language = "ru" | "en" | "kk";
 
@@ -36,6 +37,20 @@ const translations = {
     previewSteps: "Следующие шаги",
     footerText: "Qadam помогает структурировать путь к поступлению",
     reviewsTitle: "Отзывы пользователей",
+    // Feedback section
+    feedbackTitle: "Помогите нам стать лучше — это займёт 2–3 минуты",
+    feedbackSubtitle: "Ваш отзыв помогает улучшить качество рекомендаций для студентов.",
+    feedbackAnonymous: "Регистрация не требуется. Ваш ответ анонимен.",
+    feedbackGrade: "Класс",
+    feedbackCountry: "Страна",
+    feedbackCountryPlaceholder: "Введите страну",
+    feedbackGoal: "Твоя цель сейчас",
+    feedbackGoalOptions: ["IELTS", "SAT", "Поступление за границу", "Поступить на грант", "Пока не знаю"],
+    feedbackAction: "Сделал ли ты какое-либо реальное действие после использования Qadam AI?",
+    feedbackSubmit: "Отправить",
+    feedbackSending: "Отправка...",
+    feedbackSuccess: "Спасибо за ваш отзыв!",
+    feedbackError: "Ошибка при отправке",
   },
   en: {
     heroTitle: "Clear path to university admission",
@@ -66,6 +81,20 @@ const translations = {
     previewSteps: "Next steps",
     footerText: "Qadam helps structure your path to admission",
     reviewsTitle: "User reviews",
+    // Feedback section
+    feedbackTitle: "Help us improve — it takes only 2–3 minutes",
+    feedbackSubtitle: "Your feedback helps us improve guidance quality for students.",
+    feedbackAnonymous: "No sign-up required. Your response is anonymous.",
+    feedbackGrade: "Grade",
+    feedbackCountry: "Country",
+    feedbackCountryPlaceholder: "Enter your country",
+    feedbackGoal: "Your current goal",
+    feedbackGoalOptions: ["IELTS", "SAT", "Study abroad", "Get a scholarship", "Not sure yet"],
+    feedbackAction: "Did you take any real action after using Qadam AI?",
+    feedbackSubmit: "Submit",
+    feedbackSending: "Sending...",
+    feedbackSuccess: "Thank you for your feedback!",
+    feedbackError: "Error submitting feedback",
   },
   kk: {
     heroTitle: "Түсудің түсінікті жолы",
@@ -96,6 +125,20 @@ const translations = {
     previewSteps: "Келесі қадамдар",
     footerText: "Qadam түсу жолын құрылымдауға көмектеседі",
     reviewsTitle: "Пайдаланушы пікірлері",
+    // Feedback section
+    feedbackTitle: "Бізге жақсаруға көмектесіңіз — бұл тек 2–3 минут алады",
+    feedbackSubtitle: "Сіздің пікіріңіз студенттерге арналған нұсқаулық сапасын жақсартуға көмектеседі.",
+    feedbackAnonymous: "Тіркелу қажет емес. Сіздің жауабыңыз анонимді.",
+    feedbackGrade: "Сынып",
+    feedbackCountry: "Ел",
+    feedbackCountryPlaceholder: "Еліңізді енгізіңіз",
+    feedbackGoal: "Қазіргі мақсатыңыз",
+    feedbackGoalOptions: ["IELTS", "SAT", "Шетелде оқу", "Грант алу", "Әлі білмеймін"],
+    feedbackAction: "Qadam AI қолданғаннан кейін нақты әрекет жасадыңыз ба?",
+    feedbackSubmit: "Жіберу",
+    feedbackSending: "Жіберілуде...",
+    feedbackSuccess: "Пікіріңіз үшін рахмет!",
+    feedbackError: "Жіберу қатесі",
   },
 };
 
@@ -157,6 +200,197 @@ const stagger = {
     },
   },
 };
+
+// Feedback Section Component
+function FeedbackSection({ language, t }: { language: Language; t: typeof translations.ru }) {
+  const [grade, setGrade] = useState<string>("");
+  const [country, setCountry] = useState("");
+  const [goal, setGoal] = useState<string>("");
+  const [tookAction, setTookAction] = useState<boolean | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!grade || !country || !goal || tookAction === null) {
+      toast.error(language === "ru" ? "Заполните все поля" : language === "kk" ? "Барлық өрістерді толтырыңыз" : "Please fill all fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Submit to Google Form
+      const formData = new FormData();
+      formData.append("entry.1234567890", grade); // Replace with actual entry IDs from Google Form
+      formData.append("entry.1234567891", country);
+      formData.append("entry.1234567892", goal);
+      formData.append("entry.1234567893", tookAction ? "Да" : "Нет");
+
+      // For now, just simulate success since we need the actual Google Form entry IDs
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success(t.feedbackSuccess);
+      setGrade("");
+      setCountry("");
+      setGoal("");
+      setTookAction(null);
+    } catch (error) {
+      toast.error(t.feedbackError);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const gradeOptions = ["8", "9", "10", "11", "12"];
+
+  return (
+    <section className="section bg-gradient-to-b from-muted/50 to-background">
+      <div className="max-w-2xl mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-8"
+        >
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-4">
+            <MessageSquare className="w-4 h-4" />
+            Feedback
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+            {t.feedbackTitle}
+          </h2>
+          <p className="text-muted-foreground">
+            {t.feedbackSubtitle}
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="bg-card rounded-2xl border border-border shadow-card overflow-hidden"
+        >
+          <div className="px-4 py-3 bg-muted/50 border-b border-border text-center">
+            <p className="text-sm text-muted-foreground">
+              {t.feedbackAnonymous}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {/* Grade */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-foreground">
+                {t.feedbackGrade} <span className="text-destructive">*</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {gradeOptions.map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setGrade(g)}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                      grade === g
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "bg-muted hover:bg-muted/80 text-foreground"
+                    }`}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Country */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-foreground">
+                {t.feedbackCountry} <span className="text-destructive">*</span>
+              </label>
+              <input
+                type="text"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                placeholder={t.feedbackCountryPlaceholder}
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+              />
+            </div>
+
+            {/* Goal */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-foreground">
+                {t.feedbackGoal} <span className="text-destructive">*</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {t.feedbackGoalOptions.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setGoal(option)}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                      goal === option
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "bg-muted hover:bg-muted/80 text-foreground"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Took Action */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-foreground">
+                {t.feedbackAction} <span className="text-destructive">*</span>
+              </label>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setTookAction(true)}
+                  className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                    tookAction === true
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "bg-muted hover:bg-muted/80 text-foreground"
+                  }`}
+                >
+                  {language === "ru" ? "Да" : language === "kk" ? "Иә" : "Yes"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTookAction(false)}
+                  className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                    tookAction === false
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "bg-muted hover:bg-muted/80 text-foreground"
+                  }`}
+                >
+                  {language === "ru" ? "Нет" : language === "kk" ? "Жоқ" : "No"}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-12 text-base font-semibold rounded-xl"
+            >
+              {isSubmitting ? (
+                t.feedbackSending
+              ) : (
+                <>
+                  {t.feedbackSubmit}
+                  <Send className="w-4 h-4 ml-2" />
+                </>
+              )}
+            </Button>
+          </form>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -461,6 +695,9 @@ export default function LandingPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Feedback Section */}
+      <FeedbackSection language={language} t={t} />
 
       {/* CTA */}
       <section className="section-tight">
