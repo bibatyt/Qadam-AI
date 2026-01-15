@@ -14,7 +14,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 
 type Language = "ru" | "kk";
 
@@ -593,7 +592,7 @@ export default function MyPath() {
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
   const [pathData, setPathData] = useState<QadamPathData | null>(null);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackShown, setFeedbackShown] = useState(false);
   const feedbackShownRef = useRef(false);
 
   useEffect(() => {
@@ -670,10 +669,10 @@ export default function MyPath() {
         })
         .eq("id", pathData.id);
       
-      // Show feedback modal after completing 3+ actions (only once per session)
+      // Navigate to feedback page after completing 3+ actions (only once per session)
       if (completedCount >= 3 && previousCompletedCount < 3 && !feedbackShownRef.current) {
         feedbackShownRef.current = true;
-        setTimeout(() => setFeedbackOpen(true), 1000);
+        setTimeout(() => navigate("/feedback?return=/my-path"), 1000);
       }
     } catch (error) {
       console.error("Error updating action:", error);
@@ -937,11 +936,6 @@ export default function MyPath() {
         </motion.div>
       </main>
 
-      <FeedbackModal 
-        isOpen={feedbackOpen} 
-        onClose={() => setFeedbackOpen(false)} 
-        source="milestone"
-      />
     </div>
   );
 }

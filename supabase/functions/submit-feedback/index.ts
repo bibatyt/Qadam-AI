@@ -8,8 +8,21 @@ const corsHeaders = {
 };
 
 interface FeedbackData {
-  rating: number | null;
-  feedback: string;
+  // Step 1
+  helped?: string | null;
+  usefulness?: number | null;
+  // Step 2
+  problem?: string;
+  helpful?: string;
+  improve?: string;
+  // Step 3
+  recommend?: string;
+  role?: string | null;
+  allowAnonymous?: boolean | null;
+  // Legacy fields (for backward compatibility)
+  rating?: number | null;
+  feedback?: string;
+  // Meta
   language: string;
   source: string;
   timestamp: string;
@@ -36,8 +49,21 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             timestamp: data.timestamp,
+            // Step 1
+            helped: data.helped ?? "N/A",
+            usefulness: data.usefulness ?? "N/A",
+            // Step 2
+            problem: data.problem || "N/A",
+            helpful_part: data.helpful || "N/A",
+            improvements: data.improve || "N/A",
+            // Step 3
+            recommend: data.recommend || "N/A",
+            role: data.role ?? "N/A",
+            allow_anonymous: data.allowAnonymous !== null ? (data.allowAnonymous ? "Yes" : "No") : "N/A",
+            // Legacy fields
             rating: data.rating ?? "N/A",
-            feedback: data.feedback || "No feedback provided",
+            feedback: data.feedback || "N/A",
+            // Meta
             language: data.language,
             source: data.source,
           }),
