@@ -1,10 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Camera, Loader2, User, Check } from "lucide-react";
+import { ArrowLeft, Camera, Loader2, User, Check, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 
@@ -23,6 +34,10 @@ const translations = {
     saved: "Сохранено",
     error: "Ошибка",
     back: "Назад",
+    logout: "Выйти из аккаунта",
+    logoutConfirm: "Вы уверены, что хотите выйти?",
+    logoutCancel: "Отмена",
+    logoutAction: "Выйти",
     generateAvatar: "Случайный аватар",
   },
   en: {
@@ -37,6 +52,10 @@ const translations = {
     saved: "Saved",
     error: "Error",
     back: "Back",
+    logout: "Log out",
+    logoutConfirm: "Are you sure you want to log out?",
+    logoutCancel: "Cancel",
+    logoutAction: "Log out",
     generateAvatar: "Random avatar",
   },
   kk: {
@@ -51,13 +70,17 @@ const translations = {
     saved: "Сақталды",
     error: "Қате",
     back: "Артқа",
+    logout: "Аккаунттан шығу",
+    logoutConfirm: "Шығуды қалайсыз ба?",
+    logoutCancel: "Болдырмау",
+    logoutAction: "Шығу",
     generateAvatar: "Кездейсоқ аватар",
   },
 };
 
 export default function SettingsPage() {
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [language] = useState<Language>("ru");
   const t = translations[language];
 
@@ -289,6 +312,45 @@ export default function SettingsPage() {
               </>
             )}
           </Button>
+        </motion.div>
+
+        {/* Logout Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full h-12 rounded-xl text-base font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                {t.logout}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t.logout}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t.logoutConfirm}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t.logoutCancel}</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={async () => {
+                    await signOut();
+                    navigate("/student-onboarding", { replace: true });
+                  }}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {t.logoutAction}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </motion.div>
       </main>
     </div>
