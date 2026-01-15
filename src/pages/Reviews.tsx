@@ -9,21 +9,18 @@ const reviewsTranslations = {
     headerTitle: "Leave a Review",
     pageTitle: "Leave a Review",
     pageDesc: "Your opinion helps us improve",
-    loading: "Loading…",
     formTitle: "Review Form",
   },
   ru: {
     headerTitle: "Оставить отзыв",
     pageTitle: "Оставить отзыв",
     pageDesc: "Ваше мнение помогает нам стать лучше",
-    loading: "Загрузка…",
     formTitle: "Форма отзыва",
   },
   kz: {
     headerTitle: "Пікір қалдыру",
     pageTitle: "Пікір қалдыру",
     pageDesc: "Сіздің пікіріңіз бізге жақсаруға көмектеседі",
-    loading: "Жүктелуде…",
     formTitle: "Пікір формасы",
   },
 };
@@ -57,20 +54,17 @@ const Reviews = () => {
             <p className="text-muted-foreground">{t.pageDesc}</p>
           </div>
 
-          {/* Embedded Google Form */}
-          <div className="w-full overflow-hidden rounded-xl bg-card border border-border/50">
+          {/* Embedded Typeform */}
+          <div className="w-full overflow-hidden rounded-xl bg-card border border-border/50" style={{ height: "600px" }}>
             <iframe
-              src="https://docs.google.com/forms/d/e/1FAIpQLSe4grrh1NRN59JXJElnW2ROqk2KlCHdfCerqHPNTNSGyd6jGg/viewform?embedded=true"
+              src="https://form.typeform.com/to/VoSk3S3r"
               width="100%"
-              height="1100"
+              height="100%"
               frameBorder="0"
-              marginHeight={0}
-              marginWidth={0}
-              style={{ border: "none", maxWidth: "100%", minHeight: "600px" }}
+              allow="camera; microphone; autoplay; encrypted-media;"
+              style={{ border: "none" }}
               title={t.formTitle}
-            >
-              {t.loading}
-            </iframe>
+            />
           </div>
         </div>
       </main>
