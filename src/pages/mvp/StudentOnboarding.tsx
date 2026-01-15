@@ -272,7 +272,7 @@ const ExamOption = ({ selected, onClick, label }: ExamOptionProps) => (
   </motion.button>
 );
 
-const TOTAL_STEPS = 12; // 9 wizard steps + auth step + feedback step + verification step
+const TOTAL_STEPS = 10; // 9 wizard steps + auth step
 
 export default function StudentOnboarding() {
   const navigate = useNavigate();
@@ -486,7 +486,7 @@ export default function StudentOnboarding() {
       if (saveError) throw saveError;
 
       toast.success(t.success);
-      setStep(11); // Go to feedback step
+      navigate("/my-path", { replace: true });
     } catch (error) {
       console.error("Error creating account and path:", error);
       toast.error(t.error);
@@ -562,7 +562,7 @@ export default function StudentOnboarding() {
       if (saveError) throw saveError;
 
       toast.success(t.success);
-      setStep(11); // Go to feedback step
+      navigate("/my-path", { replace: true });
     } catch (error) {
       console.error("Error creating path:", error);
       toast.error(t.error);
@@ -951,31 +951,6 @@ export default function StudentOnboarding() {
               </div>
             )}
 
-            {/* Step 11: Feedback */}
-            {step === 11 && (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
-                    <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
-                  </div>
-                  <h2 className="text-xl font-bold mb-2">{t.feedbackTitle}</h2>
-                  <p className="text-muted-foreground text-sm">{t.feedbackSubtitle}</p>
-                </div>
-
-                <div className="bg-card rounded-2xl border border-border overflow-hidden" style={{ height: "450px" }}>
-                  <iframe
-                    src="https://form.typeform.com/to/VoSk3S3r"
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    allow="camera; microphone; autoplay; encrypted-media;"
-                    className="w-full h-full"
-                    style={{ border: "none" }}
-                    title="Feedback Form"
-                  />
-                </div>
-              </div>
-            )}
 
           </motion.div>
         </AnimatePresence>
@@ -1041,24 +1016,6 @@ export default function StudentOnboarding() {
             </Button>
           )}
 
-          {step === 11 && (
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1 h-14 text-lg rounded-2xl font-medium"
-                onClick={() => navigate("/my-path", { replace: true })}
-              >
-                {t.skipFeedback}
-              </Button>
-              <Button
-                className="flex-1 h-14 text-lg rounded-2xl font-bold"
-                onClick={() => navigate("/my-path", { replace: true })}
-              >
-                {t.goToPath}
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </div>
-          )}
 
         </div>
       </footer>
