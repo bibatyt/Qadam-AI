@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Camera, Loader2, User, Check, LogOut } from "lucide-react";
+import { ArrowLeft, Camera, Loader2, User, Check, LogOut, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 
 type Language = "ru" | "en" | "kk";
 
@@ -39,6 +40,7 @@ const translations = {
     logoutCancel: "Отмена",
     logoutAction: "Выйти",
     generateAvatar: "Случайный аватар",
+    leaveFeedback: "Оставить отзыв",
   },
   en: {
     title: "Settings",
@@ -57,6 +59,7 @@ const translations = {
     logoutCancel: "Cancel",
     logoutAction: "Log out",
     generateAvatar: "Random avatar",
+    leaveFeedback: "Leave feedback",
   },
   kk: {
     title: "Баптаулар",
@@ -75,6 +78,7 @@ const translations = {
     logoutCancel: "Болдырмау",
     logoutAction: "Шығу",
     generateAvatar: "Кездейсоқ аватар",
+    leaveFeedback: "Пікір қалдыру",
   },
 };
 
@@ -88,6 +92,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -314,7 +319,21 @@ export default function SettingsPage() {
           </Button>
         </motion.div>
 
-        {/* Logout Section */}
+        {/* Feedback Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.25 }}
+        >
+          <Button
+            variant="outline"
+            className="w-full h-12 rounded-xl text-base font-medium"
+            onClick={() => setFeedbackOpen(true)}
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            {t.leaveFeedback}
+          </Button>
+        </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -352,6 +371,12 @@ export default function SettingsPage() {
             </AlertDialogContent>
           </AlertDialog>
         </motion.div>
+
+        <FeedbackModal 
+          isOpen={feedbackOpen} 
+          onClose={() => setFeedbackOpen(false)} 
+          source="settings"
+        />
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Check, ChevronRight, Loader2, Share2, Settings, 
@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 
 type Language = "ru" | "kk";
 
@@ -592,6 +593,8 @@ export default function MyPath() {
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
   const [pathData, setPathData] = useState<QadamPathData | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const feedbackShownRef = useRef(false);
 
   useEffect(() => {
     if (user) fetchPath();
@@ -634,6 +637,8 @@ export default function MyPath() {
   const handleToggleAction = async (actionId: string) => {
     if (!pathData) return;
 
+    const previousCompletedCount = pathData.highImpactActions.filter(a => a.completed).length;
+    
     const updatedActions = pathData.highImpactActions.map(action => 
       action.id === actionId 
         ? { ...action, completed: !action.completed }
@@ -664,6 +669,12 @@ export default function MyPath() {
           progress_percent: newProgress,
         })
         .eq("id", pathData.id);
+      
+      // Show feedback modal after completing 3+ actions (only once per session)
+      if (completedCount >= 3 && previousCompletedCount < 3 && !feedbackShownRef.current) {
+        feedbackShownRef.current = true;
+        setTimeout(() => setFeedbackOpen(true), 1000);
+      }
     } catch (error) {
       console.error("Error updating action:", error);
     }
@@ -925,6 +936,12 @@ export default function MyPath() {
           </Button>
         </motion.div>
       </main>
+
+      <FeedbackModal 
+        isOpen={feedbackOpen} 
+        onClose={() => setFeedbackOpen(false)} 
+        source="milestone"
+      />
     </div>
   );
 }
