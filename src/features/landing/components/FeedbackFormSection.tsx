@@ -6,19 +6,16 @@ const feedbackText = {
     title: "Help us improve — it takes only 2–3 minutes",
     subtitle: "Your feedback helps us improve guidance quality for students.",
     reassurance: "No sign-up required. Your response is anonymous.",
-    loading: "Loading…",
   },
   ru: {
     title: "Помогите нам стать лучше — это займёт 2–3 минуты",
     subtitle: "Ваш отзыв помогает улучшить качество рекомендаций для студентов.",
     reassurance: "Регистрация не требуется. Ваш ответ анонимен.",
-    loading: "Загрузка…",
   },
   kz: {
     title: "Бізге жақсаруға көмектесіңіз — бұл тек 2–3 минут алады",
     subtitle: "Сіздің пікіріңіз студенттерге арналған нұсқаулық сапасын жақсартуға көмектеседі.",
     reassurance: "Тіркелу қажет емес. Сіздің жауабыңыз анонимді.",
-    loading: "Жүктелуде…",
   },
 };
 
@@ -55,20 +52,17 @@ export const FeedbackFormSection = () => {
             {t.reassurance}
           </p>
           
-          <div className="w-full">
+          <div className="w-full" style={{ height: "600px" }}>
             <iframe
-              src="https://docs.google.com/forms/d/e/1FAIpQLSfo3ODRBWFbSL-cqEBuPfm_OI3Uh3nLLKvQehmpHtPQDymN1Q/viewform?embedded=true"
+              src="https://form.typeform.com/to/VoSk3S3r"
               width="100%"
-              height="1000"
+              height="100%"
               frameBorder="0"
-              marginHeight={0}
-              marginWidth={0}
-              className="w-full min-h-[800px]"
+              allow="camera; microphone; autoplay; encrypted-media;"
+              className="w-full h-full"
               style={{ border: "none" }}
               title="Feedback Form"
-            >
-              {t.loading}
-            </iframe>
+            />
           </div>
         </motion.div>
       </div>

@@ -201,7 +201,7 @@ const stagger = {
   },
 };
 
-// Feedback Section Component - Embedded Google Form
+// Feedback Section Component - Embedded Typeform
 function FeedbackSection({ language, t }: { language: Language; t: typeof translations.ru }) {
   return (
     <section className="section bg-gradient-to-b from-muted/50 to-background">
@@ -237,20 +237,17 @@ function FeedbackSection({ language, t }: { language: Language; t: typeof transl
             </p>
           </div>
 
-          <div className="w-full">
+          <div className="w-full" style={{ height: "600px" }}>
             <iframe
-              src="https://docs.google.com/forms/d/e/1FAIpQLSfo3ODRBWFbSL-cqEBuPfm_OI3Uh3nLLKvQehmpHtPQDymN1Q/viewform?embedded=true"
+              src="https://form.typeform.com/to/VoSk3S3r"
               width="100%"
-              height="1936"
+              height="100%"
               frameBorder="0"
-              marginHeight={0}
-              marginWidth={0}
-              className="w-full border-0"
-              style={{ minHeight: "1936px" }}
+              allow="camera; microphone; autoplay; encrypted-media;"
+              className="w-full h-full border-0"
+              style={{ border: "none" }}
               title="Feedback Form"
-            >
-              {language === "ru" ? "Загрузка…" : language === "kk" ? "Жүктелуде…" : "Loading…"}
-            </iframe>
+            />
           </div>
         </motion.div>
       </div>

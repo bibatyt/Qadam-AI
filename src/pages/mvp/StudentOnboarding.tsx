@@ -64,6 +64,11 @@ const translations = {
     haveAccount: "Уже есть аккаунт?",
     login: "Войти",
     emailExists: "Этот email уже зарегистрирован",
+    // Feedback step
+    feedbackTitle: "Помогите нам стать лучше",
+    feedbackSubtitle: "Ваш отзыв поможет улучшить качество рекомендаций",
+    skipFeedback: "Пропустить",
+    goToPath: "Перейти к плану",
     // Verification
     verifyEmail: "Подтвердите email",
     codeSentTo: "Мы отправили 6-значный код на",
@@ -124,6 +129,11 @@ const translations = {
     haveAccount: "Already have an account?",
     login: "Log in",
     emailExists: "This email is already registered",
+    // Feedback step
+    feedbackTitle: "Help us improve",
+    feedbackSubtitle: "Your feedback helps us improve guidance quality",
+    skipFeedback: "Skip",
+    goToPath: "Go to my plan",
     // Verification
     verifyEmail: "Verify your email",
     codeSentTo: "We sent a 6-digit code to",
@@ -184,6 +194,11 @@ const translations = {
     haveAccount: "Аккаунтыңыз бар ма?",
     login: "Кіру",
     emailExists: "Бұл email тіркелген",
+    // Feedback step
+    feedbackTitle: "Бізге жақсаруға көмектесіңіз",
+    feedbackSubtitle: "Сіздің пікіріңіз нұсқаулық сапасын жақсартуға көмектеседі",
+    skipFeedback: "Өткізіп жіберу",
+    goToPath: "Жоспарға өту",
     // Verification
     verifyEmail: "Email-ді растаңыз",
     codeSentTo: "6 санды код жібердік:",
@@ -257,7 +272,7 @@ const ExamOption = ({ selected, onClick, label }: ExamOptionProps) => (
   </motion.button>
 );
 
-const TOTAL_STEPS = 11; // 9 wizard steps + auth step + verification step
+const TOTAL_STEPS = 12; // 9 wizard steps + auth step + feedback step + verification step
 
 export default function StudentOnboarding() {
   const navigate = useNavigate();
@@ -471,7 +486,7 @@ export default function StudentOnboarding() {
       if (saveError) throw saveError;
 
       toast.success(t.success);
-      navigate("/my-path", { replace: true });
+      setStep(11); // Go to feedback step
     } catch (error) {
       console.error("Error creating account and path:", error);
       toast.error(t.error);
@@ -547,7 +562,7 @@ export default function StudentOnboarding() {
       if (saveError) throw saveError;
 
       toast.success(t.success);
-      navigate("/my-path", { replace: true });
+      setStep(11); // Go to feedback step
     } catch (error) {
       console.error("Error creating path:", error);
       toast.error(t.error);
@@ -936,6 +951,32 @@ export default function StudentOnboarding() {
               </div>
             )}
 
+            {/* Step 11: Feedback */}
+            {step === 11 && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
+                    <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  </div>
+                  <h2 className="text-xl font-bold mb-2">{t.feedbackTitle}</h2>
+                  <p className="text-muted-foreground text-sm">{t.feedbackSubtitle}</p>
+                </div>
+
+                <div className="bg-card rounded-2xl border border-border overflow-hidden" style={{ height: "450px" }}>
+                  <iframe
+                    src="https://form.typeform.com/to/VoSk3S3r"
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    allow="camera; microphone; autoplay; encrypted-media;"
+                    className="w-full h-full"
+                    style={{ border: "none" }}
+                    title="Feedback Form"
+                  />
+                </div>
+              </div>
+            )}
+
           </motion.div>
         </AnimatePresence>
       </main>
@@ -998,6 +1039,25 @@ export default function StudentOnboarding() {
                 </>
               )}
             </Button>
+          )}
+
+          {step === 11 && (
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 h-14 text-lg rounded-2xl font-medium"
+                onClick={() => navigate("/my-path", { replace: true })}
+              >
+                {t.skipFeedback}
+              </Button>
+              <Button
+                className="flex-1 h-14 text-lg rounded-2xl font-bold"
+                onClick={() => navigate("/my-path", { replace: true })}
+              >
+                {t.goToPath}
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
           )}
 
         </div>
