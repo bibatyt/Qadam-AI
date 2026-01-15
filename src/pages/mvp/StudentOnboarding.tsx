@@ -1,15 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2, Check, GraduationCap, Target } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Check, GraduationCap, Target, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { specialties, englishLevels } from "@/data/universities";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { z } from "zod";
 
 type Language = "ru" | "en" | "kk";
+
+// Validation schemas
+const emailSchema = z.string().email("Invalid email address");
+const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
 
 const translations = {
   ru: {
@@ -47,6 +54,29 @@ const translations = {
     creating: "AI создаёт план...",
     success: "План создан! 🎉",
     error: "Ошибка. Попробуйте снова.",
+    // Auth step
+    step10Title: "Создайте аккаунт",
+    step10Subtitle: "Чтобы сохранить ваш персональный план",
+    name: "Имя",
+    email: "Email",
+    password: "Пароль",
+    passwordHint: "Минимум 6 символов",
+    signupButton: "Зарегистрироваться",
+    haveAccount: "Уже есть аккаунт?",
+    login: "Войти",
+    emailExists: "Этот email уже зарегистрирован",
+    // Verification
+    verifyEmail: "Подтвердите email",
+    codeSentTo: "Мы отправили 6-значный код на",
+    enterCode: "Введите код подтверждения",
+    verify: "Подтвердить",
+    resendCode: "Отправить код снова",
+    codeResent: "Код отправлен!",
+    invalidCode: "Неверный или истёкший код",
+    emailVerified: "Email подтверждён!",
+    sendingCode: "Отправка кода...",
+    verifying: "Проверка...",
+    back: "Назад",
   },
   en: {
     step1Title: "What grade are you in?",
@@ -83,8 +113,31 @@ const translations = {
     creating: "AI creating plan...",
     success: "Plan created! 🎉",
     error: "Error. Please try again.",
+    // Auth step
+    step10Title: "Create your account",
+    step10Subtitle: "To save your personalized plan",
+    name: "Name",
+    email: "Email",
+    password: "Password",
+    passwordHint: "At least 6 characters",
+    signupButton: "Sign Up",
+    haveAccount: "Already have an account?",
+    login: "Log in",
+    emailExists: "This email is already registered",
+    // Verification
+    verifyEmail: "Verify your email",
+    codeSentTo: "We sent a 6-digit code to",
+    enterCode: "Enter verification code",
+    verify: "Verify",
+    resendCode: "Resend code",
+    codeResent: "Code sent!",
+    invalidCode: "Invalid or expired code",
+    emailVerified: "Email verified!",
+    sendingCode: "Sending code...",
+    verifying: "Verifying...",
+    back: "Back",
   },
-  kk: {
+  kz: {
     step1Title: "Қай сыныпта оқисыз?",
     grade9: "9 сынып",
     grade10: "10 сынып",
@@ -119,6 +172,29 @@ const translations = {
     creating: "AI жоспар құруда...",
     success: "Жоспар құрылды! 🎉",
     error: "Қате. Қайтадан көріңіз.",
+    // Auth step
+    step10Title: "Аккаунт құрыңыз",
+    step10Subtitle: "Жеке жоспарыңызды сақтау үшін",
+    name: "Аты",
+    email: "Email",
+    password: "Құпия сөз",
+    passwordHint: "Кемінде 6 таңба",
+    signupButton: "Тіркелу",
+    haveAccount: "Аккаунтыңыз бар ма?",
+    login: "Кіру",
+    emailExists: "Бұл email тіркелген",
+    // Verification
+    verifyEmail: "Email-ді растаңыз",
+    codeSentTo: "6 санды код жібердік:",
+    enterCode: "Растау кодын енгізіңіз",
+    verify: "Растау",
+    resendCode: "Кодты қайта жіберу",
+    codeResent: "Код жіберілді!",
+    invalidCode: "Код қате немесе мерзімі өткен",
+    emailVerified: "Email расталды!",
+    sendingCode: "Код жіберілуде...",
+    verifying: "Тексерілуде...",
+    back: "Артқа",
   },
 };
 
@@ -179,17 +255,19 @@ const ExamOption = ({ selected, onClick, label }: ExamOptionProps) => (
   </motion.button>
 );
 
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 11; // 9 wizard steps + auth step + verification step
 
 export default function StudentOnboarding() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signUp } = useAuth();
   const [language] = useState<Language>("ru");
   const t = translations[language];
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
 
+  // Wizard data
   const [grade, setGrade] = useState("");
   const [goal, setGoal] = useState("");
   const [specificGoal, setSpecificGoal] = useState("");
@@ -203,8 +281,43 @@ export default function StudentOnboarding() {
   const [specialty, setSpecialty] = useState("");
   const [needScholarship, setNeedScholarship] = useState<boolean | null>(null);
 
+  // Auth data
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
   const currentYear = new Date().getFullYear();
   const years = [currentYear + 1, currentYear + 2, currentYear + 3];
+
+  const validateEmail = (value: string) => {
+    try {
+      emailSchema.parse(value);
+      setEmailError("");
+      return true;
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        setEmailError(e.errors[0].message);
+      }
+      return false;
+    }
+  };
+
+  const validatePassword = (value: string) => {
+    try {
+      passwordSchema.parse(value);
+      setPasswordError("");
+      return true;
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        setPasswordError(e.errors[0].message);
+      }
+      return false;
+    }
+  };
 
   const canProceed = () => {
     if (step === 1) return !!grade;
@@ -216,6 +329,8 @@ export default function StudentOnboarding() {
     if (step === 7) return true; // Scores are optional
     if (step === 8) return !!specialty;
     if (step === 9) return needScholarship !== null;
+    if (step === 10) return name.trim().length >= 2 && email.trim().length > 0 && password.length >= 6;
+    if (step === 11) return verificationCode.length === 6;
     return false;
   };
 
@@ -233,7 +348,178 @@ export default function StudentOnboarding() {
     if (step > 1) setStep(step - 1);
   };
 
-  const handleCreatePath = async () => {
+  const sendVerificationCode = async () => {
+    setSendingCode(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-auth-email', {
+        body: {
+          to: email,
+          type: 'verification',
+          name: name,
+          language: language
+        }
+      });
+      
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error sending verification code:', error);
+      toast.error(t.error);
+      return false;
+    } finally {
+      setSendingCode(false);
+    }
+  };
+
+  const handleAuthSubmit = async () => {
+    if (!validateEmail(email) || !validatePassword(password)) return;
+    
+    setLoading(true);
+    try {
+      // Send verification code
+      const sent = await sendVerificationCode();
+      if (sent) {
+        setStep(11); // Go to verification step
+      }
+    } catch (error) {
+      toast.error(t.error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    const sent = await sendVerificationCode();
+    if (sent) {
+      toast.success(t.codeResent);
+    }
+  };
+
+  const handleVerifyAndCreatePath = async () => {
+    if (!targetYear) return;
+
+    setLoading(true);
+    try {
+      // Verify the code first
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-email-code', {
+        body: { email, code: verificationCode }
+      });
+      
+      if (verifyError || !verifyData?.success) {
+        toast.error(t.invalidCode);
+        setLoading(false);
+        return;
+      }
+
+      // Create the account
+      const { error: signUpError } = await signUp(email, password, name);
+      if (signUpError) {
+        if (signUpError.message.includes("already registered")) {
+          toast.error(t.emailExists);
+        } else {
+          toast.error(signUpError.message);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Wait for auth to complete
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Get the new user
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      
+      if (!newUser) {
+        toast.error(t.error);
+        setLoading(false);
+        return;
+      }
+
+      // Create user role
+      await supabase.from("user_roles").upsert({
+        user_id: newUser.id,
+        role: "student" as const,
+      });
+
+      // Update profile with scores
+      await supabase.from("profiles").update({
+        ielts_score: ieltsScore ? parseFloat(ieltsScore) : null,
+        sat_score: satScore ? parseInt(satScore) : null,
+        name: name,
+      }).eq("user_id", newUser.id);
+
+      // Generate path with AI
+      const { data: pathData, error: pathError } = await supabase.functions.invoke(
+        "generate-student-path",
+        { 
+          body: { 
+            grade, 
+            goal, 
+            exams, 
+            targetYear, 
+            language,
+            englishLevel,
+            ieltsScore: ieltsScore || null,
+            entScore: entScore || null,
+            satScore: satScore || null,
+            gpa: gpa || null,
+            specialty,
+            needScholarship,
+            specificGoal,
+            targetUniversity: specificGoal,
+          } 
+        }
+      );
+
+      if (pathError) throw pathError;
+
+      const isQadamFormat = pathData?.goalDefinition !== undefined;
+      
+      const { error: saveError } = await supabase.from("student_paths").insert({
+        user_id: newUser.id,
+        grade,
+        goal,
+        exams,
+        target_year: targetYear,
+        milestones: isQadamFormat ? pathData : (pathData.milestones || []),
+        current_stage: isQadamFormat 
+          ? pathData.currentPhase?.phaseName || ""
+          : (pathData.currentStage || ""),
+        progress_percent: pathData.progressPercent || 0,
+        specific_goal: specificGoal,
+        ai_recommendations: isQadamFormat 
+          ? []
+          : (pathData.recommendations || []),
+        ai_warnings: isQadamFormat 
+          ? [] 
+          : (pathData.warnings || []),
+        expected_progress_percent: pathData.progressPercent || 5,
+      });
+
+      if (saveError) throw saveError;
+
+      // Send welcome email
+      await supabase.functions.invoke('send-auth-email', {
+        body: {
+          to: email,
+          type: 'welcome',
+          name: name,
+          language: language
+        }
+      });
+
+      toast.success(t.success);
+      navigate("/my-path", { replace: true });
+    } catch (error) {
+      console.error("Error creating path:", error);
+      toast.error(t.error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // If user is already logged in, create path directly
+  const handleCreatePathForLoggedInUser = async () => {
     if (!user || !targetYear) return;
 
     setLoading(true);
@@ -243,7 +529,6 @@ export default function StudentOnboarding() {
         role: "student" as const,
       });
 
-      // Update profile with scores
       await supabase.from("profiles").update({
         ielts_score: ieltsScore ? parseFloat(ieltsScore) : null,
         sat_score: satScore ? parseInt(satScore) : null,
@@ -266,25 +551,21 @@ export default function StudentOnboarding() {
             specialty,
             needScholarship,
             specificGoal,
-            targetUniversity: specificGoal, // Use specificGoal as target university
+            targetUniversity: specificGoal,
           } 
         }
       );
 
       if (pathError) throw pathError;
 
-      // Check if we got Qadam AI format (new) or old format
       const isQadamFormat = pathData?.goalDefinition !== undefined;
       
-      // Save the entire Qadam AI response in milestones field (as JSON)
-      // This preserves all 7 steps of the Qadam methodology
       const { error: saveError } = await supabase.from("student_paths").insert({
         user_id: user.id,
         grade,
         goal,
         exams,
         target_year: targetYear,
-        // Store entire Qadam AI response for the new UI
         milestones: isQadamFormat ? pathData : (pathData.milestones || []),
         current_stage: isQadamFormat 
           ? pathData.currentPhase?.phaseName || ""
@@ -292,7 +573,7 @@ export default function StudentOnboarding() {
         progress_percent: pathData.progressPercent || 0,
         specific_goal: specificGoal,
         ai_recommendations: isQadamFormat 
-          ? [] // Recommendations are now embedded in Qadam format
+          ? []
           : (pathData.recommendations || []),
         ai_warnings: isQadamFormat 
           ? [] 
@@ -318,6 +599,10 @@ export default function StudentOnboarding() {
     exit: { x: -50, opacity: 0 },
   };
 
+  // Calculate progress bar steps (show only 9 wizard steps in progress)
+  const progressSteps = 9;
+  const currentProgressStep = Math.min(step, progressSteps);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -336,13 +621,13 @@ export default function StudentOnboarding() {
         )}
 
         <div className="flex gap-1.5">
-          {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+          {Array.from({ length: progressSteps }).map((_, i) => (
             <motion.div
               key={i}
               initial={{ scale: 0.8 }}
-              animate={{ scale: i + 1 <= step ? 1 : 0.8 }}
+              animate={{ scale: i + 1 <= currentProgressStep ? 1 : 0.8 }}
               className={`h-1.5 w-5 rounded-full transition-colors ${
-                i + 1 <= step ? "bg-primary" : "bg-border"
+                i + 1 <= currentProgressStep ? "bg-primary" : "bg-border"
               }`}
             />
           ))}
@@ -570,6 +855,152 @@ export default function StudentOnboarding() {
                 <Option selected={needScholarship === false} onClick={() => setNeedScholarship(false)} title={t.no} subtitle={t.noDesc} />
               </div>
             )}
+
+            {/* Auth Step - Only show if user is not logged in */}
+            {step === 10 && !user && (
+              <div className="space-y-5">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <User className="w-8 h-8 text-primary" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-foreground">{t.step10Title}</h1>
+                  <p className="text-sm text-muted-foreground mt-2">{t.step10Subtitle}</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="name">{t.name}</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="h-12 pl-10 rounded-xl"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email">{t.email}</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          validateEmail(e.target.value);
+                        }}
+                        className={`h-12 pl-10 rounded-xl ${emailError ? 'border-destructive' : ''}`}
+                        placeholder="your@email.com"
+                        required
+                      />
+                    </div>
+                    {emailError && (
+                      <p className="text-xs text-destructive">{emailError}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="password">{t.password}</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          validatePassword(e.target.value);
+                        }}
+                        className={`h-12 pl-10 pr-10 rounded-xl ${passwordError ? 'border-destructive' : ''}`}
+                        placeholder="••••••••"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {passwordError ? (
+                      <p className="text-xs text-destructive">{passwordError}</p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">{t.passwordHint}</p>
+                    )}
+                  </div>
+
+                  <div className="text-center pt-2">
+                    <span className="text-sm text-muted-foreground">{t.haveAccount} </span>
+                    <button
+                      onClick={() => navigate("/auth")}
+                      className="text-sm text-primary font-medium hover:underline"
+                    >
+                      {t.login}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Verification Step */}
+            {step === 11 && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-8 h-8 text-primary" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-foreground mb-2">
+                    {t.verifyEmail}
+                  </h1>
+                  <p className="text-muted-foreground">
+                    {t.codeSentTo}
+                  </p>
+                  <p className="text-primary font-semibold mt-1">
+                    {email}
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-center block">{t.enterCode}</Label>
+                    <div className="flex justify-center">
+                      <InputOTP
+                        value={verificationCode}
+                        onChange={setVerificationCode}
+                        maxLength={6}
+                      >
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} className="w-12 h-14 text-xl" />
+                          <InputOTPSlot index={1} className="w-12 h-14 text-xl" />
+                          <InputOTPSlot index={2} className="w-12 h-14 text-xl" />
+                          <InputOTPSlot index={3} className="w-12 h-14 text-xl" />
+                          <InputOTPSlot index={4} className="w-12 h-14 text-xl" />
+                          <InputOTPSlot index={5} className="w-12 h-14 text-xl" />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <button
+                      onClick={handleResendCode}
+                      disabled={sendingCode}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors disabled:opacity-50"
+                    >
+                      {sendingCode ? t.sendingCode : t.resendCode}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -577,7 +1008,7 @@ export default function StudentOnboarding() {
       {/* Footer */}
       <footer className="p-4 pb-8 bg-card border-t border-border">
         <div className="max-w-md mx-auto">
-          {step < TOTAL_STEPS ? (
+          {step < 9 && (
             <Button
               className="w-full h-14 text-lg rounded-2xl font-bold"
               onClick={handleNext}
@@ -586,10 +1017,58 @@ export default function StudentOnboarding() {
               {t.continue}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-          ) : (
+          )}
+
+          {step === 9 && (
             <Button
               className="w-full h-14 text-lg rounded-2xl font-bold"
-              onClick={handleCreatePath}
+              onClick={() => {
+                if (user) {
+                  handleCreatePathForLoggedInUser();
+                } else {
+                  setStep(10);
+                }
+              }}
+              disabled={!canProceed() || loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  {t.creating}
+                </>
+              ) : (
+                <>
+                  {t.continue}
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </>
+              )}
+            </Button>
+          )}
+
+          {step === 10 && !user && (
+            <Button
+              className="w-full h-14 text-lg rounded-2xl font-bold"
+              onClick={handleAuthSubmit}
+              disabled={!canProceed() || loading || sendingCode}
+            >
+              {loading || sendingCode ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  {sendingCode ? t.sendingCode : t.verifying}
+                </>
+              ) : (
+                <>
+                  {t.signupButton}
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </>
+              )}
+            </Button>
+          )}
+
+          {step === 11 && (
+            <Button
+              className="w-full h-14 text-lg rounded-2xl font-bold"
+              onClick={handleVerifyAndCreatePath}
               disabled={!canProceed() || loading}
             >
               {loading ? (
