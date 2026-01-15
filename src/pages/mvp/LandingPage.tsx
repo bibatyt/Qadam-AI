@@ -569,8 +569,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feedback Section */}
-      <FeedbackSection language={language} t={t} />
 
       {/* CTA */}
       <section className="section-tight">
