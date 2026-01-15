@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { specialties, englishLevels } from "@/data/universities";
 import { z } from "zod";
+import { AIGeneratingAnimation } from "@/components/onboarding/AIGeneratingAnimation";
 
 type Language = "ru" | "en" | "kk";
 
@@ -282,6 +283,7 @@ export default function StudentOnboarding() {
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [generatingPlan, setGeneratingPlan] = useState(false);
   
   const [initialLoading, setInitialLoading] = useState(true);
 
@@ -435,6 +437,10 @@ export default function StudentOnboarding() {
         name: name,
       }).eq("user_id", newUser.id);
 
+      // Show AI generating animation
+      setLoading(false);
+      setGeneratingPlan(true);
+
       // Generate path with AI
       const { data: pathData, error: pathError } = await supabase.functions.invoke(
         "generate-student-path",
@@ -490,6 +496,7 @@ export default function StudentOnboarding() {
     } catch (error) {
       console.error("Error creating account and path:", error);
       toast.error(t.error);
+      setGeneratingPlan(false);
     } finally {
       setLoading(false);
     }
@@ -500,7 +507,7 @@ export default function StudentOnboarding() {
   const handleCreatePathForLoggedInUser = async () => {
     if (!user || !targetYear) return;
 
-    setLoading(true);
+    setGeneratingPlan(true);
     try {
       await supabase.from("user_roles").upsert({
         user_id: user.id,
@@ -566,8 +573,7 @@ export default function StudentOnboarding() {
     } catch (error) {
       console.error("Error creating path:", error);
       toast.error(t.error);
-    } finally {
-      setLoading(false);
+      setGeneratingPlan(false);
     }
   };
 
@@ -588,6 +594,11 @@ export default function StudentOnboarding() {
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  // Show AI generating animation
+  if (generatingPlan) {
+    return <AIGeneratingAnimation language={language} />;
   }
 
   return (
