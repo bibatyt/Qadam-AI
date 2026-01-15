@@ -451,8 +451,8 @@ export default function AuthPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
-                  setUserType("student");
-                  setStep("form");
+                  // Redirect to student onboarding wizard
+                  navigate("/student-onboarding");
                 }}
                 className="w-full p-4 bg-card border-2 border-border rounded-xl flex items-start gap-4 hover:border-primary/50 transition-all text-left"
               >
