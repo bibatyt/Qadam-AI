@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Loader2, Check, GraduationCap, Target, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -269,6 +269,33 @@ export default function StudentOnboarding() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  // Redirect logged-in users who already have a path
+  useEffect(() => {
+    const checkUserAndRedirect = async () => {
+      if (!user) {
+        setInitialLoading(false);
+        return;
+      }
+
+      // Check if user already has a student path
+      const { data: pathData } = await supabase
+        .from('student_paths')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (pathData && pathData.length > 0) {
+        // User already has a path, redirect to my-path
+        navigate("/my-path", { replace: true });
+      } else {
+        setInitialLoading(false);
+      }
+    };
+
+    checkUserAndRedirect();
+  }, [user, navigate]);
 
   // Wizard data
   const [grade, setGrade] = useState("");
@@ -618,9 +645,17 @@ export default function StudentOnboarding() {
   const progressSteps = 9;
   const currentProgressStep = Math.min(step, progressSteps);
 
+  // Show loading while checking user status
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="h-16 flex items-center justify-between px-4 border-b border-border bg-card">
         {step > 1 ? (
           <motion.button
