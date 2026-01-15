@@ -9,7 +9,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { specialties, englishLevels } from "@/data/universities";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { z } from "zod";
 
 type Language = "ru" | "en" | "kk";
@@ -268,7 +267,7 @@ export default function StudentOnboarding() {
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [sendingCode, setSendingCode] = useState(false);
+  
   const [initialLoading, setInitialLoading] = useState(true);
 
   // Redirect logged-in users who already have a path
@@ -316,7 +315,7 @@ export default function StudentOnboarding() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
+  
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
@@ -360,7 +359,6 @@ export default function StudentOnboarding() {
     if (step === 8) return !!specialty;
     if (step === 9) return needScholarship !== null;
     if (step === 10) return name.trim().length >= 2 && email.trim().length > 0 && password.length >= 6;
-    if (step === 11) return verificationCode.length === 6;
     return false;
   };
 
@@ -378,82 +376,14 @@ export default function StudentOnboarding() {
     if (step > 1) setStep(step - 1);
   };
 
-  const sendVerificationCode = async () => {
-    setSendingCode(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('send-auth-email', {
-        body: {
-          to: email,
-          type: 'verification',
-          name: name,
-          language: language
-        }
-      });
-      
-      if (error) throw error;
-      if (data?.error) {
-        console.error('Email service error:', data.error);
-        // If domain not verified, show helpful message
-        if (data.error.includes?.('domain') || data.error.includes?.('verify')) {
-          toast.error(language === "ru" 
-            ? "Домен email не подтверждён. Обратитесь к администратору." 
-            : "Email domain not verified. Contact administrator.");
-        } else {
-          toast.error(t.error);
-        }
-        return false;
-      }
-      return true;
-    } catch (error) {
-      console.error('Error sending verification code:', error);
-      toast.error(t.error);
-      return false;
-    } finally {
-      setSendingCode(false);
-    }
-  };
 
   const handleAuthSubmit = async () => {
     if (!validateEmail(email) || !validatePassword(password)) return;
+    if (!targetYear) return;
     
     setLoading(true);
     try {
-      // Send verification code
-      const sent = await sendVerificationCode();
-      if (sent) {
-        setStep(11); // Go to verification step
-      }
-    } catch (error) {
-      toast.error(t.error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendCode = async () => {
-    const sent = await sendVerificationCode();
-    if (sent) {
-      toast.success(t.codeResent);
-    }
-  };
-
-  const handleVerifyAndCreatePath = async () => {
-    if (!targetYear) return;
-
-    setLoading(true);
-    try {
-      // Verify the code first
-      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-email-code', {
-        body: { email, code: verificationCode }
-      });
-      
-      if (verifyError || !verifyData?.success) {
-        toast.error(t.invalidCode);
-        setLoading(false);
-        return;
-      }
-
-      // Create the account
+      // Create the account directly without email verification
       const { error: signUpError } = await signUp(email, password, name);
       if (signUpError) {
         if (signUpError.message.includes("already registered")) {
@@ -540,25 +470,16 @@ export default function StudentOnboarding() {
 
       if (saveError) throw saveError;
 
-      // Send welcome email
-      await supabase.functions.invoke('send-auth-email', {
-        body: {
-          to: email,
-          type: 'welcome',
-          name: name,
-          language: language
-        }
-      });
-
       toast.success(t.success);
       navigate("/my-path", { replace: true });
     } catch (error) {
-      console.error("Error creating path:", error);
+      console.error("Error creating account and path:", error);
       toast.error(t.error);
     } finally {
       setLoading(false);
     }
   };
+
 
   // If user is already logged in, create path directly
   const handleCreatePathForLoggedInUser = async () => {
@@ -1015,57 +936,6 @@ export default function StudentOnboarding() {
               </div>
             )}
 
-            {/* Verification Step */}
-            {step === 11 && (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <Mail className="w-8 h-8 text-primary" />
-                  </div>
-                  <h1 className="text-2xl font-bold text-foreground mb-2">
-                    {t.verifyEmail}
-                  </h1>
-                  <p className="text-muted-foreground">
-                    {t.codeSentTo}
-                  </p>
-                  <p className="text-primary font-semibold mt-1">
-                    {email}
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-center block">{t.enterCode}</Label>
-                    <div className="flex justify-center">
-                      <InputOTP
-                        value={verificationCode}
-                        onChange={setVerificationCode}
-                        maxLength={6}
-                      >
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} className="w-12 h-14 text-xl" />
-                          <InputOTPSlot index={1} className="w-12 h-14 text-xl" />
-                          <InputOTPSlot index={2} className="w-12 h-14 text-xl" />
-                          <InputOTPSlot index={3} className="w-12 h-14 text-xl" />
-                          <InputOTPSlot index={4} className="w-12 h-14 text-xl" />
-                          <InputOTPSlot index={5} className="w-12 h-14 text-xl" />
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </div>
-                  </div>
-
-                  <div className="text-center">
-                    <button
-                      onClick={handleResendCode}
-                      disabled={sendingCode}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors disabled:opacity-50"
-                    >
-                      {sendingCode ? t.sendingCode : t.resendCode}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -1114,26 +984,6 @@ export default function StudentOnboarding() {
             <Button
               className="w-full h-14 text-lg rounded-2xl font-bold"
               onClick={handleAuthSubmit}
-              disabled={!canProceed() || loading || sendingCode}
-            >
-              {loading || sendingCode ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  {sendingCode ? t.sendingCode : t.verifying}
-                </>
-              ) : (
-                <>
-                  {t.signupButton}
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </>
-              )}
-            </Button>
-          )}
-
-          {step === 11 && (
-            <Button
-              className="w-full h-14 text-lg rounded-2xl font-bold"
-              onClick={handleVerifyAndCreatePath}
               disabled={!canProceed() || loading}
             >
               {loading ? (
@@ -1149,6 +999,7 @@ export default function StudentOnboarding() {
               )}
             </Button>
           )}
+
         </div>
       </footer>
     </div>
