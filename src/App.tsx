@@ -31,8 +31,8 @@ const App = () => (
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/readiness" element={<ReadinessPage />} />
+            <Route path="/student-onboarding" element={<StudentOnboarding />} />
             <Route element={<ProtectedRoute />}>
-              <Route path="/student-onboarding" element={<StudentOnboarding />} />
               <Route path="/my-path" element={<MyPath />} />
               <Route path="/parent-dashboard" element={<ParentDashboard />} />
               <Route path="/settings" element={<SettingsPage />} />
