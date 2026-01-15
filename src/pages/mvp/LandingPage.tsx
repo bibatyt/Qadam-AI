@@ -276,20 +276,30 @@ export default function LandingPage() {
           >
             🎯 Qadam
           </motion.span>
-          <div className="flex items-center gap-1 bg-muted rounded-full p-1">
-            {(["ru", "en", "kk"] as Language[]).map((lang) => (
-              <button
-                key={lang}
-                onClick={() => setLanguage(lang)}
-                className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${
-                  language === lang
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {lang.toUpperCase()}
-              </button>
-            ))}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 bg-muted rounded-full p-1">
+              {(["ru", "en", "kk"] as Language[]).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setLanguage(lang)}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${
+                    language === lang
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {lang.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/auth")}
+              className="font-medium"
+            >
+              {language === "ru" ? "Войти" : language === "kk" ? "Кіру" : "Log in"}
+            </Button>
           </div>
         </div>
       </header>

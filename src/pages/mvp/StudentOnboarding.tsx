@@ -351,7 +351,7 @@ export default function StudentOnboarding() {
   const sendVerificationCode = async () => {
     setSendingCode(true);
     try {
-      const { error } = await supabase.functions.invoke('send-auth-email', {
+      const { data, error } = await supabase.functions.invoke('send-auth-email', {
         body: {
           to: email,
           type: 'verification',
@@ -361,6 +361,18 @@ export default function StudentOnboarding() {
       });
       
       if (error) throw error;
+      if (data?.error) {
+        console.error('Email service error:', data.error);
+        // If domain not verified, show helpful message
+        if (data.error.includes?.('domain') || data.error.includes?.('verify')) {
+          toast.error(language === "ru" 
+            ? "Домен email не подтверждён. Обратитесь к администратору." 
+            : "Email domain not verified. Contact administrator.");
+        } else {
+          toast.error(t.error);
+        }
+        return false;
+      }
       return true;
     } catch (error) {
       console.error('Error sending verification code:', error);
