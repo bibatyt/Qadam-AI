@@ -77,6 +77,7 @@ const translations = {
     sendingCode: "Отправка кода...",
     verifying: "Проверка...",
     back: "Назад",
+    selectLanguage: "Выберите язык",
   },
   en: {
     step1Title: "What grade are you in?",
@@ -136,8 +137,9 @@ const translations = {
     sendingCode: "Sending code...",
     verifying: "Verifying...",
     back: "Back",
+    selectLanguage: "Select language",
   },
-  kz: {
+  kk: {
     step1Title: "Қай сыныпта оқисыз?",
     grade9: "9 сынып",
     grade10: "10 сынып",
@@ -195,6 +197,7 @@ const translations = {
     sendingCode: "Код жіберілуде...",
     verifying: "Тексерілуде...",
     back: "Артқа",
+    selectLanguage: "Тілді таңдаңыз",
   },
 };
 
@@ -260,7 +263,7 @@ const TOTAL_STEPS = 11; // 9 wizard steps + auth step + verification step
 export default function StudentOnboarding() {
   const navigate = useNavigate();
   const { user, signUp } = useAuth();
-  const [language] = useState<Language>("ru");
+  const [language, setLanguage] = useState<Language>("ru");
   const t = translations[language];
 
   const [step, setStep] = useState(1);
@@ -645,7 +648,22 @@ export default function StudentOnboarding() {
           ))}
         </div>
 
-        <div className="w-9" />
+        {/* Language switcher */}
+        <div className="flex items-center gap-1 bg-muted rounded-full p-0.5">
+          {(["ru", "en", "kk"] as Language[]).map((lang) => (
+            <button
+              key={lang}
+              onClick={() => setLanguage(lang)}
+              className={`px-2 py-1 text-xs font-medium rounded-full transition-all duration-200 ${
+                language === lang
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {lang === "kk" ? "KZ" : lang.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </header>
 
       {/* Content */}

@@ -15,7 +15,7 @@ interface EmailRequest {
   name?: string;
   verificationCode?: string;
   resetLink?: string;
-  language?: 'en' | 'ru' | 'kz';
+  language?: 'en' | 'ru' | 'kk' | 'kz';
 }
 
 const translations = {
@@ -79,7 +79,7 @@ const translations = {
       footer: "Qadam - Твой путь к обучению за рубежом"
     }
   },
-  kz: {
+  kk: {
     verification: {
       subject: "Email-ді растаңыз - Qadam",
       title: "Email растау",
@@ -234,7 +234,9 @@ serve(async (req) => {
   try {
     const { to, type, name = '', verificationCode, resetLink, language = 'en' }: EmailRequest = await req.json();
 
-    const t = translations[language] || translations.en;
+    // Support both 'kk' and 'kz' language codes for Kazakh
+    const langKey = language === 'kz' ? 'kk' : language;
+    const t = translations[langKey as keyof typeof translations] || translations.en;
     let subject: string;
     let html: string;
     let code = verificationCode;
