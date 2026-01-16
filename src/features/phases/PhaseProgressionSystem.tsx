@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Check, ChevronRight, AlertCircle, Clock, Target, Flame, Award, Trophy, Upload, Loader2, X, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,16 +7,32 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { getPhaseDefinitions } from "./phaseDefinitions";
+import { getAdaptivePhaseDefinitions } from "./getAdaptivePhases";
 import { AdmissionPhase, PhaseProgress, PhaseRequirement, PhaseSubmission } from "./types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 type Language = "ru" | "kk";
 
+interface UserBaseline {
+  targetCountry?: string;
+  targetMarket?: string;
+  exams?: string[];
+  goal?: string;
+  grade?: string;
+  specificGoal?: string;
+  academicSnapshot?: {
+    sat?: string | number;
+    ielts?: string | number;
+    gpa?: string | number;
+    ent?: string | number;
+    toefl?: string | number;
+  };
+}
+
 interface PhaseProgressionSystemProps {
   userId: string;
   language: Language;
-  userBaseline?: Record<string, any>;
+  userBaseline?: UserBaseline;
 }
 
 const phaseIcons = {
@@ -87,7 +103,12 @@ const translations = {
 
 export function PhaseProgressionSystem({ userId, language, userBaseline = {} }: PhaseProgressionSystemProps) {
   const t = translations[language];
-  const phases = getPhaseDefinitions(language);
+  
+  // Generate adaptive phases based on user baseline
+  const phases = useMemo(() => 
+    getAdaptivePhaseDefinitions(language, userBaseline), 
+    [language, userBaseline]
+  );
   
   const [phaseProgress, setPhaseProgress] = useState<PhaseProgress | null>(null);
   const [requirements, setRequirements] = useState<PhaseRequirement[]>([]);
@@ -117,12 +138,12 @@ export function PhaseProgressionSystem({ userId, language, userBaseline = {} }: 
       if (!progress) {
         const { data: newProgress, error: insertError } = await supabase
           .from("phase_progress")
-          .insert({ 
+          .insert([{ 
             user_id: userId, 
-            user_baseline: userBaseline,
+            user_baseline: JSON.parse(JSON.stringify(userBaseline)),
             foundation_unlocked: true,
             current_phase: "foundation" as const
-          })
+          }])
           .select()
           .single();
         
