@@ -985,7 +985,11 @@ export default function MyPath() {
             <PhaseProgressionSystem 
               userId={user.id} 
               language={language} 
-              userBaseline={pathData.goalDefinition?.academicSnapshot || {}}
+              userBaseline={{
+                goal: pathData.goalDefinition?.goal || "",
+                specificGoal: pathData.goalDefinition?.targetUniversity || "",
+                academicSnapshot: pathData.goalDefinition?.academicSnapshot,
+              }}
             />
           </StepCard>
         )}
