@@ -898,7 +898,18 @@ export default function MyPath() {
           </StepCard>
         )}
 
-        {/* Step 7: Next Trigger */}
+        {/* Step 7: Phase Progression System */}
+        {user && (
+          <StepCard stepNumber={7} title={language === "ru" ? "Система прогрессии" : "Прогрессия жүйесі"} delay={0.7}>
+            <PhaseProgressionSystem 
+              userId={user.id} 
+              language={language} 
+              userBaseline={pathData.goalDefinition?.academicSnapshot || {}}
+            />
+          </StepCard>
+        )}
+
+        {/* Step 8: Next Trigger */}
         {pathData.nextTrigger && (
           <StepCard stepNumber={7} title={t.triggerTitle} delay={0.7}>
             <TriggerCard trigger={pathData.nextTrigger} language={language} />
