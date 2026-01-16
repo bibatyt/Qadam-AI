@@ -635,9 +635,11 @@ export default function MyPath() {
   };
 
   const handleToggleAction = async (actionId: string) => {
-    if (!pathData) return;
+    if (!pathData || !user) return;
 
     const previousCompletedCount = pathData.highImpactActions.filter(a => a.completed).length;
+    const actionToToggle = pathData.highImpactActions.find(a => a.id === actionId);
+    const isCompleting = actionToToggle && !actionToToggle.completed;
     
     const updatedActions = pathData.highImpactActions.map(action => 
       action.id === actionId 
@@ -670,6 +672,53 @@ export default function MyPath() {
         })
         .eq("id", pathData.id);
       
+      // Sync with phase progression system - map action to phase requirement
+      // Map UI phase to DB phase type
+      type DbPhase = "foundation" | "differentiation" | "proof" | "leverage";
+      const uiPhase = pathData.currentPhase?.phase;
+      const dbPhase: DbPhase = 
+        uiPhase === "application" ? "proof" : 
+        (uiPhase as DbPhase) || "foundation";
+      const requirementKey = `action_${actionId}`;
+      
+      if (isCompleting) {
+        // Insert or update requirement as completed
+        const { data: existingReq } = await supabase
+          .from("phase_requirements")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("phase", dbPhase)
+          .eq("requirement_key", requirementKey)
+          .maybeSingle();
+        
+        if (existingReq) {
+          await supabase.from("phase_requirements")
+            .update({ completed: true, completed_at: new Date().toISOString() })
+            .eq("id", existingReq.id);
+        } else {
+          await supabase.from("phase_requirements").insert({
+            user_id: user.id,
+            phase: dbPhase,
+            requirement_key: requirementKey,
+            requirement_label: actionToToggle?.description || actionId,
+            completed: true,
+            completed_at: new Date().toISOString(),
+          });
+        }
+        
+        // Check if all actions are completed to unlock next phase
+        if (completedCount === updatedActions.length) {
+          await unlockNextPhase(dbPhase);
+        }
+      } else {
+        // Mark as not completed
+        await supabase.from("phase_requirements")
+          .update({ completed: false, completed_at: null })
+          .eq("user_id", user.id)
+          .eq("phase", dbPhase)
+          .eq("requirement_key", requirementKey);
+      }
+      
       // Navigate to feedback page after completing 3+ actions (only once per session)
       if (completedCount >= 3 && previousCompletedCount < 3 && !feedbackShownRef.current) {
         feedbackShownRef.current = true;
@@ -677,6 +726,38 @@ export default function MyPath() {
       }
     } catch (error) {
       console.error("Error updating action:", error);
+    }
+  };
+
+  const unlockNextPhase = async (currentPhase: "foundation" | "differentiation" | "proof" | "leverage") => {
+    if (!user) return;
+    
+    const phaseOrder: ("foundation" | "differentiation" | "proof" | "leverage")[] = 
+      ["foundation", "differentiation", "proof", "leverage"];
+    const currentIndex = phaseOrder.indexOf(currentPhase);
+    const nextPhase = phaseOrder[currentIndex + 1];
+    
+    if (!nextPhase) return;
+    
+    try {
+      // Update phase_progress to unlock next phase and mark current as complete
+      await supabase.from("phase_progress")
+        .update({
+          [`${currentPhase}_completed`]: true,
+          [`${nextPhase}_unlocked`]: true,
+          current_phase: nextPhase,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", user.id);
+      
+      toast.success(
+        language === "ru" 
+          ? `🎉 Фаза "${currentPhase}" завершена! Разблокирована следующая фаза.`
+          : `🎉 "${currentPhase}" фазасы аяқталды! Келесі фаза ашылды.`,
+        { duration: 5000 }
+      );
+    } catch (error) {
+      console.error("Error unlocking next phase:", error);
     }
   };
 
