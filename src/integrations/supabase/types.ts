@@ -247,6 +247,138 @@ export type Database = {
         }
         Relationships: []
       }
+      phase_progress: {
+        Row: {
+          created_at: string
+          current_phase: Database["public"]["Enums"]["admission_phase"]
+          differentiation_completed: boolean
+          differentiation_unlocked: boolean
+          foundation_completed: boolean
+          foundation_unlocked: boolean
+          id: string
+          leverage_completed: boolean
+          leverage_unlocked: boolean
+          proof_completed: boolean
+          proof_unlocked: boolean
+          updated_at: string
+          user_baseline: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_phase?: Database["public"]["Enums"]["admission_phase"]
+          differentiation_completed?: boolean
+          differentiation_unlocked?: boolean
+          foundation_completed?: boolean
+          foundation_unlocked?: boolean
+          id?: string
+          leverage_completed?: boolean
+          leverage_unlocked?: boolean
+          proof_completed?: boolean
+          proof_unlocked?: boolean
+          updated_at?: string
+          user_baseline?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_phase?: Database["public"]["Enums"]["admission_phase"]
+          differentiation_completed?: boolean
+          differentiation_unlocked?: boolean
+          foundation_completed?: boolean
+          foundation_unlocked?: boolean
+          id?: string
+          leverage_completed?: boolean
+          leverage_unlocked?: boolean
+          proof_completed?: boolean
+          proof_unlocked?: boolean
+          updated_at?: string
+          user_baseline?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      phase_requirements: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          phase: Database["public"]["Enums"]["admission_phase"]
+          proof_data: Json | null
+          proof_link: string | null
+          requirement_key: string
+          requirement_label: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          phase: Database["public"]["Enums"]["admission_phase"]
+          proof_data?: Json | null
+          proof_link?: string | null
+          requirement_key: string
+          requirement_label: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          phase?: Database["public"]["Enums"]["admission_phase"]
+          proof_data?: Json | null
+          proof_link?: string | null
+          requirement_key?: string
+          requirement_label?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      phase_submissions: {
+        Row: {
+          ai_feedback: string | null
+          cooldown_until: string | null
+          created_at: string
+          id: string
+          phase: Database["public"]["Enums"]["admission_phase"]
+          reviewed_at: string | null
+          status: Database["public"]["Enums"]["submission_status"]
+          submission_data: Json
+          submission_type: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_feedback?: string | null
+          cooldown_until?: string | null
+          created_at?: string
+          id?: string
+          phase: Database["public"]["Enums"]["admission_phase"]
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submission_data: Json
+          submission_type: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_feedback?: string | null
+          cooldown_until?: string | null
+          created_at?: string
+          id?: string
+          phase?: Database["public"]["Enums"]["admission_phase"]
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submission_data?: Json
+          submission_type?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -610,7 +742,9 @@ export type Database = {
       }
     }
     Enums: {
+      admission_phase: "foundation" | "differentiation" | "proof" | "leverage"
       app_role: "student" | "parent"
+      submission_status: "pending" | "approved" | "rejected" | "cooldown"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -738,7 +872,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admission_phase: ["foundation", "differentiation", "proof", "leverage"],
       app_role: ["student", "parent"],
+      submission_status: ["pending", "approved", "rejected", "cooldown"],
     },
   },
 } as const
