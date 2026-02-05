@@ -35,12 +35,9 @@ export function MobileHeader({
             <SheetContent side="left" className="w-72">
               <div className="py-6 space-y-4">
                 <div className="flex items-center gap-3 px-2 mb-6">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage src={avatarUrl} />
-                    <AvatarFallback className="bg-primary text-foreground font-bold">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                    <span className="text-primary-foreground font-bold text-xl">Q</span>
+                  </div>
                   <div>
                     <p className="font-bold text-foreground">{userName}</p>
                     <p className="text-sm text-muted-foreground">Студент</p>
@@ -103,12 +100,9 @@ export function MobileHeader({
             className="rounded-full"
             onClick={() => navigate("/settings")}
           >
-            <Avatar className="w-8 h-8">
-              <AvatarImage src={avatarUrl} />
-              <AvatarFallback className="bg-primary text-foreground text-xs font-bold">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">Q</span>
+            </div>
           </Button>
         </div>
       </div>
