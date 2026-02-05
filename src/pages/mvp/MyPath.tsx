@@ -6,7 +6,7 @@ import {
   Calendar, Star, GraduationCap, Brain, Award, 
   Sparkles, Clock, TrendingUp, RefreshCw, Zap, 
   Rocket, Flame, Lock, Unlock, ArrowRight, CheckCircle2,
-  AlertCircle, Info
+  AlertCircle, Info, Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PhaseProgressionSystem } from "@/features/phases";
+import { MobileHeader } from "@/components/layout/MobileHeader";
 
 type Language = "ru" | "kk";
 
@@ -210,11 +211,11 @@ const pillarIcons: Record<string, React.ReactNode> = {
   leadership: <Users className="w-5 h-5" />,
 };
 
-// Phase colors
+// Phase colors - Updated with new yellow palette
 const phaseColors = {
-  foundation: "from-blue-500 to-indigo-600",
-  differentiation: "from-purple-500 to-pink-600",
-  application: "from-emerald-500 to-teal-600",
+  foundation: "from-primary to-warning",
+  differentiation: "from-warning to-destructive/70",
+  application: "from-success to-accent",
 };
 
 const phaseIcons = {
@@ -223,7 +224,7 @@ const phaseIcons = {
   application: <GraduationCap className="w-6 h-6" />,
 };
 
-// Language Switcher Component
+// Language Switcher Component - Updated with new palette
 function LanguageSwitcher({ 
   language, 
   onLanguageChange 
@@ -232,14 +233,14 @@ function LanguageSwitcher({
   onLanguageChange: (lang: Language) => void;
 }) {
   return (
-    <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-full p-1">
+    <div className="flex items-center gap-1 bg-muted rounded-full p-1">
       <button
         onClick={() => onLanguageChange("ru")}
         className={cn(
           "px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200",
           language === "ru"
-            ? "bg-white text-primary shadow-sm"
-            : "text-white/70 hover:text-white"
+            ? "bg-primary text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
         )}
       >
         RU
@@ -249,8 +250,8 @@ function LanguageSwitcher({
         className={cn(
           "px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200",
           language === "kk"
-            ? "bg-white text-primary shadow-sm"
-            : "text-white/70 hover:text-white"
+            ? "bg-primary text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
         )}
       >
         KZ
@@ -259,7 +260,7 @@ function LanguageSwitcher({
   );
 }
 
-// Step Card Component
+// Step Card Component - Updated with new rounded design
 function StepCard({ 
   stepNumber, 
   title, 
@@ -278,21 +279,15 @@ function StepCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
-      className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm"
+      className="card-modern overflow-hidden"
     >
-      <div className={cn(
-        "px-4 py-3 flex items-center gap-3 border-b border-border",
-        "bg-gradient-to-r from-muted/50 to-transparent"
-      )}>
-        <div className={cn(
-          "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
-          "bg-primary text-primary-foreground"
-        )}>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-bold bg-primary text-foreground shadow-sm">
           {stepNumber}
         </div>
-        <h3 className="font-bold text-foreground">{title}</h3>
+        <h3 className="font-bold text-foreground text-lg">{title}</h3>
       </div>
-      <div className="p-4">
+      <div>
         {children}
       </div>
     </motion.div>
@@ -819,11 +814,11 @@ export default function MyPath() {
 
   if (!pathData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background flex flex-col">
-        {/* Header */}
-        <header className="bg-gradient-to-r from-primary to-accent text-white">
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Minimal Header */}
+        <header className="bg-card border-b border-border">
           <div className="max-w-lg mx-auto px-4 h-16 flex items-center justify-between">
-            <h1 className="text-xl font-bold">{t.title}</h1>
+            <h1 className="text-xl font-bold text-foreground">{t.title}</h1>
             <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
           </div>
         </header>
@@ -840,9 +835,9 @@ export default function MyPath() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200 }}
-                className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto shadow-2xl"
+                className="w-32 h-32 rounded-full bg-primary flex items-center justify-center mx-auto shadow-lg"
               >
-                <Brain className="w-16 h-16 text-white" />
+                <Brain className="w-16 h-16 text-foreground" />
               </motion.div>
               
               {/* Decorative elements */}
@@ -850,17 +845,17 @@ export default function MyPath() {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 }}
-                className="absolute top-0 right-8 w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center"
+                className="absolute top-0 right-8 w-10 h-10 rounded-full bg-warning flex items-center justify-center"
               >
-                <Zap className="w-5 h-5 text-white" />
+                <Zap className="w-5 h-5 text-foreground" />
               </motion.div>
               <motion.div 
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4 }}
-                className="absolute bottom-0 left-8 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center"
+                className="absolute bottom-0 left-8 w-10 h-10 rounded-full bg-success flex items-center justify-center"
               >
-                <Target className="w-5 h-5 text-white" />
+                <Target className="w-5 h-5 text-success-foreground" />
               </motion.div>
             </div>
 
@@ -871,7 +866,7 @@ export default function MyPath() {
 
             <Button 
               size="lg"
-              className="h-14 px-10 rounded-full font-bold text-lg bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg"
+              className="h-14 px-10 rounded-full font-bold text-lg btn-primary shadow-lg"
               onClick={() => navigate("/student-onboarding")}
             >
               {t.createPath}
@@ -887,49 +882,48 @@ export default function MyPath() {
   const totalActions = pathData.highImpactActions?.length || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background pb-24">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-gradient-to-r from-primary to-accent text-white shadow-lg">
+    <div className="min-h-screen bg-background pb-28">
+      {/* Mobile Header */}
+      <MobileHeader 
+        userName={user?.email?.split("@")[0] || "User"}
+        greeting={language === "ru" ? `Привет! 👋` : `Сәлем! 👋`}
+      />
+
+      {/* Stats Bar */}
+      <div className="bg-card border-b border-border">
         <div className="max-w-lg mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h1 className="text-xl font-bold">{t.title}</h1>
-              <p className="text-sm text-white/70">{t.subtitle}</p>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1 text-center p-3 bg-muted/50 rounded-2xl">
+              <p className="text-2xl font-bold text-foreground">{pathData.progressPercent}%</p>
+              <p className="text-xs text-muted-foreground">{t.progress}</p>
             </div>
-            <div className="flex items-center gap-2">
-              <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
-              <button
-                onClick={() => navigate("/settings")}
-                className="p-2 rounded-xl hover:bg-white/10 transition-colors"
-              >
-                <Settings className="w-5 h-5" />
-              </button>
+            <div className="flex-1 text-center p-3 bg-muted/50 rounded-2xl">
+              <p className="text-2xl font-bold text-foreground">{completedActions}</p>
+              <p className="text-xs text-muted-foreground">{language === "ru" ? "Выполнено" : "Орындалды"}</p>
+            </div>
+            <div className="flex-1 text-center p-3 bg-muted/50 rounded-2xl">
+              <p className="text-2xl font-bold text-foreground">{totalActions - completedActions}</p>
+              <p className="text-xs text-muted-foreground">{language === "ru" ? "Осталось" : "Қалды"}</p>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-white/80">{t.progress}</span>
-              <span className="font-bold">{pathData.progressPercent}%</span>
-            </div>
-            <div className="h-2.5 bg-white/20 rounded-full overflow-hidden">
+          <div className="mt-4">
+            <div className="h-3 bg-muted rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${pathData.progressPercent}%` }}
                 transition={{ duration: 1, ease: "easeOut" }}
-                className="h-full bg-white rounded-full"
+                className="h-full bg-primary rounded-full"
               />
             </div>
-            <div className="flex items-center justify-between text-xs text-white/70">
-              <span>{completedActions}/{totalActions} {language === "ru" ? "действий" : "әрекет"}</span>
-              <span className="font-medium">
-                {pathData.currentPhase?.phaseName}
-              </span>
+            <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+              <span>{pathData.currentPhase?.phaseName}</span>
+              <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Content */}
       <main className="max-w-lg mx-auto px-4 py-6 space-y-4">

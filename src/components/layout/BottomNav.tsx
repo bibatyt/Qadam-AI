@@ -1,4 +1,4 @@
-import { Home, MessageCircle, FileText, Settings, Map } from "lucide-react";
+import { Home, MessageCircle, Map, Search, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -8,49 +8,46 @@ export function BottomNav() {
   
   const navItems = [
     { to: "/dashboard", icon: Home, labelKey: "home" },
-    { to: "/path", icon: Map, labelKey: "path" },
+    { to: "/my-path", icon: Map, labelKey: "path" },
     { to: "/counselor", icon: MessageCircle, labelKey: "ai" },
-    { to: "/essay", icon: FileText, labelKey: "essay" },
-    { to: "/settings", icon: Settings, labelKey: "settings" },
+    { to: "/opportunities", icon: Search, labelKey: "search" },
+    { to: "/settings", icon: User, labelKey: "profile" },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border px-2 pb-safe">
-      <div className="flex items-center justify-around max-w-md mx-auto py-2">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              cn(
-                "flex flex-col items-center gap-1 py-1.5 px-3 rounded-xl transition-all duration-200 min-w-[56px] touch-target",
-                isActive 
-                  ? "text-primary" 
-                  : "text-muted-foreground hover:text-foreground active:scale-95"
-              )
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <div className={cn(
-                  "p-2 rounded-xl transition-all duration-200",
-                  isActive && "bg-primary/10"
-                )}>
+    <nav className="fixed bottom-4 left-4 right-4 z-50">
+      <div className="floating-dock px-2 py-3 max-w-md mx-auto">
+        <div className="flex items-center justify-around">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                cn(
+                  "flex flex-col items-center gap-1 py-2 px-4 rounded-2xl transition-all duration-200 touch-target",
+                  isActive 
+                    ? "bg-primary text-foreground" 
+                    : "text-muted-foreground hover:text-foreground active:scale-95"
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
                   <item.icon className={cn(
-                    "w-5 h-5 transition-transform",
+                    "w-6 h-6 transition-transform",
                     isActive && "scale-110"
                   )} />
-                </div>
-                <span className={cn(
-                  "text-[10px] font-bold",
-                  isActive && "text-primary"
-                )}>
-                  {t(item.labelKey)}
-                </span>
-              </>
-            )}
-          </NavLink>
-        ))}
+                  <span className={cn(
+                    "text-[10px] font-bold",
+                    isActive ? "text-foreground" : "text-muted-foreground"
+                  )}>
+                    {t(item.labelKey)}
+                  </span>
+                </>
+              )}
+            </NavLink>
+          ))}
+        </div>
       </div>
     </nav>
   );
