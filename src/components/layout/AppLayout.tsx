@@ -4,7 +4,7 @@ import { MentorChatFAB } from "@/features/chat";
 
 export function AppLayout() {
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24">
       <Outlet />
       <MentorChatFAB />
       <BottomNav />
