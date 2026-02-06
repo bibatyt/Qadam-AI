@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, GraduationCap, MapPin, Calendar, TrendingUp, Star, Filter } from "lucide-react";
+import { Search, GraduationCap, MapPin, Calendar, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,36 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { cn } from "@/lib/utils";
 
+type Language = "ru" | "kk" | "en";
+
+function AppLanguageSwitcher() {
+  const { language, setLanguage } = useLanguage();
+
+  const languages: { code: Language; label: string }[] = [
+    { code: "kk", label: "KZ" },
+    { code: "ru", label: "RU" },
+    { code: "en", label: "EN" },
+  ];
+
+  return (
+    <div className="flex items-center gap-1 bg-muted rounded-full p-1">
+      {languages.map((lang) => (
+        <button
+          key={lang.code}
+          onClick={() => setLanguage(lang.code)}
+          className={cn(
+            "px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200",
+            language === lang.code
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {lang.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 // Sample universities with matching data
 const sampleUniversities = [
   {
@@ -208,6 +238,11 @@ export default function UniversitiesPage() {
       />
 
       <div className="container max-w-lg mx-auto px-4 pt-4">
+        {/* Language switcher */}
+        <div className="flex justify-end mb-4">
+          <AppLanguageSwitcher />
+        </div>
+
         {/* Search */}
         <div className="relative mb-4">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
