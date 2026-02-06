@@ -19,6 +19,7 @@ import ReadinessPage from "./pages/mvp/ReadinessPage";
 import FeedbackPage from "./pages/mvp/FeedbackPage";
 import UniversitiesPage from "./pages/mvp/UniversitiesPage";
 import Counselor from "./pages/Counselor";
+import Opportunities from "./pages/Opportunities";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
                 <Route path="/parent-dashboard" element={<ParentDashboard />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/universities" element={<UniversitiesPage />} />
+                <Route path="/opportunities" element={<Opportunities />} />
                 <Route path="/counselor" element={<Counselor />} />
               </Route>
               <Route path="*" element={<NotFound />} />
