@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 serve(async (req) => {
@@ -31,13 +31,13 @@ serve(async (req) => {
     const systemPrompt = `You are an expert education counselor specializing in extracurricular opportunities for university admissions.
 ${langInstruction}
 
-Generate a JSON array of 8-12 relevant opportunities (olympiads, competitions, research programs, summer camps, online courses) for a student with the following profile:
+Generate a JSON array of 6-8 relevant opportunities (olympiads, competitions, research programs, summer camps, online courses) for a student with the following profile:
 - Desired Major: ${major || "Not specified"}
 - Main Goal: ${goal || "Get into a top university"}
 - Target Country/Region: ${country || "Global"}
 
 IMPORTANT RULES:
-1. Include a mix of: Olympiads (2-3), Research Programs (2-3), Summer Camps (2), Online Courses (2), Competitions (2)
+1. Include a mix of: Olympiads (2), Research Programs (2), Summer Camps (1), Online Courses (1), Competitions (2)
 2. Include REAL, existing programs with actual websites
 3. Include local opportunities for Kazakhstan, Turkey, and Central Asia if relevant
 4. Prioritize programs that are prestigious and relevant to the student's major
@@ -55,7 +55,7 @@ Return ONLY valid JSON array with this exact structure (no markdown, no explanat
     "description": "1-2 sentences about what the student will gain",
     "country": "Country/Region",
     "level": "international|national|regional",
-    "free": true/false
+    "free": true
   }
 ]`;
 
@@ -66,11 +66,12 @@ Return ONLY valid JSON array with this exact structure (no markdown, no explanat
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Generate opportunities for a student interested in ${major || "various fields"} with the goal of ${goal || "university admission"}, targeting ${country || "global"} universities.` }
         ],
+        max_tokens: 2000,
       }),
     });
 
@@ -96,6 +97,10 @@ Return ONLY valid JSON array with this exact structure (no markdown, no explanat
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
     
+    if (!content) {
+      throw new Error("Empty response from AI");
+    }
+    
     console.log("AI Response received, parsing JSON...");
 
     // Parse JSON from the response
@@ -109,9 +114,30 @@ Return ONLY valid JSON array with this exact structure (no markdown, no explanat
         throw new Error("No JSON array found in response");
       }
     } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      console.error("Raw content:", content);
-      throw new Error("Failed to parse opportunities from AI response");
+      console.error("JSON parse error, attempting to repair truncated response...");
+      
+      // Try to repair truncated JSON array
+      const lastBrace = content.lastIndexOf("}");
+      if (lastBrace > 0) {
+        try {
+          // Find the start of the array
+          const arrayStart = content.indexOf("[");
+          if (arrayStart >= 0) {
+            const repaired = content.substring(arrayStart, lastBrace + 1) + "]";
+            opportunities = JSON.parse(repaired);
+            console.log(`Recovered ${opportunities.length} items from truncated response`);
+          } else {
+            throw new Error("Cannot find array start");
+          }
+        } catch (repairError) {
+          console.error("Repair failed:", repairError);
+          console.error("Raw content:", content.substring(0, 500));
+          throw new Error("Failed to parse opportunities from AI response");
+        }
+      } else {
+        console.error("Raw content:", content.substring(0, 500));
+        throw new Error("Cannot parse truncated response");
+      }
     }
 
     console.log(`Generated ${opportunities.length} opportunities`);
