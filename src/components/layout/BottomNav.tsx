@@ -1,4 +1,4 @@
-import { Map, MessageCircle, GraduationCap, Settings } from "lucide-react";
+import { Map, MessageCircle, GraduationCap, Settings, Sparkles } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -7,23 +7,24 @@ export function BottomNav() {
   const { language } = useLanguage();
   
   const navLabels = {
-    ru: { path: "Мой путь", ai: "AI Помощник", universities: "Университеты", settings: "Настройки" },
-    kk: { path: "Менің жолым", ai: "AI Көмекші", universities: "Университеттер", settings: "Параметрлер" },
-    en: { path: "My Path", ai: "AI Assistant", universities: "Universities", settings: "Settings" },
+    ru: { path: "Путь", ai: "AI", universities: "Вузы", opportunities: "Шансы", settings: "Ещё" },
+    kk: { path: "Жол", ai: "AI", universities: "ЖОО", opportunities: "Мүмкіндік", settings: "Көбірек" },
+    en: { path: "Path", ai: "AI", universities: "Unis", opportunities: "Opps", settings: "More" },
   };
   
   const labels = navLabels[language as keyof typeof navLabels] || navLabels.en;
   
   const navItems = [
-    { to: "/my-path", icon: Map, label: labels.path, emoji: "📍" },
-    { to: "/counselor", icon: MessageCircle, label: labels.ai, emoji: "💬" },
-    { to: "/universities", icon: GraduationCap, label: labels.universities, emoji: "🎓" },
-    { to: "/settings", icon: Settings, label: labels.settings, emoji: "⚙️" },
+    { to: "/my-path", icon: Map, label: labels.path },
+    { to: "/counselor", icon: MessageCircle, label: labels.ai },
+    { to: "/universities", icon: GraduationCap, label: labels.universities },
+    { to: "/opportunities", icon: Sparkles, label: labels.opportunities },
+    { to: "/settings", icon: Settings, label: labels.settings },
   ];
 
   return (
     <nav className="fixed bottom-4 left-4 right-4 z-50">
-      <div className="floating-dock px-2 py-3 max-w-md mx-auto">
+      <div className="floating-dock px-2 py-2 max-w-md mx-auto">
         <div className="flex items-center justify-around">
           {navItems.map((item) => (
             <NavLink
@@ -31,7 +32,7 @@ export function BottomNav() {
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center gap-1 py-2 px-4 rounded-2xl transition-all duration-200 touch-target",
+                  "flex flex-col items-center gap-0.5 py-2 px-3 rounded-xl transition-all duration-200",
                   isActive 
                     ? "bg-primary text-foreground" 
                     : "text-muted-foreground hover:text-foreground active:scale-95"
@@ -41,11 +42,11 @@ export function BottomNav() {
               {({ isActive }) => (
                 <>
                   <item.icon className={cn(
-                    "w-6 h-6 transition-transform",
+                    "w-5 h-5 transition-transform",
                     isActive && "scale-110"
                   )} />
                   <span className={cn(
-                    "text-[10px] font-bold",
+                    "text-[9px] font-bold",
                     isActive ? "text-foreground" : "text-muted-foreground"
                   )}>
                     {item.label}
