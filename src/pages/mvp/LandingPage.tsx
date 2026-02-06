@@ -347,7 +347,7 @@ export default function LandingPage() {
             title: t.step3Title,
             desc: t.step3Desc,
             num: "3",
-            color: "success"
+            color: "primary"
           }].map((step, i) => <motion.div key={step.num} initial={{
             opacity: 0,
             y: 30
