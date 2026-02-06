@@ -16,6 +16,8 @@ import ParentDashboard from "./pages/mvp/ParentDashboard";
 import SettingsPage from "./pages/mvp/SettingsPage";
 import ReadinessPage from "./pages/mvp/ReadinessPage";
 import FeedbackPage from "./pages/mvp/FeedbackPage";
+import UniversitiesPage from "./pages/mvp/UniversitiesPage";
+import Counselor from "./pages/Counselor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,8 @@ const App = () => (
               <Route path="/my-path" element={<MyPath />} />
               <Route path="/parent-dashboard" element={<ParentDashboard />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/universities" element={<UniversitiesPage />} />
+              <Route path="/counselor" element={<Counselor />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

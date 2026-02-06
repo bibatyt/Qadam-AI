@@ -1,17 +1,24 @@
-import { Home, MessageCircle, Map, Search, User } from "lucide-react";
+import { Map, MessageCircle, GraduationCap, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
 
 export function BottomNav() {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  
+  const navLabels = {
+    ru: { path: "Мой путь", ai: "AI Помощник", universities: "Университеты", settings: "Настройки" },
+    kk: { path: "Менің жолым", ai: "AI Көмекші", universities: "Университеттер", settings: "Параметрлер" },
+    en: { path: "My Path", ai: "AI Assistant", universities: "Universities", settings: "Settings" },
+  };
+  
+  const labels = navLabels[language as keyof typeof navLabels] || navLabels.en;
   
   const navItems = [
-    { to: "/dashboard", icon: Home, labelKey: "home" },
-    { to: "/my-path", icon: Map, labelKey: "path" },
-    { to: "/counselor", icon: MessageCircle, labelKey: "ai" },
-    { to: "/opportunities", icon: Search, labelKey: "search" },
-    { to: "/settings", icon: User, labelKey: "profile" },
+    { to: "/my-path", icon: Map, label: labels.path, emoji: "📍" },
+    { to: "/counselor", icon: MessageCircle, label: labels.ai, emoji: "💬" },
+    { to: "/universities", icon: GraduationCap, label: labels.universities, emoji: "🎓" },
+    { to: "/settings", icon: Settings, label: labels.settings, emoji: "⚙️" },
   ];
 
   return (
@@ -41,7 +48,7 @@ export function BottomNav() {
                     "text-[10px] font-bold",
                     isActive ? "text-foreground" : "text-muted-foreground"
                   )}>
-                    {t(item.labelKey)}
+                    {item.label}
                   </span>
                 </>
               )}
