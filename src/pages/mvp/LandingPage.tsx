@@ -4,9 +4,7 @@ import { ArrowRight, CheckCircle, Users, GraduationCap, ClipboardList, BarChart3
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-
 type Language = "ru" | "en" | "kk";
-
 const translations = {
   ru: {
     heroTitle: "Понятный путь к поступлению",
@@ -20,17 +18,9 @@ const translations = {
     step3Title: "Следите за прогрессом",
     step3Desc: "Отмечайте выполненное",
     forStudentsTitle: "Для школьников",
-    forStudents: [
-      "Понятный список задач",
-      "Ясные приоритеты на каждом этапе",
-      "Ничего не забудете и не упустите",
-    ],
+    forStudents: ["Понятный список задач", "Ясные приоритеты на каждом этапе", "Ничего не забудете и не упустите"],
     forParentsTitle: "Для родителей",
-    forParents: [
-      "Видите реальный прогресс ребёнка",
-      "Понимаете что уже сделано",
-      "Знаете какие шаги впереди",
-    ],
+    forParents: ["Видите реальный прогресс ребёнка", "Понимаете что уже сделано", "Знаете какие шаги впереди"],
     previewTitle: "Ваш личный план",
     previewProgress: "Прогресс поступления",
     previewStage: "Текущий этап",
@@ -50,7 +40,7 @@ const translations = {
     feedbackSubmit: "Отправить",
     feedbackSending: "Отправка...",
     feedbackSuccess: "Спасибо за ваш отзыв!",
-    feedbackError: "Ошибка при отправке",
+    feedbackError: "Ошибка при отправке"
   },
   en: {
     heroTitle: "Clear path to university admission",
@@ -64,17 +54,9 @@ const translations = {
     step3Title: "Track your progress",
     step3Desc: "Mark completed items",
     forStudentsTitle: "For students",
-    forStudents: [
-      "Clear task checklist",
-      "Obvious priorities at each stage",
-      "Nothing forgotten or missed",
-    ],
+    forStudents: ["Clear task checklist", "Obvious priorities at each stage", "Nothing forgotten or missed"],
     forParentsTitle: "For parents",
-    forParents: [
-      "See your child's real progress",
-      "Understand what's already done",
-      "Know what steps are ahead",
-    ],
+    forParents: ["See your child's real progress", "Understand what's already done", "Know what steps are ahead"],
     previewTitle: "Your personal plan",
     previewProgress: "Admission progress",
     previewStage: "Current stage",
@@ -94,7 +76,7 @@ const translations = {
     feedbackSubmit: "Submit",
     feedbackSending: "Sending...",
     feedbackSuccess: "Thank you for your feedback!",
-    feedbackError: "Error submitting feedback",
+    feedbackError: "Error submitting feedback"
   },
   kk: {
     heroTitle: "Түсудің түсінікті жолы",
@@ -108,17 +90,9 @@ const translations = {
     step3Title: "Прогресті бақылаңыз",
     step3Desc: "Орындалғандарды белгілеу",
     forStudentsTitle: "Оқушыларға",
-    forStudents: [
-      "Түсінікті тапсырмалар тізімі",
-      "Әр кезеңдегі басымдықтар",
-      "Ештеңе ұмытылмайды",
-    ],
+    forStudents: ["Түсінікті тапсырмалар тізімі", "Әр кезеңдегі басымдықтар", "Ештеңе ұмытылмайды"],
     forParentsTitle: "Ата-аналарға",
-    forParents: [
-      "Баланың нақты прогресін көру",
-      "Не істелгенін түсіну",
-      "Алдағы қадамдарды білу",
-    ],
+    forParents: ["Баланың нақты прогресін көру", "Не істелгенін түсіну", "Алдағы қадамдарды білу"],
     previewTitle: "Сіздің жеке жоспарыңыз",
     previewProgress: "Түсу прогресі",
     previewStage: "Ағымдағы кезең",
@@ -138,80 +112,118 @@ const translations = {
     feedbackSubmit: "Жіберу",
     feedbackSending: "Жіберілуде...",
     feedbackSuccess: "Пікіріңіз үшін рахмет!",
-    feedbackError: "Жіберу қатесі",
-  },
+    feedbackError: "Жіберу қатесі"
+  }
 };
-
-const reviews = [
-  {
-    name: "Сырым",
-    role: "Студент",
-    text: "Честно, очень понятный, предельно дружелюбный UI, реально буду использовать его для целей поступления, топ!",
-    rating: 5,
-  },
-  {
-    name: "Владислав",
-    role: "Студент",
-    text: "Интерфейс крутой, все приятно, идея с планом вообще круто!",
-    rating: 5,
-  },
-  {
-    name: "Диляра",
-    role: "Родитель",
-    text: "В целом, интересное приложение. Очень понравилась функция AI. Даже не ожидала. Дает хорошие советы.",
-    rating: 5,
-  },
-];
-
+const reviews = [{
+  name: "Сырым",
+  role: "Студент",
+  text: "Честно, очень понятный, предельно дружелюбный UI, реально буду использовать его для целей поступления, топ!",
+  rating: 5
+}, {
+  name: "Владислав",
+  role: "Студент",
+  text: "Интерфейс крутой, все приятно, идея с планом вообще круто!",
+  rating: 5
+}, {
+  name: "Диляра",
+  role: "Родитель",
+  text: "В целом, интересное приложение. Очень понравилась функция AI. Даже не ожидала. Дает хорошие советы.",
+  rating: 5
+}];
 const previewSteps = {
-  ru: [
-    { title: "Зарегистрироваться на IELTS", done: true },
-    { title: "Подготовить мотивационное письмо", done: true },
-    { title: "Сдать IELTS", done: false, current: true },
-    { title: "Собрать документы", done: false },
-    { title: "Подать заявку", done: false },
-  ],
-  en: [
-    { title: "Register for IELTS", done: true },
-    { title: "Prepare motivation letter", done: true },
-    { title: "Take IELTS exam", done: false, current: true },
-    { title: "Collect documents", done: false },
-    { title: "Submit application", done: false },
-  ],
-  kk: [
-    { title: "IELTS-ке тіркелу", done: true },
-    { title: "Мотивациялық хат дайындау", done: true },
-    { title: "IELTS тапсыру", done: false, current: true },
-    { title: "Құжаттарды жинау", done: false },
-    { title: "Өтінішті жіберу", done: false },
-  ],
+  ru: [{
+    title: "Зарегистрироваться на IELTS",
+    done: true
+  }, {
+    title: "Подготовить мотивационное письмо",
+    done: true
+  }, {
+    title: "Сдать IELTS",
+    done: false,
+    current: true
+  }, {
+    title: "Собрать документы",
+    done: false
+  }, {
+    title: "Подать заявку",
+    done: false
+  }],
+  en: [{
+    title: "Register for IELTS",
+    done: true
+  }, {
+    title: "Prepare motivation letter",
+    done: true
+  }, {
+    title: "Take IELTS exam",
+    done: false,
+    current: true
+  }, {
+    title: "Collect documents",
+    done: false
+  }, {
+    title: "Submit application",
+    done: false
+  }],
+  kk: [{
+    title: "IELTS-ке тіркелу",
+    done: true
+  }, {
+    title: "Мотивациялық хат дайындау",
+    done: true
+  }, {
+    title: "IELTS тапсыру",
+    done: false,
+    current: true
+  }, {
+    title: "Құжаттарды жинау",
+    done: false
+  }, {
+    title: "Өтінішті жіберу",
+    done: false
+  }]
 };
-
 const fadeInUp = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 },
+  initial: {
+    opacity: 0,
+    y: 30
+  },
+  animate: {
+    opacity: 1,
+    y: 0
+  },
+  transition: {
+    duration: 0.5
+  }
 };
-
 const stagger = {
   animate: {
     transition: {
-      staggerChildren: 0.1,
-    },
-  },
+      staggerChildren: 0.1
+    }
+  }
 };
 
 // Feedback Section Component - Embedded Typeform
-function FeedbackSection({ language, t }: { language: Language; t: typeof translations.ru }) {
-  return (
-    <section className="section bg-gradient-to-b from-muted/50 to-background">
+function FeedbackSection({
+  language,
+  t
+}: {
+  language: Language;
+  t: typeof translations.ru;
+}) {
+  return <section className="section bg-gradient-to-b from-muted/50 to-background">
       <div className="max-w-3xl mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-8"
-        >
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} whileInView={{
+        opacity: 1,
+        y: 0
+      }} viewport={{
+        once: true
+      }} className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-4">
             <MessageSquare className="w-4 h-4" />
             Feedback
@@ -224,77 +236,57 @@ function FeedbackSection({ language, t }: { language: Language; t: typeof transl
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="bg-card rounded-2xl border border-border shadow-card overflow-hidden"
-        >
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} whileInView={{
+        opacity: 1,
+        y: 0
+      }} viewport={{
+        once: true
+      }} transition={{
+        delay: 0.1
+      }} className="bg-card rounded-2xl border border-border shadow-card overflow-hidden">
           <div className="px-4 py-3 bg-muted/50 border-b border-border text-center">
             <p className="text-sm text-muted-foreground">
               {t.feedbackAnonymous}
             </p>
           </div>
 
-          <div className="w-full" style={{ height: "600px" }}>
-            <iframe
-              src="https://form.typeform.com/to/VoSk3S3r"
-              width="100%"
-              height="100%"
-              frameBorder="0"
-              allow="camera; microphone; autoplay; encrypted-media;"
-              className="w-full h-full border-0"
-              style={{ border: "none" }}
-              title="Feedback Form"
-            />
+          <div className="w-full" style={{
+          height: "600px"
+        }}>
+            <iframe src="https://form.typeform.com/to/VoSk3S3r" width="100%" height="100%" frameBorder="0" allow="camera; microphone; autoplay; encrypted-media;" className="w-full h-full border-0" style={{
+            border: "none"
+          }} title="Feedback Form" />
           </div>
         </motion.div>
       </div>
-    </section>
-  );
+    </section>;
 }
-
 export default function LandingPage() {
   const navigate = useNavigate();
   const [language, setLanguage] = useState<Language>("ru");
   const t = translations[language];
   const steps = previewSteps[language];
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-5xl mx-auto px-4 h-16 flex justify-between items-center">
-          <motion.span 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-xl font-bold text-primary"
-          >
-            🎯 Qadam
-          </motion.span>
+          <motion.span initial={{
+          opacity: 0,
+          x: -20
+        }} animate={{
+          opacity: 1,
+          x: 0
+        }} className="text-xl font-bold text-primary">Qadam</motion.span>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 bg-muted rounded-full p-1">
-              {(["ru", "en", "kk"] as Language[]).map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => setLanguage(lang)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${
-                    language === lang
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
+              {(["ru", "en", "kk"] as Language[]).map(lang => <button key={lang} onClick={() => setLanguage(lang)} className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${language === lang ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"}`}>
                   {lang.toUpperCase()}
-                </button>
-              ))}
+                </button>)}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/auth")}
-              className="font-medium"
-            >
+            <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="font-medium">
               {language === "ru" ? "Войти" : language === "kk" ? "Кіру" : "Log in"}
             </Button>
           </div>
@@ -303,37 +295,19 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="pt-28 pb-16 px-4">
-        <motion.div 
-          initial="initial"
-          animate="animate"
-          variants={stagger}
-          className="max-w-3xl mx-auto text-center"
-        >
-          <motion.div
-            variants={fadeInUp}
-            className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6"
-          >
+        <motion.div initial="initial" animate="animate" variants={stagger} className="max-w-3xl mx-auto text-center">
+          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
             <Star className="w-4 h-4 fill-primary" />
             AI-powered планирование
           </motion.div>
-          <motion.h1 
-            variants={fadeInUp}
-            className="text-foreground mb-6 text-4xl md:text-5xl"
-          >
+          <motion.h1 variants={fadeInUp} className="text-foreground mb-6 text-4xl md:text-5xl">
             {t.heroTitle}
           </motion.h1>
-          <motion.p 
-            variants={fadeInUp}
-            className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto"
-          >
+          <motion.p variants={fadeInUp} className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             {t.heroSubtitle}
           </motion.p>
           <motion.div variants={fadeInUp}>
-            <Button
-              size="lg"
-              className="h-14 px-8 text-base font-semibold rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
-              onClick={() => navigate("/auth")}
-            >
+            <Button size="lg" className="h-14 px-8 text-base font-semibold rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200" onClick={() => navigate("/auth")}>
               {t.cta}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
@@ -344,28 +318,47 @@ export default function LandingPage() {
       {/* How it works */}
       <section className="section-tight bg-gradient-to-b from-secondary/50 to-background">
         <div className="max-w-4xl mx-auto px-4">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12 text-2xl"
-          >
+          <motion.h2 initial={{
+          opacity: 0,
+          y: 20
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true
+        }} className="text-center mb-12 text-2xl">
             {t.howItWorks}
           </motion.h2>
           <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: ClipboardList, title: t.step1Title, desc: t.step1Desc, num: "1", color: "primary" },
-              { icon: BarChart3, title: t.step2Title, desc: t.step2Desc, num: "2", color: "accent" },
-              { icon: CheckCircle, title: t.step3Title, desc: t.step3Desc, num: "3", color: "success" },
-            ].map((step, i) => (
-              <motion.div
-                key={step.num}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="text-center bg-card rounded-2xl p-6 border border-border shadow-card hover:shadow-elevated hover:scale-105 transition-all duration-300"
-              >
+            {[{
+            icon: ClipboardList,
+            title: t.step1Title,
+            desc: t.step1Desc,
+            num: "1",
+            color: "primary"
+          }, {
+            icon: BarChart3,
+            title: t.step2Title,
+            desc: t.step2Desc,
+            num: "2",
+            color: "accent"
+          }, {
+            icon: CheckCircle,
+            title: t.step3Title,
+            desc: t.step3Desc,
+            num: "3",
+            color: "success"
+          }].map((step, i) => <motion.div key={step.num} initial={{
+            opacity: 0,
+            y: 30
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} viewport={{
+            once: true
+          }} transition={{
+            delay: i * 0.15
+          }} className="text-center bg-card rounded-2xl p-6 border border-border shadow-card hover:shadow-elevated hover:scale-105 transition-all duration-300">
                 <div className={`w-14 h-14 rounded-2xl bg-${step.color}/10 text-${step.color} flex items-center justify-center mx-auto mb-4`}>
                   <step.icon className="w-7 h-7" />
                 </div>
@@ -376,8 +369,7 @@ export default function LandingPage() {
                   {step.title}
                 </h3>
                 <p className="text-sm text-muted-foreground">{step.desc}</p>
-              </motion.div>
-            ))}
+              </motion.div>)}
           </div>
         </div>
       </section>
@@ -385,24 +377,29 @@ export default function LandingPage() {
       {/* Reviews Section */}
       <section className="section">
         <div className="max-w-4xl mx-auto px-4">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10 text-2xl"
-          >
+          <motion.h2 initial={{
+          opacity: 0,
+          y: 20
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true
+        }} className="text-center mb-10 text-2xl">
             {t.reviewsTitle}
           </motion.h2>
           <div className="grid md:grid-cols-3 gap-5">
-            {reviews.map((review, i) => (
-              <motion.div
-                key={review.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="review-card hover:scale-105 transition-transform duration-300"
-              >
+            {reviews.map((review, i) => <motion.div key={review.name} initial={{
+            opacity: 0,
+            y: 30
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} viewport={{
+            once: true
+          }} transition={{
+            delay: i * 0.1
+          }} className="review-card hover:scale-105 transition-transform duration-300">
                 <Quote className="w-8 h-8 text-primary/30 mb-3" />
                 <p className="text-sm text-foreground mb-4 italic">"{review.text}"</p>
                 <div className="flex items-center justify-between">
@@ -411,13 +408,10 @@ export default function LandingPage() {
                     <p className="text-xs text-muted-foreground">{review.role}</p>
                   </div>
                   <div className="flex gap-0.5">
-                    {[...Array(review.rating)].map((_, j) => (
-                      <Star key={j} className="w-4 h-4 fill-warning text-warning" />
-                    ))}
+                    {[...Array(review.rating)].map((_, j) => <Star key={j} className="w-4 h-4 fill-warning text-warning" />)}
                   </div>
                 </div>
-              </motion.div>
-            ))}
+              </motion.div>)}
           </div>
         </div>
       </section>
@@ -427,12 +421,15 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-6">
             {/* Students */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="p-6 rounded-2xl border border-border bg-card shadow-card hover:shadow-elevated transition-all duration-300"
-            >
+            <motion.div initial={{
+            opacity: 0,
+            x: -30
+          }} whileInView={{
+            opacity: 1,
+            x: 0
+          }} viewport={{
+            once: true
+          }} className="p-6 rounded-2xl border border-border bg-card shadow-card hover:shadow-elevated transition-all duration-300">
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
                   <GraduationCap className="w-6 h-6 text-primary" />
@@ -440,29 +437,33 @@ export default function LandingPage() {
                 <h3 className="text-lg font-bold">{t.forStudentsTitle}</h3>
               </div>
               <ul className="space-y-3">
-                {t.forStudents.map((item, i) => (
-                  <motion.li 
-                    key={i} 
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-start gap-3 text-sm text-muted-foreground"
-                  >
+                {t.forStudents.map((item, i) => <motion.li key={i} initial={{
+                opacity: 0,
+                x: -20
+              }} whileInView={{
+                opacity: 1,
+                x: 0
+              }} viewport={{
+                once: true
+              }} transition={{
+                delay: i * 0.1
+              }} className="flex items-start gap-3 text-sm text-muted-foreground">
                     <CheckCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     {item}
-                  </motion.li>
-                ))}
+                  </motion.li>)}
               </ul>
             </motion.div>
 
             {/* Parents */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="p-6 rounded-2xl border border-border bg-card shadow-card hover:shadow-elevated transition-all duration-300"
-            >
+            <motion.div initial={{
+            opacity: 0,
+            x: 30
+          }} whileInView={{
+            opacity: 1,
+            x: 0
+          }} viewport={{
+            once: true
+          }} className="p-6 rounded-2xl border border-border bg-card shadow-card hover:shadow-elevated transition-all duration-300">
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center">
                   <Users className="w-6 h-6 text-accent" />
@@ -470,19 +471,20 @@ export default function LandingPage() {
                 <h3 className="text-lg font-bold">{t.forParentsTitle}</h3>
               </div>
               <ul className="space-y-3">
-                {t.forParents.map((item, i) => (
-                  <motion.li 
-                    key={i}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-start gap-3 text-sm text-muted-foreground"
-                  >
+                {t.forParents.map((item, i) => <motion.li key={i} initial={{
+                opacity: 0,
+                x: 20
+              }} whileInView={{
+                opacity: 1,
+                x: 0
+              }} viewport={{
+                once: true
+              }} transition={{
+                delay: i * 0.1
+              }} className="flex items-start gap-3 text-sm text-muted-foreground">
                     <CheckCircle className="w-5 h-5 text-accent shrink-0 mt-0.5" />
                     {item}
-                  </motion.li>
-                ))}
+                  </motion.li>)}
               </ul>
             </motion.div>
           </div>
@@ -492,21 +494,27 @@ export default function LandingPage() {
       {/* Product preview */}
       <section className="section">
         <div className="max-w-md mx-auto px-4">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 text-2xl"
-          >
+          <motion.h2 initial={{
+          opacity: 0,
+          y: 20
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true
+        }} className="text-center mb-8 text-2xl">
             {t.previewTitle}
           </motion.h2>
           
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-card rounded-3xl border border-border shadow-elevated overflow-hidden"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 30
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true
+        }} className="bg-card rounded-3xl border border-border shadow-elevated overflow-hidden">
             {/* Progress header */}
             <div className="p-6 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5">
               <div className="flex items-center justify-between mb-4">
@@ -514,13 +522,16 @@ export default function LandingPage() {
                 <span className="text-2xl font-bold text-primary">40%</span>
               </div>
               <div className="progress-track">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  whileInView={{ width: "40%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 0.3 }}
-                  className="progress-fill" 
-                />
+                <motion.div initial={{
+                width: 0
+              }} whileInView={{
+                width: "40%"
+              }} viewport={{
+                once: true
+              }} transition={{
+                duration: 1,
+                delay: 0.3
+              }} className="progress-fill" />
               </div>
               <div className="mt-4 pt-4 border-t border-border">
                 <span className="text-xs text-muted-foreground">{t.previewStage}</span>
@@ -534,35 +545,24 @@ export default function LandingPage() {
             <div className="p-5">
               <span className="text-xs font-medium text-muted-foreground mb-4 block">{t.previewSteps}</span>
               <div className="space-y-1">
-                {steps.map((step, i) => (
-                  <motion.div 
-                    key={i} 
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-muted/50 transition-colors"
-                  >
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all ${
-                      step.done 
-                        ? "bg-primary text-primary-foreground" 
-                        : step.current 
-                          ? "border-2 border-primary bg-primary/10 animate-pulse-glow" 
-                          : "border-2 border-border"
-                    }`}>
+                {steps.map((step, i) => <motion.div key={i} initial={{
+                opacity: 0,
+                x: -20
+              }} whileInView={{
+                opacity: 1,
+                x: 0
+              }} viewport={{
+                once: true
+              }} transition={{
+                delay: i * 0.1
+              }} className="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-muted/50 transition-colors">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all ${step.done ? "bg-primary text-primary-foreground" : step.current ? "border-2 border-primary bg-primary/10 animate-pulse-glow" : "border-2 border-border"}`}>
                       {step.done && <CheckCircle className="w-4 h-4" />}
                     </div>
-                    <span className={`text-sm ${
-                      step.done 
-                        ? "text-muted-foreground line-through" 
-                        : step.current 
-                          ? "text-foreground font-semibold" 
-                          : "text-muted-foreground"
-                    }`}>
+                    <span className={`text-sm ${step.done ? "text-muted-foreground line-through" : step.current ? "text-foreground font-semibold" : "text-muted-foreground"}`}>
                       {step.title}
                     </span>
-                  </motion.div>
-                ))}
+                  </motion.div>)}
               </div>
             </div>
           </motion.div>
@@ -572,17 +572,16 @@ export default function LandingPage() {
 
       {/* CTA */}
       <section className="section-tight">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-xl mx-auto px-4 text-center"
-        >
-          <Button
-            size="lg"
-            className="h-14 px-8 text-base font-semibold rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
-            onClick={() => navigate("/auth")}
-          >
+        <motion.div initial={{
+        opacity: 0,
+        y: 30
+      }} whileInView={{
+        opacity: 1,
+        y: 0
+      }} viewport={{
+        once: true
+      }} className="max-w-xl mx-auto px-4 text-center">
+          <Button size="lg" className="h-14 px-8 text-base font-semibold rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200" onClick={() => navigate("/auth")}>
             {t.cta}
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
@@ -596,6 +595,5 @@ export default function LandingPage() {
           <p className="text-xs text-muted-foreground/70 mt-2">© 2024 Qadam</p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 }
