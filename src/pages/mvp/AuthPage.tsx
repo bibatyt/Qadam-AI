@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
+import qadamLogo from "@/assets/qadam-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -161,17 +163,12 @@ const translations = {
 // Logo Component
 function QadamLogo({ size = 48 }: { size?: number }) {
   return (
-    <div 
-      className="rounded-2xl bg-primary flex items-center justify-center shadow-lg"
-      style={{ width: size, height: size }}
-    >
-      <span 
-        className="text-primary-foreground font-bold"
-        style={{ fontSize: size * 0.5 }}
-      >
-        Q
-      </span>
-    </div>
+    <img 
+      src={qadamLogo} 
+      alt="Qadam"
+      style={{ height: size, width: "auto" }}
+      className="object-contain"
+    />
   );
 }
 
@@ -179,8 +176,8 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, signIn, signUp } = useAuth();
-  const [language] = useState<Language>("ru");
-  const t = translations[language];
+  const { language } = useLanguage();
+  const t = translations[language as keyof typeof translations] || translations.en;
 
   const [userType, setUserType] = useState<UserType>(null);
   const [mode, setMode] = useState<AuthMode>("signup");
