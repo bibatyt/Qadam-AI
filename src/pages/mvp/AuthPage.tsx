@@ -384,10 +384,41 @@ export default function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        setLoading(false);
-        const sent = await sendVerificationCode();
-        if (sent) {
-          setStep("verification");
+        // Direct signup without email verification
+        const { error: signUpError } = await signUp(email, password, name);
+        if (signUpError) {
+          if (signUpError.message.includes("already registered")) {
+            toast.error(t.emailExists);
+          } else {
+            toast.error(signUpError.message);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Wait for auth to complete
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: { user: newUser } } = await supabase.auth.getUser();
+        
+        if (newUser && userType) {
+          await supabase.from('user_roles').upsert({
+            user_id: newUser.id,
+            role: userType
+          });
+
+          await supabase.from('profiles').upsert({
+            user_id: newUser.id,
+            name: name || 'Студент'
+          });
+        }
+        
+        toast.success(t.success);
+        
+        if (userType === "parent") {
+          navigate("/parent-dashboard", { replace: true });
+        } else {
+          navigate("/student-onboarding", { replace: true });
         }
       } else {
         const { error } = await signIn(email, password);
