@@ -7,6 +7,7 @@ import { toast } from "sonner";
 type Language = "ru" | "en" | "kk";
 const translations = {
   ru: {
+    badge: "AI-powered планирование",
     heroTitle: "Понятный путь к поступлению",
     heroSubtitle: "Пошаговый план для школьников 9–11 классов. AI создаёт персональный план поступления.",
     cta: "Создать мой план",
@@ -43,6 +44,7 @@ const translations = {
     feedbackError: "Ошибка при отправке"
   },
   en: {
+    badge: "AI-powered planning",
     heroTitle: "Clear path to university admission",
     heroSubtitle: "Step-by-step plan for high school students (grades 9-11). AI creates your personal admission plan.",
     cta: "Create my plan",
@@ -79,6 +81,7 @@ const translations = {
     feedbackError: "Error submitting feedback"
   },
   kk: {
+    badge: "AI-қуатты жоспарлау",
     heroTitle: "Түсудің түсінікті жолы",
     heroSubtitle: "9-11 сынып оқушыларына арналған қадамдық жоспар. AI жеке жоспарды құрады.",
     cta: "Жоспарымды құру",
@@ -332,7 +335,7 @@ export default function LandingPage() {
         <motion.div initial="initial" animate="animate" variants={stagger} className="max-w-3xl mx-auto text-center">
           <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
             <Star className="w-4 h-4 fill-primary" />
-            AI-powered планирование
+            {t.badge}
           </motion.div>
           <motion.h1 variants={fadeInUp} className="text-foreground mb-6 text-4xl md:text-5xl">
             {t.heroTitle}
