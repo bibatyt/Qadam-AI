@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import qadamLogo from "@/assets/qadam-logo.png";
+import { AppLanguageSwitcher } from "@/components/ui/AppLanguageSwitcher";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -435,13 +436,14 @@ export default function AuthPage() {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         {/* Header */}
-        <header className="h-14 flex items-center px-4">
+        <header className="h-14 flex items-center justify-between px-4">
           <button
             onClick={() => navigate("/")}
             className="p-2 -ml-2 rounded-xl hover:bg-muted transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </button>
+          <AppLanguageSwitcher />
         </header>
 
         <main className="flex-1 flex flex-col items-center justify-center p-6">
