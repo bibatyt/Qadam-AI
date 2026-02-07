@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,8 +86,8 @@ const translations = {
 export default function SettingsPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [language] = useState<Language>("ru");
-  const t = translations[language];
+  const { language } = useLanguage();
+  const t = translations[language as keyof typeof translations] || translations.en;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
