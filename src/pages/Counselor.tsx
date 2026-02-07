@@ -349,17 +349,25 @@ const Counselor = () => {
 
           {/* Messages */}
           <div className="space-y-4">
-            {messages.map((message) => (
+            {messages.map((message, index) => (
               <motion.div
                 key={message.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ 
+                  duration: 0.25, 
+                  delay: index === messages.length - 1 ? 0.05 : 0,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
                 className={cn(
                   "flex gap-3",
                   message.role === "user" ? "flex-row-reverse" : ""
                 )}
               >
-                <div
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.2 }}
                   className={cn(
                     "w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center",
                     message.role === "user"
@@ -370,36 +378,56 @@ const Counselor = () => {
                   {message.role === "user" ? (
                     <User className="w-5 h-5 text-muted-foreground" />
                   ) : (
-                    <Bot className="w-5 h-5 text-foreground" />
+                    <Bot className="w-5 h-5 text-primary-foreground" />
                   )}
-                </div>
-                <div
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: message.role === "user" ? 10 : -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.08, duration: 0.2 }}
                   className={cn(
                     "max-w-[80%] rounded-3xl px-5 py-4",
                     message.role === "user"
-                      ? "bg-primary text-foreground"
+                      ? "bg-primary text-primary-foreground"
                       : "bg-card border border-border"
                   )}
                 >
                   <p className="text-sm whitespace-pre-line leading-relaxed">{message.content}</p>
-                </div>
+                </motion.div>
               </motion.div>
             ))}
 
             {isLoading && (
               <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
                 className="flex gap-3"
               >
-                <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-foreground" />
-                </div>
+                <motion.div 
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center"
+                >
+                  <Bot className="w-5 h-5 text-primary-foreground" />
+                </motion.div>
                 <div className="bg-card rounded-3xl px-5 py-4 border border-border">
                   <div className="flex gap-1.5">
-                    <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" />
-                    <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
-                    <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
+                    <motion.span 
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{ duration: 0.5, repeat: Infinity, delay: 0 }}
+                      className="w-2 h-2 bg-muted-foreground/50 rounded-full" 
+                    />
+                    <motion.span 
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{ duration: 0.5, repeat: Infinity, delay: 0.15 }}
+                      className="w-2 h-2 bg-muted-foreground/50 rounded-full" 
+                    />
+                    <motion.span 
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{ duration: 0.5, repeat: Infinity, delay: 0.3 }}
+                      className="w-2 h-2 bg-muted-foreground/50 rounded-full" 
+                    />
                   </div>
                 </div>
               </motion.div>
