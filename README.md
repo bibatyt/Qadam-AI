@@ -1,7 +1,7 @@
 #Markdown
 # 🚀 Qadam AI — Your GPS for University Admissions
 
-![Qadam AI Header](https://qadam.com.kz/logo.png) > **Transforming confusion into clarity.** Qadam AI is an AI-driven educational platform designed for students in grades 9–11 to navigate the complex world of university admissions without falling for scams.
+**Transforming confusion into clarity.** Qadam AI is an AI-driven educational platform designed for students in grades 9–11 to navigate the complex world of university admissions without falling for scams.
 
 ---
 
@@ -44,7 +44,7 @@ To run the project locally:
 
 1. Clone the repo:
    ```bash
-   git clone [https://github.com/yourusername/qadam-ai.git](https://github.com/yourusername/qadam-ai.git)
+   git clone [https://github.com/yourusername/qadam-ai.git](https://github.com/bibatyt/qadam-ai.git)
 Install dependencies:
 
 Bash
@@ -63,6 +63,6 @@ npm run dev
 🤝 Contact & Demo
 Website: qadam.com.kz
 
-Project Lead: [Твое Имя/Ник]
+Project Lead: Beibarys
 
 Built with ❤️ for the future of education.
