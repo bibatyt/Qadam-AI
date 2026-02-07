@@ -128,6 +128,10 @@ const translations = {
     codeExpires: "Действителен 7 дней",
     progress: "Прогресс",
     settings: "Настройки",
+    completed: "Выполнено",
+    remaining: "Осталось",
+    greeting: "Привет!",
+    progressionSystem: "Система прогрессии",
   },
   kk: {
     title: "Qadam AI",
@@ -168,6 +172,10 @@ const translations = {
     codeExpires: "7 күн жарамды",
     progress: "Прогресс",
     settings: "Баптаулар",
+    completed: "Орындалды",
+    remaining: "Қалды",
+    greeting: "Сәлем!",
+    progressionSystem: "Прогрессия жүйесі",
   },
   en: {
     title: "Qadam AI",
@@ -208,6 +216,10 @@ const translations = {
     codeExpires: "Valid for 7 days",
     progress: "Progress",
     settings: "Settings",
+    completed: "Completed",
+    remaining: "Remaining",
+    greeting: "Hello!",
+    progressionSystem: "Progression System",
   },
 };
 
@@ -364,6 +376,12 @@ function StrategyCard({ pillars, language }: { pillars: StrategyPillar[]; langua
 function PhaseCard({ phase, language }: { phase: CurrentPhase; language: Language }) {
   const t = translations[language];
   
+  const phaseSubtitles = {
+    foundation: { ru: "Строим базу", en: "Building foundation", kk: "Негіз құру" },
+    differentiation: { ru: "Выделяемся", en: "Standing out", kk: "Ерекшелену" },
+    application: { ru: "Подаёмся", en: "Applying", kk: "Өтініш беру" },
+  };
+  
   return (
     <div className="space-y-3">
       <div className={cn(
@@ -377,9 +395,7 @@ function PhaseCard({ phase, language }: { phase: CurrentPhase; language: Languag
           <div>
             <p className="font-bold text-lg">{phase.phaseName}</p>
             <p className="text-sm text-white/80">
-              {phase.phase === "foundation" && (language === "ru" ? "Строим базу" : "Негіз құру")}
-              {phase.phase === "differentiation" && (language === "ru" ? "Выделяемся" : "Ерекшелену")}
-              {phase.phase === "application" && (language === "ru" ? "Подаёмся" : "Өтініш беру")}
+              {phaseSubtitles[phase.phase][language]}
             </p>
           </div>
         </div>
@@ -556,8 +572,8 @@ function TriggerCard({ trigger, language }: { trigger: NextTrigger; language: La
 export default function MyPath() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const [language, setLanguage] = useState<Language>("ru");
-  const t = translations[language];
+  const { language } = useLanguage();
+  const t = translations[language as Language] || translations.en;
 
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
@@ -860,7 +876,7 @@ export default function MyPath() {
       {/* Mobile Header */}
       <MobileHeader 
         userName={user?.email?.split("@")[0] || "User"}
-        greeting={language === "ru" ? `Привет! 👋` : `Сәлем! 👋`}
+        greeting={`${t.greeting} 👋`}
       />
 
       {/* Stats Bar */}
@@ -873,11 +889,11 @@ export default function MyPath() {
             </div>
             <div className="flex-1 text-center p-3 bg-muted/50 rounded-2xl">
               <p className="text-2xl font-bold text-foreground">{completedActions}</p>
-              <p className="text-xs text-muted-foreground">{language === "ru" ? "Выполнено" : "Орындалды"}</p>
+              <p className="text-xs text-muted-foreground">{t.completed}</p>
             </div>
             <div className="flex-1 text-center p-3 bg-muted/50 rounded-2xl">
               <p className="text-2xl font-bold text-foreground">{totalActions - completedActions}</p>
-              <p className="text-xs text-muted-foreground">{language === "ru" ? "Осталось" : "Қалды"}</p>
+              <p className="text-xs text-muted-foreground">{t.remaining}</p>
             </div>
           </div>
 
@@ -949,7 +965,7 @@ export default function MyPath() {
 
         {/* Step 7: Phase Progression System */}
         {user && (
-          <StepCard stepNumber={7} title={language === "ru" ? "Система прогрессии" : "Прогрессия жүйесі"} delay={0.7}>
+          <StepCard stepNumber={7} title={t.progressionSystem} delay={0.7}>
             <PhaseProgressionSystem 
               userId={user.id} 
               language={language} 
