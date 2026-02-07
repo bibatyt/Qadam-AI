@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNavigate } from "react-router-dom";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface MobileHeaderProps {
   userName?: string;
@@ -12,6 +13,30 @@ interface MobileHeaderProps {
   showMenu?: boolean;
 }
 
+const translations = {
+  ru: {
+    student: "Студент",
+    myPath: "Мой путь",
+    aiHelper: "AI Помощник",
+    universities: "Университеты",
+    settings: "Настройки",
+  },
+  en: {
+    student: "Student",
+    myPath: "My Path",
+    aiHelper: "AI Assistant",
+    universities: "Universities",
+    settings: "Settings",
+  },
+  kk: {
+    student: "Студент",
+    myPath: "Менің жолым",
+    aiHelper: "AI Көмекші",
+    universities: "Университеттер",
+    settings: "Баптаулар",
+  },
+};
+
 export function MobileHeader({ 
   userName = "User", 
   avatarUrl,
@@ -19,6 +44,8 @@ export function MobileHeader({
   showMenu = true 
 }: MobileHeaderProps) {
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = translations[language as keyof typeof translations] || translations.en;
   const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
@@ -40,7 +67,7 @@ export function MobileHeader({
                   </div>
                   <div>
                     <p className="font-bold text-foreground">{userName}</p>
-                    <p className="text-sm text-muted-foreground">Студент</p>
+                    <p className="text-sm text-muted-foreground">{t.student}</p>
                   </div>
                 </div>
                 
@@ -50,28 +77,28 @@ export function MobileHeader({
                     className="w-full justify-start rounded-xl"
                     onClick={() => navigate("/my-path")}
                   >
-                    📍 Мой путь
+                    📍 {t.myPath}
                   </Button>
                   <Button 
                     variant="ghost" 
                     className="w-full justify-start rounded-xl"
                     onClick={() => navigate("/counselor")}
                   >
-                    💬 AI Помощник
+                    💬 {t.aiHelper}
                   </Button>
                   <Button 
                     variant="ghost" 
                     className="w-full justify-start rounded-xl"
-                    onClick={() => navigate("/opportunities")}
+                    onClick={() => navigate("/universities")}
                   >
-                    🎓 Университеты
+                    🎓 {t.universities}
                   </Button>
                   <Button 
                     variant="ghost" 
                     className="w-full justify-start rounded-xl"
                     onClick={() => navigate("/settings")}
                   >
-                    ⚙️ Настройки
+                    ⚙️ {t.settings}
                   </Button>
                 </nav>
               </div>
