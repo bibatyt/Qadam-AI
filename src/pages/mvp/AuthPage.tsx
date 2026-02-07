@@ -481,7 +481,10 @@ export default function AuthPage() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => navigate("/student-onboarding")}
+                onClick={() => {
+                  setUserType("student");
+                  setStep("form");
+                }}
                 className="w-full p-5 bg-card border-2 border-border rounded-2xl flex items-center gap-4 hover:border-primary hover:bg-primary/5 transition-all"
               >
                 <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
