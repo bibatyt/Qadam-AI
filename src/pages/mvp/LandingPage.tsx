@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle, Users, GraduationCap, ClipboardList, BarChart3
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import qadamLogo from "@/assets/qadam-logo.png";
 type Language = "ru" | "en" | "kk";
 const translations = {
   ru: {
@@ -310,13 +311,15 @@ export default function LandingPage() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-5xl mx-auto px-4 h-16 flex justify-between items-center">
-          <motion.span initial={{
+          <motion.div initial={{
           opacity: 0,
           x: -20
         }} animate={{
           opacity: 1,
           x: 0
-        }} className="text-xl font-bold text-primary">Qadam</motion.span>
+        }} className="flex items-center">
+            <img src={qadamLogo} alt="Qadam" className="h-8 w-auto" />
+          </motion.div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 bg-muted rounded-full p-1">
               {(["ru", "en", "kk"] as Language[]).map(lang => <button key={lang} onClick={() => setLanguage(lang)} className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all duration-200 ${language === lang ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"}`}>
