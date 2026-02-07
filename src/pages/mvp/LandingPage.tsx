@@ -115,22 +115,56 @@ const translations = {
     feedbackError: "Жіберу қатесі"
   }
 };
-const reviews = [{
-  name: "Сырым",
-  role: "Студент",
-  text: "Честно, очень понятный, предельно дружелюбный UI, реально буду использовать его для целей поступления, топ!",
-  rating: 5
-}, {
-  name: "Владислав",
-  role: "Студент",
-  text: "Интерфейс крутой, все приятно, идея с планом вообще круто!",
-  rating: 5
-}, {
-  name: "Диляра",
-  role: "Родитель",
-  text: "В целом, интересное приложение. Очень понравилась функция AI. Даже не ожидала. Дает хорошие советы.",
-  rating: 5
-}];
+const reviews = {
+  ru: [{
+    name: "Сырым",
+    role: "Студент",
+    text: "Честно, очень понятный, предельно дружелюбный UI, реально буду использовать его для целей поступления, топ!",
+    rating: 5
+  }, {
+    name: "Владислав",
+    role: "Студент",
+    text: "Интерфейс крутой, все приятно, идея с планом вообще круто!",
+    rating: 5
+  }, {
+    name: "Диляра",
+    role: "Родитель",
+    text: "В целом, интересное приложение. Очень понравилась функция AI. Даже не ожидала. Дает хорошие советы.",
+    rating: 5
+  }],
+  en: [{
+    name: "Syrym",
+    role: "Student",
+    text: "Honestly, a very clear and extremely user-friendly UI. I'll definitely use it for my admissions process!",
+    rating: 5
+  }, {
+    name: "Vladislav",
+    role: "Student",
+    text: "The interface is great, everything feels smooth. The plan idea is really cool!",
+    rating: 5
+  }, {
+    name: "Dilyara",
+    role: "Parent",
+    text: "Overall, an interesting app. I really liked the AI feature. Didn't expect it. Gives great advice.",
+    rating: 5
+  }],
+  kk: [{
+    name: "Сырым",
+    role: "Студент",
+    text: "Шынымды айтсам, өте түсінікті, керемет ыңғайлы интерфейс. Түсу үшін міндетті түрде қолданамын!",
+    rating: 5
+  }, {
+    name: "Владислав",
+    role: "Студент",
+    text: "Интерфейс керемет, барлығы жағымды. Жоспар идеясы өте тамаша!",
+    rating: 5
+  }, {
+    name: "Диляра",
+    role: "Ата-ана",
+    text: "Жалпы, қызықты қолданба. AI функциясы өте ұнады. Күтпедім. Жақсы кеңестер береді.",
+    rating: 5
+  }]
+};
 const previewSteps = {
   ru: [{
     title: "Зарегистрироваться на IELTS",
@@ -389,7 +423,7 @@ export default function LandingPage() {
             {t.reviewsTitle}
           </motion.h2>
           <div className="grid md:grid-cols-3 gap-5">
-            {reviews.map((review, i) => <motion.div key={review.name} initial={{
+            {(reviews[language] || reviews.en).map((review, i) => <motion.div key={review.name} initial={{
             opacity: 0,
             y: 30
           }} whileInView={{
