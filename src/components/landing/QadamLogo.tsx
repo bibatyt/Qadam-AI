@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import qadamLogo from "@/assets/qadam-logo.png";
 
 interface QadamLogoProps {
   size?: number;
@@ -8,16 +9,16 @@ interface QadamLogoProps {
 
 export function QadamLogo({ size = 36, className = "", animated = false }: QadamLogoProps) {
   const LogoContent = () => (
-    <span
-      className={`text-primary font-bold ${className}`}
+    <img
+      src={qadamLogo}
+      alt="Qadam"
+      className={className}
       style={{
-        fontSize: `${size}px`,
-        fontFamily: 'system-ui, sans-serif',
-        lineHeight: 1
+        height: `${size}px`,
+        width: "auto",
+        objectFit: "contain"
       }}
-    >
-      Q
-    </span>
+    />
   );
 
   if (animated) {
