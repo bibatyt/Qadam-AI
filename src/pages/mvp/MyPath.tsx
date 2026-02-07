@@ -16,8 +16,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PhaseProgressionSystem } from "@/features/phases";
 import { MobileHeader } from "@/components/layout/MobileHeader";
+import { AppLanguageSwitcher } from "@/components/ui/AppLanguageSwitcher";
+import { useLanguage } from "@/hooks/useLanguage";
 
-type Language = "ru" | "kk";
+type Language = "ru" | "kk" | "en";
 
 interface AcademicSnapshot {
   gpa: string;
@@ -96,29 +98,19 @@ const translations = {
     createPath: "Начать с AI",
     startJourney: "Создай свою стратегию",
     stepByStep: "Qadam AI построит персональный план поступления",
-    
-    // Step 1
     goalTitle: "Цель",
     targetUni: "Целевой университет",
     major: "Специальность",
     cycle: "Цикл подачи",
     scholarship: "Стипендия",
-    
-    // Step 2
     strategyTitle: "Стратегия",
     pillars: "Ключевые направления",
-    
-    // Step 3
     phaseTitle: "Текущая фаза",
     foundation: "Фаза 1: Фундамент",
     differentiation: "Фаза 2: Дифференциация",
     application: "Фаза 3: Подача",
-    
-    // Step 4
     focusTitle: "Фокус месяца",
     whyMatters: "Почему это важно",
-    
-    // Step 5
     actionsTitle: "Ключевые действия",
     highImpact: "Обязательно для поступления",
     mediumImpact: "Усиливает профиль",
@@ -126,16 +118,10 @@ const translations = {
     whyNow: "Почему сейчас",
     deadline: "Дедлайн",
     markDone: "Выполнено",
-    
-    // Step 6
     metricTitle: "Метрика успеха",
     examples: "Примеры",
-    
-    // Step 7
     triggerTitle: "Следующий этап",
     unlocks: "Разблокирует",
-    
-    // Actions
     regenerate: "Обновить с AI",
     shareCode: "Код для родителя",
     codeCopied: "Код скопирован!",
@@ -152,29 +138,19 @@ const translations = {
     createPath: "AI-мен бастау",
     startJourney: "Стратегияңды құр",
     stepByStep: "Qadam AI жеке түсу жоспарын құрады",
-    
-    // Step 1
     goalTitle: "Мақсат",
     targetUni: "Мақсатты университет",
     major: "Мамандық",
     cycle: "Өтініш циклі",
     scholarship: "Стипендия",
-    
-    // Step 2
     strategyTitle: "Стратегия",
     pillars: "Негізгі бағыттар",
-    
-    // Step 3
     phaseTitle: "Ағымдағы фаза",
     foundation: "Фаза 1: Негіз",
     differentiation: "Фаза 2: Дифференциация",
     application: "Фаза 3: Өтініш",
-    
-    // Step 4
     focusTitle: "Ай фокусы",
     whyMatters: "Неге маңызды",
-    
-    // Step 5
     actionsTitle: "Негізгі әрекеттер",
     highImpact: "Түсу үшін міндетті",
     mediumImpact: "Профильді күшейтеді",
@@ -182,22 +158,56 @@ const translations = {
     whyNow: "Неге қазір",
     deadline: "Дедлайн",
     markDone: "Орындалды",
-    
-    // Step 6
     metricTitle: "Табыс метрикасы",
     examples: "Мысалдар",
-    
-    // Step 7
     triggerTitle: "Келесі кезең",
     unlocks: "Ашады",
-    
-    // Actions
     regenerate: "AI-мен жаңарту",
     shareCode: "Ата-анаға код",
     codeCopied: "Код көшірілді!",
     codeExpires: "7 күн жарамды",
     progress: "Прогресс",
     settings: "Баптаулар",
+  },
+  en: {
+    title: "Qadam AI",
+    subtitle: "Your admission strategist",
+    loading: "Loading...",
+    generating: "AI is creating strategy...",
+    noPath: "Strategy not created yet",
+    createPath: "Start with AI",
+    startJourney: "Create your strategy",
+    stepByStep: "Qadam AI will build a personalized admission plan",
+    goalTitle: "Goal",
+    targetUni: "Target university",
+    major: "Major",
+    cycle: "Application cycle",
+    scholarship: "Scholarship",
+    strategyTitle: "Strategy",
+    pillars: "Key pillars",
+    phaseTitle: "Current phase",
+    foundation: "Phase 1: Foundation",
+    differentiation: "Phase 2: Differentiation",
+    application: "Phase 3: Application",
+    focusTitle: "This month's focus",
+    whyMatters: "Why it matters",
+    actionsTitle: "Key actions",
+    highImpact: "Required for admission",
+    mediumImpact: "Strengthens profile",
+    lowImpact: "Optional",
+    whyNow: "Why now",
+    deadline: "Deadline",
+    markDone: "Done",
+    metricTitle: "Success metric",
+    examples: "Examples",
+    triggerTitle: "Next stage",
+    unlocks: "Unlocks",
+    regenerate: "Update with AI",
+    shareCode: "Parent code",
+    codeCopied: "Code copied!",
+    codeExpires: "Valid for 7 days",
+    progress: "Progress",
+    settings: "Settings",
   },
 };
 
@@ -223,42 +233,6 @@ const phaseIcons = {
   differentiation: <Flame className="w-6 h-6" />,
   application: <GraduationCap className="w-6 h-6" />,
 };
-
-// Language Switcher Component - Updated with new palette
-function LanguageSwitcher({ 
-  language, 
-  onLanguageChange 
-}: { 
-  language: Language; 
-  onLanguageChange: (lang: Language) => void;
-}) {
-  return (
-    <div className="flex items-center gap-1 bg-muted rounded-full p-1">
-      <button
-        onClick={() => onLanguageChange("ru")}
-        className={cn(
-          "px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200",
-          language === "ru"
-            ? "bg-primary text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
-        )}
-      >
-        RU
-      </button>
-      <button
-        onClick={() => onLanguageChange("kk")}
-        className={cn(
-          "px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200",
-          language === "kk"
-            ? "bg-primary text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
-        )}
-      >
-        KZ
-      </button>
-    </div>
-  );
-}
 
 // Step Card Component - Updated with new rounded design
 function StepCard({ 
@@ -819,7 +793,7 @@ export default function MyPath() {
         <header className="bg-card border-b border-border">
           <div className="max-w-lg mx-auto px-4 h-16 flex items-center justify-between">
             <h1 className="text-xl font-bold text-foreground">{t.title}</h1>
-            <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
+            <AppLanguageSwitcher />
           </div>
         </header>
         
@@ -919,7 +893,7 @@ export default function MyPath() {
             </div>
             <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
               <span>{pathData.currentPhase?.phaseName}</span>
-              <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
+              <AppLanguageSwitcher />
             </div>
           </div>
         </div>

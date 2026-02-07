@@ -11,7 +11,7 @@ import { getAdaptivePhaseDefinitions } from "./getAdaptivePhases";
 import { AdmissionPhase, PhaseProgress, PhaseRequirement, PhaseSubmission } from "./types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-type Language = "ru" | "kk";
+type Language = "ru" | "kk" | "en";
 
 interface UserBaseline {
   targetCountry?: string;
@@ -98,6 +98,34 @@ const translations = {
     phaseUnlocked: "Жаңа фаза ашылды!",
     requirementApproved: "Талап орындалды!",
     requirementRejected: "Талап қабылданбады",
+  },
+  en: {
+    title: "Progression System",
+    locked: "Locked",
+    unlocked: "Unlocked",
+    completed: "Completed",
+    requirements: "Requirements",
+    submit: "Submit for review",
+    pending: "Pending",
+    approved: "Approved",
+    rejected: "Rejected",
+    cooldown: "Retry in",
+    hours: "h",
+    unlockConditions: "Unlock conditions",
+    verifying: "AI is verifying...",
+    submitProof: "Submit proof",
+    proofLink: "Proof link",
+    proofLinkHint: "Bluebook, Khan Academy, GitHub, Google Doc",
+    score: "Score",
+    description: "Description",
+    cancel: "Cancel",
+    sending: "Sending...",
+    successSubmit: "Submitted for AI review",
+    errorSubmit: "Submission error",
+    waitCooldown: "Please wait before resubmitting",
+    phaseUnlocked: "New phase unlocked!",
+    requirementApproved: "Requirement completed!",
+    requirementRejected: "Requirement rejected",
   },
 };
 
