@@ -325,6 +325,7 @@ export default function StudentOnboarding() {
   const [satScore, setSatScore] = useState("");
   const [gpa, setGpa] = useState("");
   const [specialty, setSpecialty] = useState("");
+  const [customSpecialty, setCustomSpecialty] = useState("");
   const [needScholarship, setNeedScholarship] = useState<boolean | null>(null);
 
   // Auth data
@@ -373,7 +374,7 @@ export default function StudentOnboarding() {
     if (step === 5) return !!targetYear;
     if (step === 6) return !!englishLevel;
     if (step === 7) return true; // Scores are optional
-    if (step === 8) return !!specialty;
+    if (step === 8) return !!specialty && (specialty !== 'other' || customSpecialty.trim().length >= 2);
     if (step === 9) return needScholarship !== null;
     if (step === 10) return name.trim().length >= 2 && email.trim().length > 0 && password.length >= 6;
     return false;
@@ -456,7 +457,7 @@ export default function StudentOnboarding() {
             entScore: entScore || null,
             satScore: satScore || null,
             gpa: gpa || null,
-            specialty,
+            specialty: specialty === 'other' ? customSpecialty : specialty,
             needScholarship,
             specificGoal,
             targetUniversity: specificGoal,
@@ -533,7 +534,7 @@ export default function StudentOnboarding() {
             entScore: entScore || null,
             satScore: satScore || null,
             gpa: gpa || null,
-            specialty,
+            specialty: specialty === 'other' ? customSpecialty : specialty,
             needScholarship,
             specificGoal,
             targetUniversity: specificGoal,
@@ -763,7 +764,7 @@ export default function StudentOnboarding() {
                     key={level.id} 
                     selected={englishLevel === level.id} 
                     onClick={() => setEnglishLevel(level.id)} 
-                    title={level.nameRu} 
+                    title={language === 'en' ? level.name : language === 'kk' ? level.nameKk : level.nameRu} 
                   />
                 ))}
               </div>
@@ -841,7 +842,10 @@ export default function StudentOnboarding() {
                       key={spec.id}
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => setSpecialty(spec.id)}
+                      onClick={() => {
+                        setSpecialty(spec.id);
+                        if (spec.id !== 'other') setCustomSpecialty('');
+                      }}
                       className={`p-4 rounded-2xl border-2 text-left transition-all ${
                         specialty === spec.id
                           ? "border-primary bg-primary/5"
@@ -850,11 +854,25 @@ export default function StudentOnboarding() {
                     >
                       <span className="text-2xl mb-2 block">{spec.icon}</span>
                       <span className={`text-sm font-medium ${specialty === spec.id ? "text-primary" : "text-foreground"}`}>
-                        {spec.nameRu}
+                        {language === 'en' ? spec.name : language === 'kk' ? spec.nameKk : spec.nameRu}
                       </span>
                     </motion.button>
                   ))}
                 </div>
+                {specialty === 'other' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="mt-3"
+                  >
+                    <Input
+                      placeholder={language === 'en' ? 'Enter your specialty...' : language === 'kk' ? 'Мамандығыңызды жазыңыз...' : 'Введите вашу специальность...'}
+                      value={customSpecialty}
+                      onChange={(e) => setCustomSpecialty(e.target.value)}
+                      className="h-12 rounded-xl"
+                    />
+                  </motion.div>
+                )}
               </div>
             )}
 
