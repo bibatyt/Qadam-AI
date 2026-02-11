@@ -59,18 +59,19 @@ export const universities: University[] = [
 ];
 
 export const specialties = [
-  { id: "cs", name: "Computer Science / IT", nameRu: "IT / Компьютеры", icon: "💻" },
-  { id: "engineering", name: "Engineering", nameRu: "Инженерия", icon: "⚙️" },
-  { id: "business", name: "Business / Management", nameRu: "Бизнес", icon: "📊" },
-  { id: "medicine", name: "Medicine", nameRu: "Медицина", icon: "🏥" },
-  { id: "law", name: "Law", nameRu: "Право", icon: "⚖️" },
-  { id: "economics", name: "Economics / Finance", nameRu: "Финансы", icon: "💰" },
-  { id: "arts", name: "Arts / Design", nameRu: "Дизайн", icon: "🎨" },
-  { id: "science", name: "Natural Sciences", nameRu: "Науки", icon: "🔬" },
+  { id: "cs", name: "Computer Science / IT", nameRu: "IT / Компьютеры", nameKk: "IT / Компьютерлер", icon: "💻" },
+  { id: "engineering", name: "Engineering", nameRu: "Инженерия", nameKk: "Инженерия", icon: "⚙️" },
+  { id: "business", name: "Business / Management", nameRu: "Бизнес", nameKk: "Бизнес", icon: "📊" },
+  { id: "medicine", name: "Medicine", nameRu: "Медицина", nameKk: "Медицина", icon: "🏥" },
+  { id: "law", name: "Law", nameRu: "Право", nameKk: "Құқық", icon: "⚖️" },
+  { id: "economics", name: "Economics / Finance", nameRu: "Финансы", nameKk: "Қаржы", icon: "💰" },
+  { id: "arts", name: "Arts / Design", nameRu: "Дизайн", nameKk: "Дизайн", icon: "🎨" },
+  { id: "science", name: "Natural Sciences", nameRu: "Науки", nameKk: "Ғылымдар", icon: "🔬" },
+  { id: "other", name: "Other", nameRu: "Другое", nameKk: "Басқа", icon: "✏️" },
 ];
 
 export const englishLevels = [
-  { id: "beginner", name: "Beginner", nameRu: "Начинающий (A1-A2)" },
-  { id: "intermediate", name: "Intermediate", nameRu: "Средний (B1-B2)" },
-  { id: "advanced", name: "Advanced", nameRu: "Продвинутый (C1-C2)" },
+  { id: "beginner", name: "Beginner (A1-A2)", nameRu: "Начинающий (A1-A2)", nameKk: "Бастауыш (A1-A2)" },
+  { id: "intermediate", name: "Intermediate (B1-B2)", nameRu: "Средний (B1-B2)", nameKk: "Орташа (B1-B2)" },
+  { id: "advanced", name: "Advanced (C1-C2)", nameRu: "Продвинутый (C1-C2)", nameKk: "Жоғары (C1-C2)" },
 ];
