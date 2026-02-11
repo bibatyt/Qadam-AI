@@ -1,10 +1,29 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, CheckCircle, Users, GraduationCap, ClipboardList, BarChart3, Quote, Star, Send, MessageSquare } from "lucide-react";
+import { ArrowRight, CheckCircle, Users, GraduationCap, ClipboardList, BarChart3, Quote, Star, Send, MessageSquare, ChevronLeft, ChevronRight, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import qadamLogo from "@/assets/qadam-logo.png";
+
+// Import screenshots
+import wizardImg from "@/assets/screenshots/wizard.png";
+import essayImg from "@/assets/screenshots/essay.png";
+import aiMentorImg from "@/assets/screenshots/ai-mentor.png";
+import pathImg from "@/assets/screenshots/path.png";
+import aiPlanImg from "@/assets/screenshots/ai-plan.png";
+import academicImg from "@/assets/screenshots/academic.png";
+import financialImg from "@/assets/screenshots/financial.png";
+
+const demoScreenshots = [
+  { id: "wizard", title: { ru: "Онбординг", en: "Onboarding", kk: "Онбординг" }, desc: { ru: "6 простых шагов", en: "6 easy steps", kk: "6 оңай қадам" }, image: wizardImg },
+  { id: "academic", title: { ru: "Академический профиль", en: "Academic Profile", kk: "Академиялық профиль" }, desc: { ru: "SAT, IELTS, GPA", en: "SAT, IELTS, GPA", kk: "SAT, IELTS, GPA" }, image: academicImg },
+  { id: "financial", title: { ru: "Финансы", en: "Financial Info", kk: "Қаржы" }, desc: { ru: "EFC калькуляция", en: "EFC calculation", kk: "EFC есептеу" }, image: financialImg },
+  { id: "aiPlan", title: { ru: "AI Анализ", en: "AI Analysis", kk: "AI Талдау" }, desc: { ru: "Персональный план", en: "Personal plan", kk: "Жеке жоспар" }, image: aiPlanImg },
+  { id: "path", title: { ru: "Мой Путь", en: "My Path", kk: "Менің жолым" }, desc: { ru: "Ваш путь к цели", en: "Your path to goal", kk: "Мақсатқа жол" }, image: pathImg },
+  { id: "essay", title: { ru: "Essay Engine", en: "Essay Engine", kk: "Essay Engine" }, desc: { ru: "Impact Score", en: "Impact Score", kk: "Impact Score" }, image: essayImg },
+  { id: "aiMentor", title: { ru: "AI Ментор", en: "AI Mentor", kk: "AI Тәлімгер" }, desc: { ru: "24/7 поддержка", en: "24/7 support", kk: "24/7 қолдау" }, image: aiMentorImg },
+];
 type Language = "ru" | "en" | "kk";
 const translations = {
   ru: {
@@ -243,6 +262,85 @@ const stagger = {
   }
 };
 
+// Demo Screenshots Section
+function DemoSection({ language }: { language: Language }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const goTo = (i: number) => setActiveIndex((i + demoScreenshots.length) % demoScreenshots.length);
+  const prev = (activeIndex - 1 + demoScreenshots.length) % demoScreenshots.length;
+  const next = (activeIndex + 1) % demoScreenshots.length;
+
+  const demoTitle = { ru: "Демо приложения", en: "App Demo", kk: "Қолданба демо" };
+  const demoSubtitle = { ru: "Реальные экраны — всё работает на телефоне", en: "Real screens — works on your phone", kk: "Нақты экрандар — телефонда жұмыс істейді" };
+
+  return (
+    <section className="py-16 px-4 bg-muted/30 overflow-hidden">
+      <div className="max-w-5xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-3">
+            <Smartphone className="w-4 h-4" />
+            {demoTitle[language]}
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            {language === "ru" ? "Реальный интерфейс" : language === "kk" ? "Нақты интерфейс" : "Real Interface"}
+          </h2>
+          <p className="text-muted-foreground text-sm">{demoSubtitle[language]}</p>
+        </motion.div>
+
+        <div className="relative flex items-center justify-center gap-2 sm:gap-6 min-h-[400px]">
+          <button onClick={() => goTo(activeIndex - 1)} className="z-10 p-2 rounded-full bg-background border border-border shadow-md hover:bg-muted transition-colors" aria-label="Previous">
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </button>
+
+          <div className="flex items-center gap-3 sm:gap-6">
+            {[prev, activeIndex, next].map((idx) => {
+              const isActive = idx === activeIndex;
+              return (
+                <motion.div
+                  key={demoScreenshots[idx].id + idx}
+                  animate={{ scale: isActive ? 1 : 0.82, opacity: isActive ? 1 : 0.45 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className={`cursor-pointer ${!isActive ? "hidden sm:block" : ""}`}
+                  style={{ width: isActive ? 220 : 180 }}
+                  onClick={() => setActiveIndex(idx)}
+                >
+                  <div className="relative rounded-[2.2rem] border-[5px] border-foreground/80 bg-foreground/5 shadow-2xl overflow-hidden">
+                    <div className="relative h-6 bg-foreground/90 flex items-center justify-center">
+                      <div className="w-16 h-3.5 bg-foreground rounded-b-xl" />
+                    </div>
+                    <div className="aspect-[9/19] overflow-hidden bg-background">
+                      <img src={demoScreenshots[idx].image} alt={demoScreenshots[idx].title[language]} className="w-full h-full object-cover object-top" loading="lazy" />
+                    </div>
+                    <div className="h-3.5 bg-foreground/5 flex items-center justify-center">
+                      <div className="w-20 h-1 bg-foreground/30 rounded-full" />
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          <button onClick={() => goTo(activeIndex + 1)} className="z-10 p-2 rounded-full bg-background border border-border shadow-md hover:bg-muted transition-colors" aria-label="Next">
+            <ChevronRight className="w-5 h-5 text-foreground" />
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div key={demoScreenshots[activeIndex].id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="text-center mt-5">
+            <h3 className="text-base font-bold text-foreground">{demoScreenshots[activeIndex].title[language]}</h3>
+            <p className="text-sm text-muted-foreground">{demoScreenshots[activeIndex].desc[language]}</p>
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="flex justify-center gap-2 mt-4">
+          {demoScreenshots.map((_, i) => (
+            <button key={i} onClick={() => setActiveIndex(i)} className={`w-2 h-2 rounded-full transition-all ${i === activeIndex ? "bg-primary w-6" : "bg-muted-foreground/30"}`} aria-label={`Slide ${i + 1}`} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // Feedback Section Component - Embedded Typeform
 function FeedbackSection({
   language,
@@ -354,6 +452,9 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
       </section>
+
+      {/* Demo Screenshots */}
+      <DemoSection language={language} />
 
       {/* How it works */}
       <section className="section-tight bg-gradient-to-b from-secondary/50 to-background">
