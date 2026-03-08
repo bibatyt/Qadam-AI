@@ -6,7 +6,7 @@
 ---
 
 ## 📈 Current Traction
-🔥 **1,100+ Unique Visitors** and counting! 
+🔥 **7,100+ Unique Visitors** and counting! 
 We are seeing rapid growth as students seek a reliable, AI-driven alternative to expensive education agencies.
 
 ---
