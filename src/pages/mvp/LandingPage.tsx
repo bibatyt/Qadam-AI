@@ -453,8 +453,7 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* Demo Screenshots */}
-      <DemoSection language={language} />
+      {/* Demo Screenshots - temporarily disabled */}
 
       {/* How it works */}
       <section className="section-tight bg-gradient-to-b from-secondary/50 to-background">
